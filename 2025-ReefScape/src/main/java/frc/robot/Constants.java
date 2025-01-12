@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.swerve.SwerveModuleIOSim;
+import frc.robot.subsystems.swerve.SwerveModuleIOSparkMax;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -25,8 +27,27 @@ public final class Constants {
 
     // MODIFY THIS WHEN SWITCHING BETWEEN CHASSIS
     // THIS IS THE FIRST THING YOU SHOULD THINK ABOUT/SEE!!!
-    public final static RobotType currentRobot = RobotType.ROBOT_2024_SIMULATION;
+    public final static RobotType currentRobot = RobotType.ROBOT_2023_IAP_SLOTH;
 
+    public static final class SwerveModuleIOConfig{
+        static SwerveModuleIOSparkMax module0 = new SwerveModuleIOSparkMax(//front left
+                0, 1,2,9,-62.51,false);
+                //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
+        static SwerveModuleIOSparkMax module1 = new SwerveModuleIOSparkMax(//front right
+                1, 3,4,10,-179.82,true);
+                //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
+        static SwerveModuleIOSparkMax module2 = new SwerveModuleIOSparkMax(//back left
+                2, 5,6,11,108.11,false);
+                //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
+        static SwerveModuleIOSparkMax module3 = new SwerveModuleIOSparkMax(//back right
+                3, 7,8,12,82.62,true);
+                //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
+
+        static SwerveModuleIOSim simModule0 = new SwerveModuleIOSim(0);
+        static SwerveModuleIOSim simModule1 = new SwerveModuleIOSim(1);
+        static SwerveModuleIOSim simModule2 = new SwerveModuleIOSim(2);
+        static SwerveModuleIOSim simModule3 = new SwerveModuleIOSim(3);
+    }
 
     public static final class SwerveConstants {
         // These can be safely adjusted without adjusting discrete
