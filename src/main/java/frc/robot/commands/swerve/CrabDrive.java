@@ -4,13 +4,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.subsystems.swerve.SwerveDriveTrain;
 import frc.util.lib.AsymmetricLimiter;
 import frc.util.lib.ArcadeJoystickUtil;
 
 public class CrabDrive extends Command {
    // Initialize empty swerve object
-   private final SwerveDrive swerve;
+   private final SwerveDriveTrain swerve;
 
    // Create suppliers as object references
    private double x;
@@ -34,7 +34,7 @@ public class CrabDrive extends Command {
     * @param x               - the translational/x component of velocity 
     * @param y               - the strafe/y component of velocity
     */
-   public CrabDrive(SwerveDrive swerve, double x, double y) {
+   public CrabDrive(SwerveDriveTrain swerve, double x, double y) {
       this.swerve = swerve;
       // Blue Alliance by default for this testing command
       this.x = y;
@@ -52,7 +52,7 @@ public class CrabDrive extends Command {
       double yVal = MathUtil.applyDeadband(this.y, Constants.SwerveConstants.deadBand);
 
       double[] output = new double[2];
-      if (Constants.currentRobot.xboxEnabled) {
+      if (Constants.xboxEnabled) {
          output = joyUtil.regularGamePadControls(xVal, yVal, Constants.SwerveConstants.maxChassisTranslationalSpeed);
       } else {
          // Function to map joystick output to scaled polar coordinates

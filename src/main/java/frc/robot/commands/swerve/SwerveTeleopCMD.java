@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.subsystems.swerve.SwerveDriveTrain;
 import frc.util.lib.AsymmetricLimiter;
 import frc.util.lib.ArcadeJoystickUtil;
 import frc.robot.Robot;
@@ -14,24 +14,23 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 public class SwerveTeleopCMD extends Command {
    // Initialize empty swerveDriveTrain object
-   private final SwerveDrive swerveDriveTrain;
+   private final SwerveDriveTrain swerveDriveTrain;
    private final Joystick joystick;
    private boolean robotCentric = false;
 
 
     // Define axises for using joystick
-   private final int translationAxis = XboxController.Axis.kLeftY.value; // Axis ID: 1
-   private final int strafeAxis = XboxController.Axis.kLeftX.value; // Axis ID: 0
-   private final int rotationAxis = XboxController.Axis.kRightX.value; // Axis ID: 4
+   // private final int translationAxis = XboxController.Axis.kLeftY.value; // Axis ID: 1
+   // private final int strafeAxis = XboxController.Axis.kLeftX.value; // Axis ID: 0
+   // private final int rotationAxis = XboxController.Axis.kRightX.value; // Axis ID: 4
 
    private double robotSpeed = 2;
 
    private double xMult = 1.0;
    private double yMult = 1.0;
 
-   private final ArcadeJoystickUtil joyUtil;
+   private ArcadeJoystickUtil joyUtil = new ArcadeJoystickUtil();
 
-   public boolean setAlliance;
 
    // Slew rate limit controls
    // Positive limit ensures smooth acceleration (1000 * dt * dControl)
@@ -45,43 +44,24 @@ public class SwerveTeleopCMD extends Command {
    * @param swerve          - the Swerve subsystem
    * @param joy             - joystick controller
    */
-   public SwerveTeleopCMD(SwerveDrive swerve, Joystick joy, boolean setAlliance) {
+   public SwerveTeleopCMD(SwerveDriveTrain swerve, Joystick joy) {
       this.swerveDriveTrain = swerve;
-      this.setAlliance = setAlliance;
       this.joystick = joy;
-
-      this.joyUtil = new ArcadeJoystickUtil();
       this.addRequirements(swerve);
    }
 
    @Override
    public void execute() {
-      if (setAlliance) {
-         var alliance = Robot.getAlliance();
-         if (alliance.isPresent()) {
-            // If red alliance
-            if (alliance.get() == DriverStation.Alliance.Red) {
-               yMult = -1.0;
-               xMult = -1.0;
-            } else {
-               yMult = 1.0;
-               xMult = 1.0;
-            }
-         }
-      }
 
-      //double x = this.joystick.getRawAxis(translationAxis);
-      //double y = this.joystick.getRawAxis(strafeAxis);
-      //double rotation = -this.joystick.getRawAxis(rotationAxis);
-      double x = this.joystick.getRawAxis(XboxController.Axis.kLeftY.value);
-      double y = this.joystick.getRawAxis(XboxController.Axis.kLeftX.value);
+      double xVal = -this.joystick.getRawAxis(XboxController.Axis.kLeftY.value);
+      double yVal = -this.joystick.getRawAxis(XboxController.Axis.kLeftX.value);
       double rotation = -this.joystick.getRawAxis(XboxController.Axis.kRightX.value);
       double translationRightTrigger = this.joystick.getRawAxis(XboxController.Axis.kRightTrigger.value);
       //this.robotCentric = this.joystick.getRawButtonPressed(XboxController.Button.kX.value);
 
       // Get values of controls and apply deadband
-      double xVal = -x; // Flip for XBox support
-      double yVal = y;
+      // double xVal = -x; // Flip for XBox support
+      // double yVal = y;
 
       double rightTriggerVal = Math.abs(translationRightTrigger);
 
@@ -90,7 +70,7 @@ public class SwerveTeleopCMD extends Command {
       }
 
       // Inverts the speed control, so that the user can slow down instead of speeding up
-      if (Constants.currentRobot.invertSpeedControl) {
+      if (Constants.invertSpeedControl) {
          rightTriggerVal = 1.0 - rightTriggerVal;
       }
 
@@ -102,7 +82,7 @@ public class SwerveTeleopCMD extends Command {
       // Apply rate limiting to rotation
       rotationVal = this.rotationLimiter.calculate(rotationVal);
 
-      double[] polarCoords = joyUtil.regularGamePadControls(-xVal, yVal, Constants.SwerveConstants.maxChassisTranslationalSpeed);
+      double[] polarCoords = joyUtil.regularGamePadControls(xVal, yVal, Constants.SwerveConstants.maxChassisTranslationalSpeed);
 
       double newHypot = robotSpeed*translationLimiter.calculate(polarCoords[0]);
 

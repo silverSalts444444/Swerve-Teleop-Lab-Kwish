@@ -4,12 +4,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.subsystems.swerve.SwerveDriveTrain;
 
 public class SwerveAutonomousCMD extends Command {
-    private final SwerveDrive swerveDriveTrain;
+    private final SwerveDriveTrain swerveDriveTrain;
 
-    public SwerveAutonomousCMD(SwerveDrive driveTrain, boolean setAlliance){
+    public SwerveAutonomousCMD(SwerveDriveTrain driveTrain, boolean setAlliance){
         this.swerveDriveTrain = driveTrain;
         this.addRequirements(this.swerveDriveTrain);
     }

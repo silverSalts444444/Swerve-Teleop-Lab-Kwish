@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.swerve.SwerveModuleIOSim;
 import frc.robot.subsystems.swerve.SwerveModuleIOSparkMax;
@@ -24,10 +25,13 @@ public final class Constants {
 
     // Checks if robot is real or not
     public static boolean isSim = Robot.isSimulation();
+    public static boolean enableSwerveMotorTelemetry = true;
+    public static boolean xboxEnabled = true;
+    public static boolean invertSpeedControl = false;
+    public static boolean allianceEnabled = false;
 
     // MODIFY THIS WHEN SWITCHING BETWEEN CHASSIS
     // THIS IS THE FIRST THING YOU SHOULD THINK ABOUT/SEE!!!
-    public final static RobotType currentRobot = RobotType.ROBOT_2023_IAP_SLOTH;
 
     public static final class SwerveModuleIOConfig{
         static SwerveModuleIOSparkMax module0 = new SwerveModuleIOSparkMax(//front left
@@ -42,11 +46,12 @@ public final class Constants {
         static SwerveModuleIOSparkMax module3 = new SwerveModuleIOSparkMax(//back right
                 3, 7,8,12,82.62,true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
-
-        static SwerveModuleIOSim simModule0 = new SwerveModuleIOSim(0);
-        static SwerveModuleIOSim simModule1 = new SwerveModuleIOSim(1);
-        static SwerveModuleIOSim simModule2 = new SwerveModuleIOSim(2);
-        static SwerveModuleIOSim simModule3 = new SwerveModuleIOSim(3);
+        
+        //fix simulation
+        // static SwerveModuleIOSim simModule0 = new SwerveModuleIOSim(0);
+        // static SwerveModuleIOSim simModule1 = new SwerveModuleIOSim(1);
+        // static SwerveModuleIOSim simModule2 = new SwerveModuleIOSim(2);
+        // static SwerveModuleIOSim simModule3 = new SwerveModuleIOSim(3);
     }
 
     public static final class SwerveConstants {
@@ -56,16 +61,23 @@ public final class Constants {
         public static final double maxChassisTranslationalSpeed = ModuleConstants.maxFreeWheelSpeedMeters; // Assuming L1 swerve
         public static final double maxWheelLinearVelocityMeters = ModuleConstants.maxFreeWheelSpeedMeters; // Assuming L1 swerve
         public static final double maxChassisAngularVelocity = Math.PI * 1.0;
+        
+        //distance between swerve modules on x and y axis
+        public static final double swerveModuleXdistance = Units.inchesToMeters(22); 
+        public static final double swerveModuleYdistance = Units.inchesToMeters(22); 
+        //public static final double trackWidthHypotenuse = Math.sqrt(Math.pow(trackWidthX, 2) + Math.pow(trackWidthY, 2));
 
-        public static final double trackWidthX = Units.inchesToMeters(27.5); // 27.5 inch
-        public static final double trackWidthY = Units.inchesToMeters(27.5); // 27.5 inch
-        public static final double trackWidthHypotenuse = Math.sqrt(Math.pow(trackWidthX, 2) + Math.pow(trackWidthY, 2));
+        public static final Translation2d[] translations = new Translation2d[] {
+            new Translation2d( swerveModuleXdistance / 2.0,  swerveModuleYdistance / 2.0),
+            new Translation2d( swerveModuleXdistance / 2.0, -swerveModuleYdistance / 2.0),
+            new Translation2d(-swerveModuleXdistance / 2.0,  swerveModuleYdistance / 2.0),
+            new Translation2d(-swerveModuleXdistance / 2.0, -swerveModuleYdistance / 2.0) };
 
         // Joystick deadband for no accidental movement
         public static final double deadBand = 0.05;
 
         // Wheels/gears should be facing inwards when calibrating the chassis
-        public static final boolean[] moduleInverts = {false, true, false, true};
+        //public static final boolean[] moduleInverts = {false, true, false, true};
     }
 
     public static final class ModuleConstants {
