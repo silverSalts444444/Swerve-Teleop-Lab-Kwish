@@ -5,12 +5,15 @@
 package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Rotations;
 
 import org.ironmaple.simulation.drivesims.SelfControlledSwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.ctre.phoenix6.hardware.CANcoder;
-
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -106,6 +109,11 @@ public class SwerveModuleIOSparkMax {
     }
 
     private void configCANCoder() {
+        CANcoderConfigurator cancoderConfigurator = canCoder.getConfigurator();
+        CANcoderConfiguration config = new CANcoderConfiguration();         
+        cancoderConfigurator.refresh(config.MagnetSensor);
+        cancoderConfigurator.apply(config.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(Rotations.of(1))
+                                                      .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
         //canCoder.configFactoryDefault();
 
         // Set position of encoder to absolute mode
