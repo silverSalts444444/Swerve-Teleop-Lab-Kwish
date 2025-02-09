@@ -38,7 +38,8 @@ public class RobotContainer {
   // private TestFourModules allFour;
   // private CrabDrive crabDrive;
 
-
+   // Auto Trajectories
+   private InitializeAutoPaths autoPaths;
 
   public RobotContainer() {
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
@@ -50,8 +51,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return serveAutoCMD;
-    
+    return autoPaths.getAutonomousCommand();
   }
 
   public void initCommandInTeleop() {
