@@ -92,6 +92,7 @@ public class SwerveModuleIOSparkMax {
         this.driveEncoder.setPosition(0);
        
         // Offsets the position of the CANCoder via an offset and initializes the turning encoder
+        // Offset better be in degrees
         this.turnEncoder.setPosition(getCancoderInDegrees() - this.offset);
         state.angle = Rotation2d.fromDegrees(getTurnPositionInDegrees());
 
