@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 
 
 public class RobotContainer {
@@ -22,7 +23,7 @@ public class RobotContainer {
 
   // Xbox + an additional one for PC use
   private final Joystick drivingXbox = new Joystick(0);
-  //private final SendableChooser<Command> autoCommandChooser = new SendableChooser<>();
+  private final XboxController xboxController = new XboxController(1);
 
   private SwerveDriveTrain swerveDriveTrain;
 
@@ -43,7 +44,7 @@ public class RobotContainer {
     Constants.SwerveModuleIOConfig.module1,
     Constants.SwerveModuleIOConfig.module2,
     Constants.SwerveModuleIOConfig.module3);
-
+    
     //Create swerve commands here
     swerveTeleopCMD = new SwerveTeleopCMD(this.swerveDriveTrain, this.drivingXbox);
     serveAutoCMD = new SwerveAutonomousCMD(this.swerveDriveTrain, Constants.allianceEnabled);

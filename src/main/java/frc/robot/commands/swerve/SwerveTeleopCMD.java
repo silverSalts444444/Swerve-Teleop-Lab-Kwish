@@ -16,7 +16,7 @@ public class SwerveTeleopCMD extends Command {
    private final Joystick joystick;
    private boolean robotCentric = false;
 
-   private double robotSpeed = 2;
+   private double robotSpeed = .8;
 
    private double xMult = 1.0;
    private double yMult = 1.0;
@@ -79,7 +79,6 @@ public class SwerveTeleopCMD extends Command {
       newHypot = MathUtil.applyDeadband(newHypot, Constants.SwerveConstants.deadBand);
 
       //Through magic we can convert the controller input into a vector that can be applied to the robot
-      //Someone should probably figure out what all this math is doing exactly
       double correctedX = rightTriggerVal * xMult * newHypot * Math.cos(polarCoords[1]);
       double correctedY =  rightTriggerVal * yMult * newHypot * Math.sin(polarCoords[1]);
 

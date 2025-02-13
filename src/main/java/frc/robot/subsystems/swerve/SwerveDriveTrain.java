@@ -49,7 +49,7 @@ public class SwerveDriveTrain extends SubsystemBase {
    private AHRS navx = new AHRS(NavXComType.kMXP_SPI);
 
    //Creates pdh
-   public PowerDistribution pdh = new PowerDistribution(0, PowerDistribution.ModuleType.kCTRE);
+   private PowerDistribution pdh = new PowerDistribution(Constants.PDH_can_id, PowerDistribution.ModuleType.kCTRE);
 
    // Create object representing swerve modules
    private SwerveModuleIOSparkMax[] moduleIO;
@@ -82,9 +82,9 @@ public class SwerveDriveTrain extends SubsystemBase {
     * simulation.
     * @author Aric Volman
     */
-   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BL, SwerveModuleIOSparkMax BR) {
+   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BR, SwerveModuleIOSparkMax BL) {
       // Assign modules to their object
-      this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BL, BR };
+      this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BR, BL};
 
       // Iterate through module positions and assign initial values
       modulePositions = SwerveUtil.setModulePositions(moduleIO);   
@@ -152,13 +152,15 @@ public class SwerveDriveTrain extends SubsystemBase {
     *                      control
     */
    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-
+  
       this.chassisSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, this.getRotation())
             : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
 
-            this.chassisSpeeds = SwerveUtil.discretize(this.chassisSpeeds, -4.0);
+      this.chassisSpeeds = SwerveUtil.discretize(this.chassisSpeeds, -4.0);
 
+      //Convert the robot vector into module states which is a vector for each module
+      //Explanation found here https://samliu.dev/blog/a-deep-dive-into-swerve#16d4e0ca3f0280b19d85cdb8b2adac83
       SwerveModuleState[] swerveModuleStates = this.kinematics.toSwerveModuleStates(this.chassisSpeeds);
 
       // MUST USE SECOND TYPE OF METHOD

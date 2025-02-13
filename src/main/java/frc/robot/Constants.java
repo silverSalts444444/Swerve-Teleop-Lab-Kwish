@@ -26,13 +26,13 @@ public final class Constants {
     public static boolean isSim = Robot.isSimulation();
     public static boolean enableSwerveMotorTelemetry = true;
     public static boolean xboxEnabled = true;
-    public static boolean invertSpeedControl = false;
+    public static boolean invertSpeedControl = true;
     public static boolean allianceEnabled = false;
 
     // MODIFY THIS WHEN SWITCHING BETWEEN CHASSIS
     // THIS IS THE FIRST THING YOU SHOULD THINK ABOUT/SEE!!!
 
-    private static final RobotType ROBOT_TYPE = RobotType.ROBOT_SIMULATION;
+    private static final RobotType ROBOT_TYPE = RobotType.ROBOT_2023_IAP_SLOTH;
 
     public static final class SwerveModuleIOConfig{
         // Drive can ids start at front left from 1 and are odd, then go clockwise
@@ -40,16 +40,16 @@ public final class Constants {
         // CANCoder ids start at front left from 10 and are sequential, then go clockwise
         // What about 9 you may ask? We need to reserve this since the new PDP usea that id
         static SwerveModuleIOSparkMax module0 = new SwerveModuleIOSparkMax(//front left
-                0, 1,2,10,ROBOT_TYPE.moduleAngleOffsets[0],false);
+                0, 1,2,9,ROBOT_TYPE.moduleAngleOffsets[0],false);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax module1 = new SwerveModuleIOSparkMax(//front right
-                1, 3,4,11,ROBOT_TYPE.moduleAngleOffsets[1],true);
+                1, 3,4,10,ROBOT_TYPE.moduleAngleOffsets[1],true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
-        static SwerveModuleIOSparkMax module2 = new SwerveModuleIOSparkMax(//back left
-                2, 5,6,12,ROBOT_TYPE.moduleAngleOffsets[2],false);
+        static SwerveModuleIOSparkMax module2 = new SwerveModuleIOSparkMax(//back right
+                2, 5,6,11,ROBOT_TYPE.moduleAngleOffsets[2],true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
-        static SwerveModuleIOSparkMax module3 = new SwerveModuleIOSparkMax(//back right
-                3, 7,8,13,ROBOT_TYPE.moduleAngleOffsets[3],true);
+        static SwerveModuleIOSparkMax module3 = new SwerveModuleIOSparkMax(//back left
+                3, 7,8,12,ROBOT_TYPE.moduleAngleOffsets[3],false);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
     }
 
@@ -69,8 +69,8 @@ public final class Constants {
         public static final Translation2d[] moduleLocations = new Translation2d[] {
             new Translation2d( swerveModuleXdistance / 2.0,  swerveModuleYdistance / 2.0),
             new Translation2d( swerveModuleXdistance / 2.0, -swerveModuleYdistance / 2.0),
-            new Translation2d(-swerveModuleXdistance / 2.0,  swerveModuleYdistance / 2.0),
-            new Translation2d(-swerveModuleXdistance / 2.0, -swerveModuleYdistance / 2.0) };
+            new Translation2d(-swerveModuleXdistance / 2.0, -swerveModuleYdistance / 2.0),
+            new Translation2d(-swerveModuleXdistance / 2.0,  swerveModuleYdistance / 2.0) };
 
         // Joystick deadband for no accidental movement
         public static final double deadBand = 0.05;
@@ -90,7 +90,7 @@ public final class Constants {
         public static final double wheelDiameterMeters = Units.inchesToMeters(4.0); // Assuming SDS module
         
         public static final double driveGearRatio = 8.14; // For SDS MK4i module
-        public static final double turnGearRatio = 150.0/7.0; // For SDS MK4i module
+        public static final double turnGearRatio = 150.0/7.0; // For SDS MK4i module 21.4285714
         public static final double CANCoderGearRatio = 1.0; // Direct measurement
 
         // Both of these measurements should be correct
@@ -100,6 +100,9 @@ public final class Constants {
         // In RPM
         public static final double drivingEncoderVelocityPositionFactor = ((Math.PI * wheelDiameterMeters) / driveGearRatio) / 60.0;
 
+        //Degrees per steering rotation for the angle motor
+        //This is saying one rotation of the angle motor is equal to 16.8 degrees
+        public static final double YAGSLturningEncoderPositionFactor = 360 / turnGearRatio;//16.806723;
         public static final double turningEncoderPositionFactor = (2 * Math.PI) / turnGearRatio; // radians
         public static final double turningEncoderVelocityFactor = (2 * Math.PI) / turnGearRatio / 60.0; // radians per second
 
@@ -134,5 +137,7 @@ public final class Constants {
         public static final double turnkI = 0.0;
         public static final double turnkD = 0.0;    
     }
+
+    public static final int PDH_can_id = 15;
 
 }

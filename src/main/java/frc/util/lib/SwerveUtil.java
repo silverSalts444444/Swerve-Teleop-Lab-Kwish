@@ -159,4 +159,14 @@ public class SwerveUtil {
         }
     }
 
+    public static SwerveModuleState optimize(SwerveModuleState targetState, Rotation2d currentAngle) {
+        SwerveModuleState optimizedState = new SwerveModuleState(targetState.speedMetersPerSecond, targetState.angle);
+        Rotation2d delta = targetState.angle.minus(currentAngle);
+        if (Math.abs(delta.getDegrees()) > 90.0) {
+            optimizedState.speedMetersPerSecond *= -1;
+            optimizedState.angle = targetState.angle.rotateBy(Rotation2d.kPi);
+        }
+        return optimizedState;
+    }
+
 }
