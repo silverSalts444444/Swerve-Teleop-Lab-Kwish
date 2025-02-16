@@ -9,7 +9,7 @@ import frc.robot.subsystems.swerve.SwerveDriveTrain;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-
+import frc.robot.InitializeAutoPaths;
 
 public class RobotContainer {
 
@@ -17,7 +17,7 @@ public class RobotContainer {
 
   // Defines starting pose of robot
   // TODO - Please remove this in future if developing for AprilTags
-  Pose2d startpose = new Pose2d(new Translation2d(0, 0), new Rotation2d());
+  Pose2d startpose = new Pose2d(new Translation2d(2, 6), new Rotation2d());
   // add start pose if needed
   // ---------------------- END OF CONFIG SECTION --------------------------
 
@@ -44,10 +44,15 @@ public class RobotContainer {
   public RobotContainer() {
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
     this.configureBindings();
+    this.configureAuto(); // make sure to call after swerve is configured
   }
 
 
   private void configureBindings() {
+  }
+
+  private void configureAuto(){
+    autoPaths = new InitializeAutoPaths(this.swerveDriveTrain);
   }
 
   public Command getAutonomousCommand() {
