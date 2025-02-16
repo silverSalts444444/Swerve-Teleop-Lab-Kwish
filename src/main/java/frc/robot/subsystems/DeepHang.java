@@ -48,10 +48,11 @@ public class DeepHang extends SubsystemBase {
 
   public DeepHang() {
 
-    imu = new AHRS(NavXComType.kMXP_SPI);
+    //imu = new AHRS(NavXComType.kMXP_SPI);
 
-    deepHang = new SparkMax(30, MotorType.kBrushless); //CANID = 22
-    hangEncoder = deepHang.getEncoder(); //relative encoder
+    deepHang = new SparkMax(30, MotorType.kBrushless);
+    hangEncoder = deepHang.getEncoder();
+    hangEncoder.setPosition(0);
 
     SparkMaxConfig config = new SparkMaxConfig();
 
@@ -137,6 +138,7 @@ public class DeepHang extends SubsystemBase {
     SmartDashboard.putNumber("Tilt",
     Math.sqrt(Math.pow(imu.getPitch(), 2) + Math.pow(imu.getRoll(), 2)));
 
+    SmartDashboard.putNumber("Encoder Position", hangEncoder.getPosition()); //in rotations
     setPointChooser.addOption("0.0", 0.0);
     setPointChooser.addOption("0.1", 0.1);
     setPointChooser.addOption("0.2", 0.2);
@@ -145,6 +147,7 @@ public class DeepHang extends SubsystemBase {
     setPointChooser.addOption("0.5", 0.5);
 
     SmartDashboard.putData("Set Points", setPointChooser); 
+    
   }
 
   public void resetEncoder() {

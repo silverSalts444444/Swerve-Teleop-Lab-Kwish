@@ -1,7 +1,6 @@
-
 package frc.robot.subsystems;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-//import for SparkMax
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SoftLimitConfig;
@@ -13,28 +12,13 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 
 import java.util.function.DoubleSupplier;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
-//import for PID controller
 import com.revrobotics.spark.SparkClosedLoopController;
-// import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-// import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkLimitSwitch;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.XboxController;
-// import edu.wpi.first.wpilibj.motorcontrol.Spark;
-// import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants;
 import frc.robot.subsystems.Elevator;
-
-
-
 
 public class Elevator extends SubsystemBase {
   final SparkMax motorE = new SparkMax(25, MotorType.kBrushless);
@@ -44,6 +28,8 @@ public class Elevator extends SubsystemBase {
 
   double input;
   double currentPos;
+
+  double setpoint;
   
   double axleD = 0.125;
   double distance = 10;
@@ -53,18 +39,22 @@ public class Elevator extends SubsystemBase {
   double min = 0;
   public SparkLimitSwitch upperLimit;
   public SparkLimitSwitch lowerLimit;
-  Constants.ElevatorConstants elevConstants;
   DoubleSupplier rightJoyY;
   
-  /** Creates a new ClimbTeleop. */
+  /** Creates a new Elevator. */
   public Elevator(DoubleSupplier rightJoyY) {
+    setpoint = 0;
     this.rightJoyY = rightJoyY;
     double topSoftLimit = 15;
     SparkMaxConfig config = new SparkMaxConfig();
     this.PIDController = motorE.getClosedLoopController();
     this.rel_encoder = motorE.getEncoder();
-    
-    config.closedLoop.pidf(elevConstants.P, 0, 0, 0);
+    rel_encoder.setPosition(0);
+    config.closedLoop.pidf(.01, //p
+                           0, //i
+                           0, //d
+                           .001);//f
+    LimitSwitchConfig limitSwithConfig = new LimitSwitchConfig();
     
     
     SoftLimitConfig softLimitConfig = new SoftLimitConfig();
@@ -83,7 +73,6 @@ public class Elevator extends SubsystemBase {
 
     //applies the soft limit configuration to the motor controller
     config.apply(softLimitConfig);
-    // config.apply(limitSwithConfig);
 
     motorE.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -96,8 +85,6 @@ public class Elevator extends SubsystemBase {
     public Command stopElevator() {
         return this.runOnce(() -> {
           motorE.set(0);
-          //When stopping the motors, we want to use PIDF to maintain its height
-          PIDController.setReference(rel_encoder.getPosition(), SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, elevConstants.FF);
         });
         
     }
@@ -114,17 +101,23 @@ public class Elevator extends SubsystemBase {
   //   });
   // }
   
-  
-  
   // Called when the command is initially scheduled.
   @Override
   public void periodic(){
-  
+    //input = rightJoyY.getAsDouble();
+    SmartDashboard.putNumber("setpoint", setpoint);
     currentPos = rel_encoder.getPosition();     
-    SmartDashboard.putNumber("Current position in ticks",currentPos);
-    SmartDashboard.putNumber("CurrentPos", rel_encoder.getPosition());
+    SmartDashboard.putNumber("Current position in rotations",currentPos);
+
+    //PIDController.setReference(1, SparkMax.ControlType.kPosition);
   }
 
+  public Command setHeightL1() {
+    return this.runOnce(() -> {
+      this.setpoint = 10;
+      this.PIDController.setReference(setpoint, SparkMax.ControlType.kPosition);
+    });
+  }
 
     public Command moveElevatorUp() {
       return this.run(()->{
@@ -133,8 +126,8 @@ public class Elevator extends SubsystemBase {
             // System.out.println(input + " UP");
             motorE.set(input * 0.3);
           }
-        });
-    }
+      });
+  }
 
     public Command moveElevatorDown() {
       return this.run(()->{
@@ -157,16 +150,11 @@ public class Elevator extends SubsystemBase {
     });
   }
 
-  // public boolean isFWDPressed(){
-  //   return upperLimit.isPressed();
-  // }
+  public boolean isFWDPressed() {
+    return upperLimit.isPressed();
+  }
 
-  // public boolean isREVPressed(){
-  //   return lowerLimit.isPressed();
-  // }
-
-  
-  //SmartDashboard.putBoolean("Forward limit switch value", motorE.getSensorCollection().isFwdLimitSwitchClosed());
-  //SmartDashboard.putBoolean("Reverse limit switch value", motorE.getSensorCollection().isRevLimitSwitchClosed());   
-
+  public boolean isREVPressed() {
+    return lowerLimit.isPressed();
+  }
 }

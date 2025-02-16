@@ -162,10 +162,9 @@ public class SwerveModuleIOSparkMax {
         config.closedLoop.positionWrappingInputRange(0, 1);
         config.idleMode(IdleMode.kBrake);
         config.smartCurrentLimit(ModuleConstants.driveCurrentLimit);
-        config.closedLoop.pidf(ModuleConstants.turnkP,
+        config.closedLoop.pid(ModuleConstants.turnkP,
                                ModuleConstants.turnkI,
-                               ModuleConstants.turnkP,
-                               0);
+                               ModuleConstants.turnkP);
         config.closedLoop.outputRange(-1, 1);
         
         this.turnSparkMax.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

@@ -36,7 +36,7 @@ public enum RobotType {
     public double[] moduleAngleOffsets;
 
     private RobotType(double[] offsets) {
-            this.moduleAngleOffsets = offsets;
+        this.moduleAngleOffsets = offsets;
     }
 
 }
