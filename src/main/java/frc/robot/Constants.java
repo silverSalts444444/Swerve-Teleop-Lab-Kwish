@@ -35,16 +35,16 @@ public final class Constants {
 
     public static final class SwerveModuleIOConfig{
         static SwerveModuleIOSparkMax module0 = new SwerveModuleIOSparkMax(//front left
-                0, 1,2,9,-62.51,false);
+                0, 1,2,9,-12.21,false);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax module1 = new SwerveModuleIOSparkMax(//front right
-                1, 3,4,10,-179.82,true);
+                1, 3,4,10,-121.29,true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax module2 = new SwerveModuleIOSparkMax(//back left
-                2, 5,6,11,108.11,false);
+                2, 5,6,11,-40.97,true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax module3 = new SwerveModuleIOSparkMax(//back right
-                3, 7,8,12,82.62,true);
+                3, 7,8,12,-133.154,false);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         
         //fix simulation
@@ -70,8 +70,8 @@ public final class Constants {
         public static final Translation2d[] translations = new Translation2d[] {
             new Translation2d( swerveModuleXdistance / 2.0,  swerveModuleYdistance / 2.0),
             new Translation2d( swerveModuleXdistance / 2.0, -swerveModuleYdistance / 2.0),
-            new Translation2d(-swerveModuleXdistance / 2.0,  swerveModuleYdistance / 2.0),
-            new Translation2d(-swerveModuleXdistance / 2.0, -swerveModuleYdistance / 2.0) };
+            new Translation2d(-swerveModuleXdistance / 2.0, -swerveModuleYdistance / 2.0),
+            new Translation2d(-swerveModuleXdistance / 2.0, swerveModuleYdistance / 2.0) };
 
         // Joystick deadband for no accidental movement
         public static final double deadBand = 0.05;
