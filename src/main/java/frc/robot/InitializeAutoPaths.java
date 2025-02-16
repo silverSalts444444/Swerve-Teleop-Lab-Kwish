@@ -75,7 +75,7 @@ public class InitializeAutoPaths {
           testPath = new TestPath(this.swerve);
           testCase215 = new TestCase215(this.swerve);
           iyerCase = new IyerTCase(this.swerve);
-          autoCommandChooser.addOption("Test Path", testPath);
+          autoCommandChooser.setDefaultOption("Test Path", testPath);
           autoCommandChooser.addOption("Test Case 215", testCase215);
           autoCommandChooser.addOption("IyerT Case", iyerCase);
           SmartDashboard.putData(autoCommandChooser);

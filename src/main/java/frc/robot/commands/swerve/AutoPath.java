@@ -2,6 +2,7 @@
 // Copyright (c) FIRST and other WPILib contributors.
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.json.simple.parser.ParseException;
 
@@ -53,9 +54,12 @@ public class AutoPath extends SequentialCommandGroup {
     addCommands(swerveAuto.beforeStarting(() -> {
      // Need to initialize the starting pose in here
       //Possible ways to get the start pose of the path
-      path.getStartingHolonomicPose();
+      Optional<Pose2d> optionalPose2d = path.getStartingHolonomicPose();
+        if (optionalPose2d.isPresent()) {
+          swerve.resetPose(optionalPose2d.get());
+        }
       if(firstPath == true){
-        swerve.resetPose(path.getStartingDifferentialPose());
+        
       }
       else {
         //we want to do nothing if it's not the first path that's being used

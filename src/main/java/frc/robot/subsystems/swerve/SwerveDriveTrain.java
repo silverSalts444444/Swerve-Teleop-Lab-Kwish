@@ -168,9 +168,9 @@ public class SwerveDriveTrain extends SubsystemBase {
 
       // MUST USE SECOND TYPE OF METHOD
       SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, speeds,
-            Constants.SwerveConstants.maxWheelLinearVelocityMeters,
-            Constants.SwerveConstants.maxChassisTranslationalSpeed,
-            Constants.SwerveConstants.maxChassisAngularVelocity);
+            Constants.SwerveConstants.maxWheelLinearVelocityMeters * .2,
+            Constants.SwerveConstants.maxChassisTranslationalSpeed * .2,
+            Constants.SwerveConstants.maxChassisAngularVelocity * .2);
 
       for (int i = 0; i < swerveModuleStates.length; i++) {
          this.moduleIO[i].setDesiredState(swerveModuleStates[i]);
@@ -290,17 +290,11 @@ public class SwerveDriveTrain extends SubsystemBase {
     * Reset pose of robot to pose
     */
    public void resetPose(Pose2d pose) {
-      SmartDashboard.putNumber("Pose", pose.getX());
+      System.out.println("resetPose");
+      SmartDashboard.putNumber("Posex", pose.getX());
+      SmartDashboard.putNumber("Posey", pose.getY());
       poseEstimator.resetPosition(pose.getRotation(), modulePositions, pose);
       offsetNavx = pose.getRotation().minus(navx.getRotation2d());
-
-      ShuffleboardTab tab = Shuffleboard.getTab("Heading Testing");
-      Shuffleboard.selectTab("Heading Testing");
-      SmartDashboard.putNumber("offsetNavx", offsetNavx.getDegrees());
-      SmartDashboard.putNumber("pose.getRotation()", pose.getRotation().getDegrees());
-      SmartDashboard.putNumber("navx.getRotation2d", navx.getRotation2d().getDegrees());
-      
-
    }
 
    /**

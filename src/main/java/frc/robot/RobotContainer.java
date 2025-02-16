@@ -17,7 +17,7 @@ public class RobotContainer {
 
   // Defines starting pose of robot
   // TODO - Please remove this in future if developing for AprilTags
-  Pose2d startpose = new Pose2d(new Translation2d(2, 6), new Rotation2d());
+  Pose2d startpose = new Pose2d(new Translation2d(1.8, 6), new Rotation2d());
   // add start pose if needed
   // ---------------------- END OF CONFIG SECTION --------------------------
 

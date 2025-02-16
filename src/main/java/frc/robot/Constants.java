@@ -35,10 +35,10 @@ public final class Constants {
 
     public static final class SwerveModuleIOConfig{
         static SwerveModuleIOSparkMax module0 = new SwerveModuleIOSparkMax(//front left
-                0, 1,2,9,-12.21,false);
+                0, 1,2,9,-62.51,false);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax module1 = new SwerveModuleIOSparkMax(//front right
-                1, 3,4,10,-121.29,true);
+                1, 3,4,10,-179.82,true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax module2 = new SwerveModuleIOSparkMax(//back left
                 2, 5,6,11,82.62,true);
