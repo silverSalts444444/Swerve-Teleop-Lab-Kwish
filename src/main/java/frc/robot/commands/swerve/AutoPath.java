@@ -51,15 +51,15 @@ public class AutoPath extends SequentialCommandGroup {
 
     // Setting voltage to 0 is necessary in order to stop robot
     addCommands(swerveAuto.beforeStarting(() -> {
-      //Need to initialize the starting pose in here
-      // Possible ways to get the start pose of the path
-      // path.getStartingHolonomicPose()
-      // if(firstPath == true){
-      //   swerve.resetPose(path.getStartingDifferentialPose());
-      // }
-      // else {
-      //   //we want to do nothing if it's not the first path that's being used
-      // }
+     // Need to initialize the starting pose in here
+      //Possible ways to get the start pose of the path
+      path.getStartingHolonomicPose();
+      if(firstPath == true){
+        swerve.resetPose(path.getStartingDifferentialPose());
+      }
+      else {
+        //we want to do nothing if it's not the first path that's being used
+      }
     }).finallyDo(() -> {
       swerve.setModulesPositions(0, 0);
       swerve.setModuleVoltages(0, 0);
