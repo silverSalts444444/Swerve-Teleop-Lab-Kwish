@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -11,6 +12,8 @@ import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
+import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -47,8 +50,8 @@ public class DeepHang extends SubsystemBase {
 
     imu = new AHRS(NavXComType.kMXP_SPI);
 
-    deepHang = new SparkMax(22, MotorType.kBrushless); //CANID = 22
-    hangEncoder = deepHang.getEncoder();
+    deepHang = new SparkMax(30, MotorType.kBrushless); //CANID = 22
+    hangEncoder = deepHang.getEncoder(); //relative encoder
 
     SparkMaxConfig config = new SparkMaxConfig();
 
@@ -56,21 +59,28 @@ public class DeepHang extends SubsystemBase {
 
     config.idleMode(IdleMode.kBrake);
 
-    inductiveSensor = new DigitalInput(0); //proximity sensor
+    // inductiveSensor = new DigitalInput(0); //proximity sensor
 
     SoftLimitConfig softLimitConfig = new SoftLimitConfig();
+
+
+    // LimitSwitchConfig limitSwitchConfig = new LimitSwitchConfig();
+    // limitSwitchConfig.forwardLimitSwitchType(Type.kNormallyClosed);
+    // limitSwitchConfig.forwardLimitSwitchType(Type.kNormallyClosed);
+    // upperLimit = deepHang.getForwardLimitSwitch();
+    // lowerLimit = deepHang.getReverseLimitSwitch();
+
 
     softLimitConfig.forwardSoftLimitEnabled(true); //enables the forward soft limit
     softLimitConfig.reverseSoftLimitEnabled(true); //enables the reverse soft limit
 
-    softLimitConfig.forwardSoftLimit(0); //sets the forward soft limit to 0 rotations
-    softLimitConfig.reverseSoftLimit(20); //sets the reverse soft limit to 20 rotations
+    softLimitConfig.forwardSoftLimit(20); //sets the forward soft limit to 0 rotations
+    softLimitConfig.reverseSoftLimit(0); //sets the reverse soft limit to 20 rotations
 
-    upperLimit = deepHang.getForwardLimitSwitch();
-    lowerLimit = deepHang.getReverseLimitSwitch();
-
+  
     //applies the soft limit configuration to the motor controller
     config.apply(softLimitConfig);
+    // config.apply(limitSwitchConfig); //applies the limit switch config to the sparkmax config object
 
     //configures the motor controller with the specified configuration
     deepHang.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters); 
@@ -97,23 +107,23 @@ public class DeepHang extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
-    if(lowerLimit.isPressed()) {
-      setSpeed(0);
-    }
+    // if(lowerLimit.isPressed()) {
+    //   setSpeed(0);
+    // }
 
-    if(upperLimit.isPressed()) {
-      setSpeed(0);
-      resetEncoder(); //tells the encoder that the current position is the zero position
-    }
+    // if(upperLimit.isPressed()) {
+    //   setSpeed(0);
+    //   resetEncoder(); //tells the encoder that the current position is the zero position
+    // }
 
-    // SmartDashboard.putNumber("Encoder Position", hangEncoder.getPosition()); //in rotations
-    // SmartDashboard.putNumber("Encoder Velocity", hangEncoder.getVelocity()); //in rotations per second
+    SmartDashboard.putNumber("Encoder Position", hangEncoder.getPosition()); //in rotations
+    SmartDashboard.putNumber("Encoder Velocity", hangEncoder.getVelocity()); //in rotations per second
 
     SmartDashboard.putNumber("Linear Position", getLinearPosition()); //in inches
     SmartDashboard.putNumber("Linear Velocity", getLinearVelocity()); //in inches per second
 
-    // SmartDashboard.putNumber("Voltage", deepHang.getAppliedOutput()); //in volts
-    // SmartDashboard.putNumber("Current", (int) deepHang.getOutputCurrent()); //in amps
+    SmartDashboard.putNumber("Voltage", deepHang.getAppliedOutput()); //in volts
+    SmartDashboard.putNumber("Current", (int) deepHang.getOutputCurrent()); //in amps
 
     // returns true if the circut is closed -- when a metalic object is close to the sensor
     // SmartDashboard.putBoolean("Inductive Sensor", !inductiveSensor.get());
@@ -159,6 +169,8 @@ public class DeepHang extends SubsystemBase {
 
   public Command fwd() {
     return this.runOnce(() -> {
+      System.out.println("TESTING AGAIN");
+      deepHang.set(0.4);
       reverse = false;
       this.setSpeed(); //cw away from where the motor is facing (inward)
     });
@@ -166,6 +178,7 @@ public class DeepHang extends SubsystemBase {
 
   public Command rev() {
     return this.runOnce(() -> {
+      System.out.println("TESTING AGAIN 2");
       reverse = true;
       this.setSpeed(); //ccw away from where the motor is facing (inward)
     });
@@ -176,4 +189,12 @@ public class DeepHang extends SubsystemBase {
       this.setSpeed(0);
     });
   }
+
+   // public boolean isFWDLimitPressed(){
+  //   return upperLimit.isPressed();
+  // }
+
+  // public boolean isREVPLimitressed(){
+  //   return lowerLimit.isPressed();
+  // }
 }

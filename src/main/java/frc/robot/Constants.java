@@ -136,6 +136,13 @@ public final class Constants {
         public static final double turnkD = 0.0;    
     }
 
+    public static final class ElevatorConstants {
+        private static final double MotorKV = 473.0; // For neo v1.1
+        public static final double FF = 1/MotorKV; // For neo v1.1
+        public static final double P = .0085;
+
+    }
+
     public static final int PDH_can_id = 15;
 
 }

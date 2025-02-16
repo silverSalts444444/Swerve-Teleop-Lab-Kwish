@@ -45,10 +45,10 @@ public class RobotContainer {
   private Elevator elevator;
 
   public RobotContainer() {
-    createSwerve();
+    // createSwerve();
     createDeepHang();
-    createCoralManipulator();
-    createElevator();
+    // createCoralManipulator();
+    // createElevator();
   }
 
   private void createSwerve() {
@@ -64,20 +64,18 @@ public class RobotContainer {
     serveAutoCMD = new SwerveAutonomousCMD(this.swerveDriveTrain, Constants.allianceEnabled);
 
     //Set default swerve command to the basic drive command, not field orientated
-    this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
+    // this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 
   private void createDeepHang() {
     deepHang = new DeepHang();
 
-    POVButton hangUp = new POVButton(mechJoystick, 0);
-    POVButton hangDown = new POVButton(mechJoystick, 180);
     
-    hangUp.whileTrue(deepHang.fwd());
-    hangUp.whileFalse(deepHang.stop());
+    mechXboxController.povUp().whileTrue(deepHang.fwd());
+    mechXboxController.povUp().onFalse(deepHang.stop());
 
-    hangDown.whileTrue(deepHang.rev());
-    hangDown.whileFalse(deepHang.stop());
+    mechXboxController.povDown().whileTrue(deepHang.rev());
+    mechXboxController.povDown().onFalse(deepHang.stop());
   }
 
   private void createCoralManipulator() {
@@ -92,28 +90,31 @@ public class RobotContainer {
   }
 
   private void createElevator() {
-    elevator = new Elevator();
+    elevator = new Elevator(()->{
+      return this.mechXboxController.getRightY();
+    });
 
-    mechXboxController.a().onTrue(elevator.homing());
-        
-    mechXboxController.axisGreaterThan(5, 0.1).whileTrue(elevator.moveElevatorUp()); // If joystick is above 0.1, move up 
-    mechXboxController.axisLessThan(5, -0.1).whileTrue(elevator.moveElevatorDown()); // If joystick is below -0.1 move down
-
+    // mechXboxController.a().onTrue(elevator.homing());
+    
+    //directions are flipped
+    mechXboxController.axisGreaterThan(5, 0.1).onTrue(elevator.moveElevatorDown()); // If joystick is above 0.1, move down 
+    mechXboxController.axisLessThan(5, -0.1).onTrue(elevator.moveElevatorUp()); // If joystick is below -0.1 move up
+    
     Trigger elevStopB1 = mechXboxController.axisLessThan(5, 0.1);
     //Elevator stop for bound 1 and 2 - between -0.1 and 0.1
     Trigger elevStopB2 = mechXboxController.axisGreaterThan(5, -0.1);
     
-    elevStopB1.and(elevStopB2).onTrue(elevator.stopElevator()); 
+    elevStopB1.and(elevStopB2).onTrue(elevator.stopElevator());  // It needs to hold position not completely stop
     // if the joystick changes from moving to being still (in bounds), then stop the elevator. It only toggles when the state changes, not repeatidly
     mechXboxController.x().onTrue(elevator.setHeightL4()); //on button press
   }
 
   public Command getAutonomousCommand() {
-    return serveAutoCMD;
+    return null;
     
   }
 
   public void initCommandInTeleop() {
-    swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
+    // swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 }
