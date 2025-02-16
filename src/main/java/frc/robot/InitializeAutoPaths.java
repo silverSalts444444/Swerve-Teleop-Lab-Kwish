@@ -20,17 +20,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
-import frc.robot.commands.swerve.TestCase215;
-import frc.robot.commands.swerve.TestPath;
+import frc.robot.commands.autoPaths.TestCase215;
+import frc.robot.commands.autoPaths.TestPath;
 
 /** Add your docs here. */
 public class InitializeAutoPaths {
     private final SwerveDriveTrain swerve;
 
     private final SendableChooser<Command> autoCommandChooser = new SendableChooser<>();
+    
     // Plays:
     private TestPath testPath;
     private TestCase215 testCase215;
+
+    
     RobotConfig config;
 
     public InitializeAutoPaths(SwerveDriveTrain swerve) {
@@ -67,7 +70,6 @@ public class InitializeAutoPaths {
 
          // PLAYS:
         try {
-          System.out.println("OK");
           testPath = new TestPath(this.swerve);
           testCase215 = new TestCase215(this.swerve);
           autoCommandChooser.addOption("Test Path", testPath);
