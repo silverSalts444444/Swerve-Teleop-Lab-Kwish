@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
+import frc.robot.commands.autoPaths.IyerTCase;
 import frc.robot.commands.autoPaths.TestCase215;
 import frc.robot.commands.autoPaths.TestPath;
 
@@ -32,6 +33,7 @@ public class InitializeAutoPaths {
     // Plays:
     private TestPath testPath;
     private TestCase215 testCase215;
+    private IyerTCase iyerCase;
 
     
     RobotConfig config;
@@ -72,8 +74,10 @@ public class InitializeAutoPaths {
         try {
           testPath = new TestPath(this.swerve);
           testCase215 = new TestCase215(this.swerve);
+          iyerCase = new IyerTCase(this.swerve);
           autoCommandChooser.addOption("Test Path", testPath);
           autoCommandChooser.addOption("Test Case 215", testCase215);
+          autoCommandChooser.addOption("IyerT Case", iyerCase);
           SmartDashboard.putData(autoCommandChooser);
 
         } catch (FileVersionException | IOException | ParseException e) {
