@@ -93,8 +93,8 @@ public class SwerveModuleIOSparkMax {
        
         // Offsets the position of the CANCoder via an offset and initializes the turning encoder
         // Offset better be in degrees
-        this.turnEncoder.setPosition(getCancoderInDegrees() - this.offset);
-        state.angle = Rotation2d.fromDegrees(getTurnPositionInDegrees());
+        this.turnEncoder.setPosition(canCoder.getAbsolutePosition().getValueAsDouble() - Units.degreesToRotations(this.offset));
+        state.angle = Rotation2d.fromRotations(getTurnPositionInRotations());
 
         this.num = num;
 
@@ -108,12 +108,10 @@ public class SwerveModuleIOSparkMax {
     }
 
     private void configCANCoder() {
-        CANcoderConfigurator cancoderConfigurator = canCoder.getConfigurator();
-        CANcoderConfiguration config = new CANcoderConfiguration();         
-        cancoderConfigurator.refresh(config.MagnetSensor);
-        //Cancoder is now in [0, 360) scope
-        cancoderConfigurator.apply(config.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(Rotations.of(1))
-                                                      .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+        //Cancoder is in rotations btw
+        //CANcoderConfigurator cancoderConfigurator = canCoder.getConfigurator();
+        //CANcoderConfiguration config = new CANcoderConfiguration();         
+        //cancoderConfigurator.refresh(config.MagnetSensor);
     }
 
     private void configDriveMotor(boolean invert) {
@@ -152,18 +150,16 @@ public class SwerveModuleIOSparkMax {
         config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
         // Set conversion factors see constants for more info on what these do
-        config.encoder.positionConversionFactor(ModuleConstants.YAGSLturningEncoderPositionFactor);
-        config.encoder.velocityConversionFactor(ModuleConstants.YAGSLturningEncoderPositionFactor / 60);
+        config.encoder.positionConversionFactor(ModuleConstants.turningEncoderPositionFactor);
+        config.encoder.velocityConversionFactor(ModuleConstants.turningEncoderVelocityFactor);
         config.inverted(true);
 
         // Set SPARK MAX PIDF
         // More advantageous due to 1 KHz cycle (can ramp up action quicker)
-        //This will allow the closed loop control to only use [0, 360) degrees
-        //When given a command to go to 361 degrees it will instead go to 1 degrees
+        // This keeps the PID controller in rotations [0,1] input of 1.1 rotations will
+        // end up using .1 It wraps around
         config.closedLoop.positionWrappingEnabled(true);
-        config.closedLoop.positionWrappingInputRange(0, 360);
-        //config.closedLoop.positionWrappingInputRange(Units.radiansToRotations(-Math.PI), Units.radiansToRotations(Math.PI));
-        //config.closedLoop.positionWrappingInputRange(-Math.PI, Math.PI);
+        config.closedLoop.positionWrappingInputRange(0, 1);
         config.idleMode(IdleMode.kBrake);
         config.smartCurrentLimit(ModuleConstants.driveCurrentLimit);
         config.closedLoop.pidf(ModuleConstants.turnkP,
@@ -176,33 +172,19 @@ public class SwerveModuleIOSparkMax {
     }
 
     public double getCancoderInDegrees() {
-        return canCoder.getAbsolutePosition().getValueAsDouble();
+        return Units.rotationsToDegrees(canCoder.getAbsolutePosition().getValueAsDouble());
     }
 
-    public double getTurnPositionInRad() {
+    public double getTurnPositionInRotations() {
         // Position should be already offsetted in constructor
-        // Modulus places measurement of relative encoder in absolute coordinates (-180 to 180 scope)
         // Modulus is needed if the wheel is spun too much relative to the encoder's starting point
-        return MathUtil.angleModulus(Units.rotationsToRadians(turnEncoder.getPosition()));
-        
-        //return MathUtil.angleModulus(Units.degreesToRadians(this.canCoder.getAbsolutePosition() - this.offset));
-    }
-
-    public double getTurnPositionInDegrees() {
-        //The turn encoder is already in degrees if we setup the conversion factor properly
-        // Will return it in a [0,360) scope. If turn ecnoder reads 361 it will return 1
-        return 360 % turnEncoder.getPosition();
+        // the min and max are taken from config.closedLoop.positionWrappingInputRange(0, 1);
+        return MathUtil.inputModulus(turnEncoder.getPosition(), 0, 1);
     }
 
     public void setDesiredState(SwerveModuleState targetState) {
         // Optimize state so that movement is minimized
-        // Should be fine optimizing with PID strategy of -180 to 180 scope, not 0 to 360 scope
-        // https://first.wpi.edu/wpilib/allwpilib/docs/release/java/src-html/edu/wpi/first/math/kinematics/SwerveModuleState.html#line.65
-        //Gonna need to fix this since it got broken in 2025
-        //targetState.optimize(Rotation2d.fromRadians(getTurnPositionInRad()));
-        //targetState.optimize(Rotation2d.fromRotations(turnEncoder.getPosition()));
-        //Taken from yagsl
-        targetState.optimize(Rotation2d.fromDegrees(getTurnPositionInDegrees()));
+        targetState.optimize(Rotation2d.fromRotations(getTurnPositionInRotations()));
         
         // Cap setpoints at max speeds for safety
         targetState.speedMetersPerSecond = MathUtil.clamp(targetState.speedMetersPerSecond,
@@ -213,9 +195,8 @@ public class SwerveModuleIOSparkMax {
         this.drivePID.setReference(targetState.speedMetersPerSecond, SparkMax.ControlType.kVelocity);
 
         // Set setpoint of WPILib PID controller for turning. Will handle the turning of the motor
-        // as long as we give it a target angle. Make sure to give it degrees
-        this.turnPID.setReference(targetState.angle.getDegrees(), SparkMax.ControlType.kPosition);
-        //this.turnPID.setReference(targetState.angle.getRotations(), SparkMax.ControlType.kPosition);
+        // as long as we give it a target angle.
+        this.turnPID.setReference(targetState.angle.getRotations(), SparkMax.ControlType.kPosition);
 
         // Set internal state as passed-in state
         this.state = targetState;
@@ -228,7 +209,7 @@ public class SwerveModuleIOSparkMax {
 
     public SwerveModuleState getActualModuleState() {
         return new SwerveModuleState(driveEncoder.getVelocity(),
-                                     Rotation2d.fromDegrees(getTurnPositionInDegrees()));
+                                     Rotation2d.fromRotations(getTurnPositionInRotations()));
     }
 
     public SwerveModuleState getCanCoderState(){
@@ -248,7 +229,7 @@ public class SwerveModuleIOSparkMax {
 
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(driveEncoder.getPosition(),
-                                        Rotation2d.fromDegrees(getTurnPositionInDegrees()));
+                                        Rotation2d.fromRotations(getTurnPositionInRotations()));
     }
 
     public void resetEncoders() {
@@ -259,7 +240,8 @@ public class SwerveModuleIOSparkMax {
     public void updateTelemetry() {
         // ESSENTIAL TELEMETRY
         // Show turning position and setpoints
-        SmartDashboard.putNumber("Turn Pos Deg #" + num, getTurnPositionInDegrees());
+        SmartDashboard.putNumber("Turn Pos Rotations#" + num, getTurnPositionInRotations());
+        SmartDashboard.putNumber("Raw turn pos " + num, turnEncoder.getPosition());
         // Show driving velocity
         SmartDashboard.putNumber("Drive Vel #" + num, driveEncoder.getVelocity());
 

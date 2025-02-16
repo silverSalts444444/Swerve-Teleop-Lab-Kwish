@@ -100,11 +100,9 @@ public final class Constants {
         // In RPM
         public static final double drivingEncoderVelocityPositionFactor = ((Math.PI * wheelDiameterMeters) / driveGearRatio) / 60.0;
 
-        //Degrees per steering rotation for the angle motor
-        //This is saying one rotation of the angle motor is equal to 16.8 degrees
-        public static final double YAGSLturningEncoderPositionFactor = 360 / turnGearRatio;//16.806723;
-        public static final double turningEncoderPositionFactor = (2 * Math.PI) / turnGearRatio; // radians
-        public static final double turningEncoderVelocityFactor = (2 * Math.PI) / turnGearRatio / 60.0; // radians per second
+        //Rotations per steering rotation for the angle motor need to account for gear ratio
+        public static final double turningEncoderPositionFactor = 1 / turnGearRatio;
+        public static final double turningEncoderVelocityFactor = turningEncoderPositionFactor / 60;
 
         // Confirmed working kP!!
         public static final double drivekP = 0.1; // This is good!

@@ -17,13 +17,12 @@ public class RobotContainer {
 
   // Defines starting pose of robot
   // TODO - Please remove this in future if developing for AprilTags
-  Pose2d startpose = new Pose2d(new Translation2d(8.2,4.2), new Rotation2d());
+  Pose2d startpose = new Pose2d(new Translation2d(0,0), new Rotation2d());//new Pose2d(new Translation2d(8.2,4.2), new Rotation2d());
   // add start pose if needed
   // ---------------------- END OF CONFIG SECTION --------------------------
 
   // Xbox + an additional one for PC use
   private final Joystick drivingXbox = new Joystick(0);
-  private final XboxController xboxController = new XboxController(1);
 
   private SwerveDriveTrain swerveDriveTrain;
 

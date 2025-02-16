@@ -227,13 +227,13 @@ public class SwerveDriveTrain extends SubsystemBase {
    /**
     * Sets the velocities and positions (drive, turn) of one module
     * @param driveVel Drive velocity (m/s)
-    * @param turnPos Turn position (radians)
+    * @param turnPos Turn position (degrees)
     * @param index Index of module
     */
    public void setModuleSetpoints(double driveVel, double turnPos, int index) {
       // Precondition: Safety check within bounds
       if (index >= 0 && index < moduleIO.length) {
-         SwerveModuleState state = new SwerveModuleState(driveVel, new Rotation2d(turnPos));
+         SwerveModuleState state = new SwerveModuleState(driveVel, Rotation2d.fromDegrees(turnPos));
          moduleIO[index].setDesiredState(state);
       }
    }
