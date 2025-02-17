@@ -312,8 +312,6 @@ public class SwerveDriveTrain extends SubsystemBase {
     */
    public void resetPose(Pose2d pose) {
       System.out.println("resetPose");
-      SmartDashboard.putNumber("Posex", pose.getX());
-      SmartDashboard.putNumber("Posey", pose.getY());
       poseEstimator.resetPosition(pose.getRotation(), modulePositions, pose);
       offsetNavx = pose.getRotation().minus(navx.getRotation2d());
 
@@ -326,7 +324,9 @@ public class SwerveDriveTrain extends SubsystemBase {
     * Get chassis speeds for PathPlannerLib
     */
    public ChassisSpeeds getRobotRelativeSpeeds() {
-      return ChassisSpeeds.fromFieldRelativeSpeeds(kinematics.toChassisSpeeds(getActualStates()), getRotation());
+      //TODO is this right?
+      return kinematics.toChassisSpeeds(getActualStates());
+      //return ChassisSpeeds.fromFieldRelativeSpeeds(kinematics.toChassisSpeeds(getActualStates()), getRotation());
    }
 
    /** Gets field */
