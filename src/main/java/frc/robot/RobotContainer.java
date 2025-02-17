@@ -43,9 +43,9 @@ public class RobotContainer {
   private Elevator elevator;
 
   public RobotContainer() {
-    createSwerve();
+    // createSwerve();
     //createDeepHang();
-    //createCoralManipulator();
+    createCoralManipulator();
     //createElevator();
   }
 
@@ -76,14 +76,23 @@ public class RobotContainer {
   }
 
   private void createCoralManipulator() {
-    coralManipulator = new CoralManipulator(mechXboxController);
-
-    mechXboxController.x().onTrue(coralManipulator.stopCoral());
-    mechXboxController.y().onTrue(coralManipulator.intakeCoral());
-    mechXboxController.b().onTrue(coralManipulator.releaseCoral());
+    coralManipulator = new CoralManipulator();
+    
     mechXboxController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
-    mechXboxController.povUp().onTrue(coralManipulator.pivotUp());
-    mechXboxController.povDown().onTrue(coralManipulator.pivotDown());
+    ;
+
+    //New Bindings - They will only spin as long as you are holding the designated button
+    mechXboxController.y().whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    mechXboxController.b().whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+    mechXboxController.a().onTrue(coralManipulator.moveToSetpoint());
+
+
+    mechXboxController.povUp().whileTrue(coralManipulator.pivotUp());
+    mechXboxController.povUp().onFalse(coralManipulator.pivotStop());
+
+    mechXboxController.povDown().whileTrue(coralManipulator.pivotDown());
+    mechXboxController.povDown().onFalse(coralManipulator.pivotStop());
+
   }
 
   private void createElevator() {
