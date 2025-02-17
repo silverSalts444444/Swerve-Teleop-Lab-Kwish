@@ -74,7 +74,7 @@ public class SwerveDriveTrain extends SubsystemBase {
    private final StructArrayPublisher<SwerveModuleState> targetStatePublisher;
    private final StructArrayPublisher<SwerveModuleState> absStatePublisher;
    private final StructPublisher<ChassisSpeeds> chassisSpeedsPublisher;
-   private final Vision vision = new Vision();
+   private Vision vision;
    private Pose2d pose;
 
    private SwerveDriveSimulation mapleSimDrive;
@@ -85,7 +85,8 @@ public class SwerveDriveTrain extends SubsystemBase {
     * simulation.
     * @author Aric Volman
     */
-   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BR, SwerveModuleIOSparkMax BL) {
+   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BR, SwerveModuleIOSparkMax BL,
+                           Vision vision) {
       // Assign modules to their object
       this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BR, BL};
 
@@ -99,6 +100,8 @@ public class SwerveDriveTrain extends SubsystemBase {
       // Auto is field-oriented
       this.poseEstimator = new SwerveDrivePoseEstimator(this.kinematics, Rotation2d.fromDegrees(getGyroYaw()), this.modulePositions, startingPose);
       this.field = new Field2d();
+
+      this.vision = vision;
       
       this.chassisSpeeds =  new ChassisSpeeds(0.0, 0.0, 0.0);
       statePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStates", SwerveModuleState.struct).publish();
@@ -143,8 +146,9 @@ public class SwerveDriveTrain extends SubsystemBase {
       visionEst.ifPresent(
                est -> {
                   // Change our trust in the measurement based on the tags we can see
+                  var estStdDevs = vision.getEstimationStdDevs();
                   poseEstimator.addVisionMeasurement(
-                           est.estimatedPose.toPose2d(), est.timestampSeconds); //TODO add visionStandard deviviation
+                           est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
                });
    }
 

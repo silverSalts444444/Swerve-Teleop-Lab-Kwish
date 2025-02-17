@@ -62,8 +62,6 @@ public class RobotContainer {
 
   private Vision vision;
 
-
-
   public RobotContainer() {
     createSwerve();
     //createDeepHang();
@@ -71,16 +69,18 @@ public class RobotContainer {
     //createElevator();
     this.configureAuto(); // make sure to call after swerve is configured
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
-    vision = new Vision();
   }
 
   private void createSwerve() {
+    //Swerve needs the vision
+    vision = new Vision();
     //Create swerveDriveTrain
     swerveDriveTrain = new SwerveDriveTrain(startpose,
     Constants.SwerveModuleIOConfig.module0,
     Constants.SwerveModuleIOConfig.module1,
     Constants.SwerveModuleIOConfig.module2,
-    Constants.SwerveModuleIOConfig.module3);
+    Constants.SwerveModuleIOConfig.module3,
+    vision);
     
     //Create swerve commands here
     swerveTeleopCMD = new SwerveTeleopCMD(this.swerveDriveTrain, this.drivingXbox);
