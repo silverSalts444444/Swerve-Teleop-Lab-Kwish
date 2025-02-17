@@ -49,8 +49,6 @@ public class RobotContainer {
 
   private SwerveTeleopCMD swerveTeleopCMD;
 
-  private SwerveAutonomousCMD serveAutoCMD;
-
   // Auto Trajectories
   private InitializeAutoPaths autoPaths;
   
@@ -67,12 +65,11 @@ public class RobotContainer {
     //createDeepHang();
     //createCoralManipulator();
     //createElevator();
-    this.configureAuto(); // make sure to call after swerve is configured
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 
   private void createSwerve() {
-    //Swerve needs the vision
+    //Swerve needs the vision make sure to create this first
     vision = new Vision();
     //Create swerveDriveTrain
     swerveDriveTrain = new SwerveDriveTrain(startpose,
@@ -84,10 +81,12 @@ public class RobotContainer {
     
     //Create swerve commands here
     swerveTeleopCMD = new SwerveTeleopCMD(this.swerveDriveTrain, this.drivingXbox);
-    serveAutoCMD = new SwerveAutonomousCMD(this.swerveDriveTrain, Constants.allianceEnabled);
 
     //Set default swerve command to the basic drive command, not field orientated
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
+
+    //This requires the swerve subsystem make sure to create that first before creating this
+    autoPaths = new InitializeAutoPaths(swerveDriveTrain);
   }
 
   private void createDeepHang() {
@@ -135,10 +134,6 @@ public class RobotContainer {
     // if the joystick changes from moving to being still (in bounds), then stop the elevator. It only toggles when the state changes, not repeatidly
     mechXboxController.x().onTrue(elevator.setHeightL4()); //on button press
     */
-  }
-
-  private void configureAuto(){
-    autoPaths = new InitializeAutoPaths(this.swerveDriveTrain);
   }
 
   public Command getAutonomousCommand() {

@@ -74,6 +74,7 @@ public class SwerveDriveTrain extends SubsystemBase {
    private final StructArrayPublisher<SwerveModuleState> targetStatePublisher;
    private final StructArrayPublisher<SwerveModuleState> absStatePublisher;
    private final StructPublisher<ChassisSpeeds> chassisSpeedsPublisher;
+   private final StructPublisher<Pose2d> poseEstimatorPublisher;
    private Vision vision;
    private Pose2d pose;
 
@@ -108,6 +109,7 @@ public class SwerveDriveTrain extends SubsystemBase {
       absStatePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStates_abs", SwerveModuleState.struct).publish();
       targetStatePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStates_target", SwerveModuleState.struct).publish();
       chassisSpeedsPublisher = NetworkTableInstance.getDefault().getStructTopic("/ChassisSpeeds", ChassisSpeeds.struct).publish();
+      poseEstimatorPublisher = NetworkTableInstance.getDefault().getStructTopic("/EstimatedPose", Pose2d.struct).publish();
 
       //Make sure to call this last since we want everything else to be configured
       if (Robot.isSimulation()) {
@@ -119,8 +121,19 @@ public class SwerveDriveTrain extends SubsystemBase {
       // Update module positions
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
 
-      // Update odometry, field, and poseEstimator
+      //Update pose using gyro and encoders.
       this.poseEstimator.update(this.getRotation(), this.modulePositions);
+
+      // Correct pose estimate with vision measurements
+      var visionEst = vision.getEstimatedGlobalPose();
+      visionEst.ifPresent( est -> {
+         // Change our trust in the measurement based on the tags we can see
+         var estStdDevs = vision.getEstimationStdDevs();
+         poseEstimator.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+      });
+      
+      poseEstimatorPublisher.set(poseEstimator.getEstimatedPosition());
+
       this.field.setRobotPose(this.getPoseFromEstimator());
 
       // Update telemetry of each swerve module
@@ -140,16 +153,6 @@ public class SwerveDriveTrain extends SubsystemBase {
       statePublisher.set(getActualStates());
       absStatePublisher.set(getCanCoderStates());
       chassisSpeedsPublisher.set(this.chassisSpeeds);
-
-      // Correct pose estimate with vision measurements
-      var visionEst = vision.getEstimatedGlobalPose();
-      visionEst.ifPresent(
-               est -> {
-                  // Change our trust in the measurement based on the tags we can see
-                  var estStdDevs = vision.getEstimationStdDevs();
-                  poseEstimator.addVisionMeasurement(
-                           est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-               });
    }
 
    public void simulationPeriodic() {
@@ -201,9 +204,9 @@ public class SwerveDriveTrain extends SubsystemBase {
 
       // MUST USE SECOND TYPE OF METHOD
       SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, speeds,
-            Constants.SwerveConstants.maxWheelLinearVelocityMeters * .2,
-            Constants.SwerveConstants.maxChassisTranslationalSpeed * .2,
-            Constants.SwerveConstants.maxChassisAngularVelocity * .2);
+            Constants.SwerveConstants.maxWheelLinearVelocityMeters,
+            Constants.SwerveConstants.maxChassisTranslationalSpeed,
+            Constants.SwerveConstants.maxChassisAngularVelocity);
 
       for (int i = 0; i < swerveModuleStates.length; i++) {
          this.moduleIO[i].setDesiredState(swerveModuleStates[i]);
