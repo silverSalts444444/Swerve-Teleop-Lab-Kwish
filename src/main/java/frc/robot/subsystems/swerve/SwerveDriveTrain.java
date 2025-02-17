@@ -45,6 +45,9 @@ import frc.util.lib.SwerveUtil;
  * @author Aric Volman
  */
 public class SwerveDriveTrain extends SubsystemBase {
+
+   private boolean fieldRelative;
+
    // Create Navx
    private AHRS navx = new AHRS(NavXComType.kMXP_SPI);
 
@@ -110,6 +113,8 @@ public class SwerveDriveTrain extends SubsystemBase {
    }
 
    public void periodic() {
+      SmartDashboard.putBoolean("Field Relative", this.fieldRelative);
+
       // Update module positions
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
 
@@ -152,7 +157,8 @@ public class SwerveDriveTrain extends SubsystemBase {
     *                      control
     */
    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-  
+      this.fieldRelative = fieldRelative;
+
       this.chassisSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, this.getRotation())
             : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
