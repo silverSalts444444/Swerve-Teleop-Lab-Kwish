@@ -26,7 +26,7 @@ public final class Constants {
     public static boolean isSim = Robot.isSimulation();
     public static boolean enableSwerveMotorTelemetry = true;
     public static boolean xboxEnabled = true;
-    public static boolean invertSpeedControl = true;
+    public static boolean invertSpeedControl = false;
     public static boolean allianceEnabled = false;
 
     // MODIFY THIS WHEN SWITCHING BETWEEN CHASSIS
