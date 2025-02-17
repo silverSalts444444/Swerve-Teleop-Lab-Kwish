@@ -43,20 +43,6 @@ public final class Constants {
     // THIS IS THE FIRST THING YOU SHOULD THINK ABOUT/SEE!!!
 
     private static final RobotType ROBOT_TYPE = RobotType.ROBOT_2023_IAP_SLOTH;
-     public static class Vision {
-        // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-        public static final Transform3d RobotToCam =
-                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
-
-        // The layout of the AprilTags on the field
-        public static final AprilTagFieldLayout TagLayout =
-                AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); //gets currentgame apriltag field map
-
-        // The standard deviations of our vision estimated poses, which affect correction rate
-        // (Fake values. Experiment and determine estimation noise on an actual robot.)
-        public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
-        public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
-    }
 
     public static final class SwerveModuleIOConfig{
         // Drive can ids start at front left from 1 and are odd, then go clockwise
@@ -158,6 +144,23 @@ public final class Constants {
         public static final double turnkP = 0.7; 
         public static final double turnkI = 0.0;
         public static final double turnkD = 0.0;    
+    }
+
+    public static final class VisionConstants {
+        public static final String kCameraName = "FIND THIS OUT";
+        // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+        public static final Transform3d kRobotToCam =
+                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+
+        // The layout of the AprilTags on the field
+        public static final AprilTagFieldLayout kTagLayout =
+                AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+
+        // The standard deviations of our vision estimated poses, which affect correction rate
+        // (Fake values. Experiment and determine estimation noise on an actual robot.)
+        public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+        public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+
     }
 
     public static final class ElevatorConstants {

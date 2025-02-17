@@ -34,8 +34,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.Vision;
 import frc.robot.Robot;
+import frc.robot.subsystems.Vision;
 import frc.util.lib.SwerveUtil;
 
 /**
@@ -74,7 +74,7 @@ public class SwerveDriveTrain extends SubsystemBase {
    private final StructArrayPublisher<SwerveModuleState> targetStatePublisher;
    private final StructArrayPublisher<SwerveModuleState> absStatePublisher;
    private final StructPublisher<ChassisSpeeds> chassisSpeedsPublisher;
-   private Vision vision = new Vision();
+   private final Vision vision = new Vision();
    private Pose2d pose;
 
    private SwerveDriveSimulation mapleSimDrive;
@@ -139,8 +139,7 @@ public class SwerveDriveTrain extends SubsystemBase {
       chassisSpeedsPublisher.set(this.chassisSpeeds);
 
       // Correct pose estimate with vision measurements
-      var visionEst = vision.getEstimatedGlobalPose(this.pose);
-      visionEst.
+      var visionEst = vision.getEstimatedGlobalPose();
       visionEst.ifPresent(
                est -> {
                   // Change our trust in the measurement based on the tags we can see
