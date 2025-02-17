@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.swerve.SwerveAutonomousCMD;
@@ -15,6 +16,19 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.InitializeAutoPaths;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.subsystems.Vision;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
+import org.photonvision.PhotonCamera;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 
 
 public class RobotContainer {
@@ -46,12 +60,18 @@ public class RobotContainer {
 
   private Elevator elevator;
 
+  private Vision vision;
+
+
+
   public RobotContainer() {
     createSwerve();
     //createDeepHang();
     //createCoralManipulator();
     //createElevator();
     this.configureAuto(); // make sure to call after swerve is configured
+    this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
+    vision = new Vision();
   }
 
   private void createSwerve() {

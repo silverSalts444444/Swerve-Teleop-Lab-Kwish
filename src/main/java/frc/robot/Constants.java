@@ -4,7 +4,17 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.swerve.SwerveModuleIOSparkMax;
 
@@ -33,6 +43,20 @@ public final class Constants {
     // THIS IS THE FIRST THING YOU SHOULD THINK ABOUT/SEE!!!
 
     private static final RobotType ROBOT_TYPE = RobotType.ROBOT_2023_IAP_SLOTH;
+     public static class Vision {
+        // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+        public static final Transform3d RobotToCam =
+                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+
+        // The layout of the AprilTags on the field
+        public static final AprilTagFieldLayout TagLayout =
+                AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); //gets currentgame apriltag field map
+
+        // The standard deviations of our vision estimated poses, which affect correction rate
+        // (Fake values. Experiment and determine estimation noise on an actual robot.)
+        public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+        public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+    }
 
     public static final class SwerveModuleIOConfig{
         // Drive can ids start at front left from 1 and are odd, then go clockwise

@@ -11,7 +11,7 @@ import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
-
+import org.photonvision.PhotonCamera;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.Vision;
 import frc.robot.Robot;
 import frc.util.lib.SwerveUtil;
 
@@ -73,6 +74,8 @@ public class SwerveDriveTrain extends SubsystemBase {
    private final StructArrayPublisher<SwerveModuleState> targetStatePublisher;
    private final StructArrayPublisher<SwerveModuleState> absStatePublisher;
    private final StructPublisher<ChassisSpeeds> chassisSpeedsPublisher;
+   private Vision vision = new Vision();
+   private Pose2d pose;
 
    private SwerveDriveSimulation mapleSimDrive;
 
@@ -134,6 +137,16 @@ public class SwerveDriveTrain extends SubsystemBase {
       statePublisher.set(getActualStates());
       absStatePublisher.set(getCanCoderStates());
       chassisSpeedsPublisher.set(this.chassisSpeeds);
+
+      // Correct pose estimate with vision measurements
+      var visionEst = vision.getEstimatedGlobalPose(this.pose);
+      visionEst.
+      visionEst.ifPresent(
+               est -> {
+                  // Change our trust in the measurement based on the tags we can see
+                  poseEstimator.addVisionMeasurement(
+                           est.estimatedPose.toPose2d(), est.timestampSeconds); //TODO add visionStandard deviviation
+               });
    }
 
    public void simulationPeriodic() {
@@ -191,6 +204,13 @@ public class SwerveDriveTrain extends SubsystemBase {
 
       for (int i = 0; i < swerveModuleStates.length; i++) {
          this.moduleIO[i].setDesiredState(swerveModuleStates[i]);
+      }
+   }
+
+   public void setModuleVoltages(double driveVoltage, double turnVoltage) {
+      for (int i = 0; i < moduleIO.length; i++) {
+         moduleIO[i].setDriveVoltage(driveVoltage);
+         moduleIO[i].setTurnVoltage(turnVoltage);
       }
    }
 
