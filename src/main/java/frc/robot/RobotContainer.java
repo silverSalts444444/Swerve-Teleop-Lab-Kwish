@@ -78,9 +78,6 @@ public class RobotContainer {
   private void createCoralManipulator() {
     coralManipulator = new CoralManipulator();
     
-    mechXboxController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
-    ;
-
     //New Bindings - They will only spin as long as you are holding the designated button
     mechXboxController.y().whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
     mechXboxController.b().whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
