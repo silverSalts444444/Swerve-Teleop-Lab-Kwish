@@ -31,7 +31,7 @@ public class DeepHang extends SubsystemBase {
   /** Creates a new DeepHang. */
   SparkMax deepHang;
 
-  AHRS imu;
+  //AHRS imu;
 
   public SparkLimitSwitch upperLimit;
   public SparkLimitSwitch lowerLimit;
@@ -133,14 +133,14 @@ public class DeepHang extends SubsystemBase {
     // SmartDashboard.putBoolean("Lower Limit", lowerLimit.isPressed());
 
     //logs the tilt of the chassis relative to the ground
-    SmartDashboard.putNumber("Pitch", imu.getPitch());
-    SmartDashboard.putNumber("Roll", imu.getRoll());
-    SmartDashboard.putNumber("Tilt",
-    Math.sqrt(Math.pow(imu.getPitch(), 2) + Math.pow(imu.getRoll(), 2)));
+    //SmartDashboard.putNumber("Pitch", imu.getPitch());
+    //SmartDashboard.putNumber("Roll", imu.getRoll());
+    //SmartDashboard.putNumber("Tilt",
+    //Math.sqrt(Math.pow(imu.getPitch(), 2) + Math.pow(imu.getRoll(), 2)));
 
     SmartDashboard.putNumber("Encoder Position", hangEncoder.getPosition()); //in rotations
     setPointChooser.addOption("0.0", 0.0);
-    setPointChooser.addOption("0.1", 0.1);
+    setPointChooser.setDefaultOption("0.1", .1);
     setPointChooser.addOption("0.2", 0.2);
     setPointChooser.addOption("0.3", 0.3);
     setPointChooser.addOption("0.4", 0.4);
@@ -173,7 +173,6 @@ public class DeepHang extends SubsystemBase {
   public Command fwd() {
     return this.runOnce(() -> {
       System.out.println("TESTING AGAIN");
-      deepHang.set(0.4);
       reverse = false;
       this.setSpeed(); //cw away from where the motor is facing (inward)
     });

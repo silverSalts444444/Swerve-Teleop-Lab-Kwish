@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -50,6 +51,8 @@ public class Elevator extends SubsystemBase {
     this.PIDController = motorE.getClosedLoopController();
     this.rel_encoder = motorE.getEncoder();
     rel_encoder.setPosition(0);
+
+    config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     config.closedLoop.pidf(.01, //p
                            0, //i
                            0, //d
@@ -66,7 +69,7 @@ public class Elevator extends SubsystemBase {
     softLimitConfig.forwardSoftLimitEnabled(true); //enables the forward soft limit
     softLimitConfig.reverseSoftLimitEnabled(true); //enables the reverse soft limit
 
-    softLimitConfig.forwardSoftLimit(topSoftLimit);
+    softLimitConfig.forwardSoftLimit(20);
     softLimitConfig.reverseSoftLimit(0);
     // upperLimit = motorE.getForwardLimitSwitch();
     // lowerLimit = motorE.getReverseLimitSwitch();
