@@ -68,7 +68,7 @@ public class SwerveDriveTrain extends SubsystemBase {
 
    // Add field to show robot
    private Field2d field;
-   private Rotation2d offsetNavx = new Rotation2d();
+   private Rotation2d offsetNavx = Rotation2d.fromDegrees(90);
    private final StructArrayPublisher<SwerveModuleState> statePublisher;
    private final StructArrayPublisher<SwerveModuleState> targetStatePublisher;
    private final StructArrayPublisher<SwerveModuleState> absStatePublisher;

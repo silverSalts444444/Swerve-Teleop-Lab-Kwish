@@ -69,7 +69,7 @@ public class Elevator extends SubsystemBase {
     limitSwitchConfig.reverseLimitSwitchType(Type.kNormallyClosed);
     limitSwitchConfig.forwardLimitSwitchEnabled(true);
     limitSwitchConfig.reverseLimitSwitchEnabled(true);
-    config.apply(limitSwitchConfig);
+    //config.apply(limitSwitchConfig);
 
     //We just need to setup the softlimit based in the same units as the encoder and
     //the spark max will handle stopping when they are hit
@@ -78,7 +78,7 @@ public class Elevator extends SubsystemBase {
     softLimitConfig.reverseSoftLimitEnabled(true); //enables the reverse soft limit
     softLimitConfig.forwardSoftLimit(75); //When to stop in the forward direction must be in same units as encoder
     softLimitConfig.reverseSoftLimit(0); //When to stop in the reverse direction must be in same units as encoder
-    config.apply(softLimitConfig);
+    //config.apply(softLimitConfig);
 
     //applies the soft limit configuration to the motor controller
     config.apply(softLimitConfig);
@@ -143,7 +143,6 @@ public class Elevator extends SubsystemBase {
       }
     });
   }
-
 
   public Command setHeightL4(){
     return this.runOnce(()->{
