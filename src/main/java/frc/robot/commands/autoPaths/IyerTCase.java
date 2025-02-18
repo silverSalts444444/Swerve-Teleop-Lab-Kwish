@@ -34,7 +34,7 @@ public class IyerTCase extends SequentialCommandGroup  {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       // *TODO: tune the constants for shooting into the speaker from the left
-      new AutoPath("IyerT Case", this.swerve, false)
+      new AutoPath("IyerT Case", this.swerve, true)
     );
   }
 }

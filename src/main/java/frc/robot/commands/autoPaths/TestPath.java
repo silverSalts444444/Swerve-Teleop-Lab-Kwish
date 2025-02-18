@@ -34,7 +34,7 @@ public class TestPath extends SequentialCommandGroup  {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       // *TODO: tune the constants for shooting into the speaker from the left
-      new AutoPath("TestPath", this.swerve, false)
+      new AutoPath("TestPath", this.swerve, true)
     );
   }
 }

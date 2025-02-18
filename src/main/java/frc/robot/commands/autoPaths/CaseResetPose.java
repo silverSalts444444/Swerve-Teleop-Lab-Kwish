@@ -34,7 +34,7 @@ public class CaseResetPose extends SequentialCommandGroup  {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       // *TODO: tune the constants for shooting into the speaker from the left
-      new AutoPath("Case Reset Pose", this.swerve, false)
+      new AutoPath("Case Reset Pose", this.swerve, true)
     );
   }
 }

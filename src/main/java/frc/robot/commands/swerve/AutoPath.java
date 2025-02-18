@@ -55,11 +55,11 @@ public class AutoPath extends SequentialCommandGroup {
      // Need to initialize the starting pose in here
       //Possible ways to get the start pose of the path
       Optional<Pose2d> optionalPose2d = path.getStartingHolonomicPose();
+       
+      if(firstPath == true){
         if (optionalPose2d.isPresent()) {
           swerve.resetPose(optionalPose2d.get());
         }
-      if(firstPath == true){
-        
       }
       else {
         //we want to do nothing if it's not the first path that's being used
