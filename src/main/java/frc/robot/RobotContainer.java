@@ -87,29 +87,28 @@ public class RobotContainer {
   }
 
   private void createElevator() {
-    elevator = new Elevator(() -> mechXboxController.getRightY());
-    mechXboxController.a().onTrue(elevator.setHeightL1());
-    /** 
+    elevator = new Elevator(()->{
+      return mechXboxController.getRightY();
+    });
 
-    mechXboxController.a().onTrue(elevator.homing());
+    mechXboxController.leftBumper().onTrue(elevator.homing());
+    mechXboxController.rightBumper().onTrue(elevator.stopElevator());
+
         
-    mechXboxController.axisGreaterThan(5, 0.1).whileTrue(elevator.moveElevatorUp()); // If joystick is above 0.1, move up 
-    mechXboxController.axisLessThan(5, -0.1).whileTrue(elevator.moveElevatorDown()); // If joystick is below -0.1 move down
+    mechXboxController.axisGreaterThan(5, 0.1).whileTrue(elevator.moveElevator()); // If joystick is above 0.1, move up 
+    mechXboxController.axisLessThan(5, -0.1).whileTrue(elevator.moveElevator()); // If joystick is below -0.1 move down
 
-    // mechXboxController.a().onTrue(elevator.homing());
-    
-    //directions are flipped
-    mechXboxController.axisGreaterThan(5, 0.1).onTrue(elevator.moveElevatorDown()); // If joystick is above 0.1, move down 
-    mechXboxController.axisLessThan(5, -0.1).onTrue(elevator.moveElevatorUp()); // If joystick is below -0.1 move up
-    
     Trigger elevStopB1 = mechXboxController.axisLessThan(5, 0.1);
     //Elevator stop for bound 1 and 2 - between -0.1 and 0.1
     Trigger elevStopB2 = mechXboxController.axisGreaterThan(5, -0.1);
     
-    elevStopB1.and(elevStopB2).onTrue(elevator.stopElevator());  // It needs to hold position not completely stop
+    elevStopB1.and(elevStopB2).onTrue(elevator.stallElevator());  // It needs to hold position not completely stop
     // if the joystick changes from moving to being still (in bounds), then stop the elevator. It only toggles when the state changes, not repeatidly
-    mechXboxController.x().onTrue(elevator.setHeightL4()); //on button press
-    */
+    mechXboxController.a().onTrue(elevator.setHeightL1()); //on button press
+    mechXboxController.b().onTrue(elevator.setHeightL2()); //on button press
+    mechXboxController.x().onTrue(elevator.setHeightL3()); //on button press
+    mechXboxController.y().onTrue(elevator.setHeightL4()); //on button press
+    
   }
 
   public Command getAutonomousCommand() {
