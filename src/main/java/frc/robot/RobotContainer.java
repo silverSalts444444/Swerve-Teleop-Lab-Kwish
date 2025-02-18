@@ -76,7 +76,7 @@ public class RobotContainer {
   }
 
   private void createCoralManipulator() {
-    coralManipulator = new CoralManipulator(mechXboxController);
+    coralManipulator = new CoralManipulator();
 
     mechXboxController.x().onTrue(coralManipulator.stopCoral());
     mechXboxController.y().onTrue(coralManipulator.intakeCoral());

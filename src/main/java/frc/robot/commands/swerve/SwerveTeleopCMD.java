@@ -14,7 +14,8 @@ public class SwerveTeleopCMD extends Command {
    // Initialize empty swerveDriveTrain object
    private final SwerveDriveTrain swerveDriveTrain;
    private final Joystick joystick;
-   private boolean robotCentric = false;
+
+   private boolean fieldRelative = false;
 
    private double robotSpeed = .8;
 
@@ -48,9 +49,15 @@ public class SwerveTeleopCMD extends Command {
       double yVal = -this.joystick.getRawAxis(XboxController.Axis.kLeftX.value);
       double rotation = -this.joystick.getRawAxis(XboxController.Axis.kRightX.value);
       double translationRightTrigger = this.joystick.getRawAxis(XboxController.Axis.kRightTrigger.value);
-      //this.robotCentric = this.joystick.getRawButtonPressed(XboxController.Button.kX.value);
+      boolean resetNavx = this.joystick.getRawButtonPressed(XboxController.Button.kY.value);
+
+      //Toggles the field relative state
+      if (this.joystick.getRawButtonPressed(XboxController.Button.kX.value)){this.fieldRelative = !this.fieldRelative;}; 
 
       double rightTriggerVal = Math.abs(translationRightTrigger);
+
+      if (resetNavx){this.swerveDriveTrain.resetHeadingCommand();}
+
 
       if (rightTriggerVal < 0.1) {
          rightTriggerVal = 0.1;
@@ -85,7 +92,7 @@ public class SwerveTeleopCMD extends Command {
       // Drive swerveDriveTrain with values
       this.swerveDriveTrain.drive(new Translation2d(correctedX, correctedY),
             rotationVal * Constants.SwerveConstants.maxChassisAngularVelocity,
-            this.robotCentric, false);
+            this.fieldRelative, false);
    }
 
    // Called once the command ends or is interrupted.
