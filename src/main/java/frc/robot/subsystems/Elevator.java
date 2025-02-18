@@ -116,7 +116,7 @@ public class Elevator extends SubsystemBase {
   public Command homing(){
     return this.run(() ->{
         while (!isREVPressed()){
-            motorE.set(-0.2);
+            motorE.set(0.2);
         }
         rel_encoder.setPosition(0);
     });
