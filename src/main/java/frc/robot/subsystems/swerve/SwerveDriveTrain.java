@@ -69,7 +69,7 @@ public class SwerveDriveTrain extends SubsystemBase {
 
    // Add field to show robot
    private Field2d field;
-   private Rotation2d offsetNavx = new Rotation2d();
+   private Rotation2d offsetNavx = Rotation2d.fromDegrees(-90);
    private final StructArrayPublisher<SwerveModuleState> statePublisher;
    private final StructArrayPublisher<SwerveModuleState> targetStatePublisher;
    private final StructArrayPublisher<SwerveModuleState> absStatePublisher;
@@ -79,6 +79,8 @@ public class SwerveDriveTrain extends SubsystemBase {
    private Pose2d pose;
 
    private SwerveDriveSimulation mapleSimDrive;
+
+   private boolean disableVision = false;
 
 
    /**
@@ -125,12 +127,14 @@ public class SwerveDriveTrain extends SubsystemBase {
       this.poseEstimator.update(this.getRotation(), this.modulePositions);
 
       // Correct pose estimate with vision measurements
-      var visionEst = vision.getEstimatedGlobalPose();
-      visionEst.ifPresent( est -> {
-         // Change our trust in the measurement based on the tags we can see
-         var estStdDevs = vision.getEstimationStdDevs();
-         poseEstimator.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-      });
+      if (disableVision) {
+         var visionEst = vision.getEstimatedGlobalPose();
+         visionEst.ifPresent( est -> {
+            // Change our trust in the measurement based on the tags we can see
+            var estStdDevs = vision.getEstimationStdDevs();
+            poseEstimator.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+         });
+      }  
       
       poseEstimatorPublisher.set(poseEstimator.getEstimatedPosition());
 
