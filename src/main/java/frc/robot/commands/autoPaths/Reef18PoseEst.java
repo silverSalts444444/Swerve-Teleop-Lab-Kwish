@@ -24,17 +24,17 @@ import frc.robot.subsystems.swerve.SwerveDriveTrain;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class IyerTCase extends SequentialCommandGroup  {
+public class Reef18PoseEst extends SequentialCommandGroup  {
   SwerveDriveTrain swerve;
   AutoPath autoPath;
   
-  public IyerTCase(SwerveDriveTrain swerve) throws FileVersionException, IOException, ParseException {
+  public Reef18PoseEst(SwerveDriveTrain swerve) throws FileVersionException, IOException, ParseException {
     this.swerve = swerve;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       // *TODO: tune the constants for shooting into the speaker from the left
-      new AutoPath("IyerT Case", this.swerve, true)
+      new AutoPath("TestPath", this.swerve, true)
     );
   }
 }

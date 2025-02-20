@@ -20,10 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
-import frc.robot.commands.autoPaths.CaseResetPose;
-import frc.robot.commands.autoPaths.IyerTCase;
-import frc.robot.commands.autoPaths.TestCase215;
-import frc.robot.commands.autoPaths.TestPath;
+import frc.robot.commands.autoPaths.Reef18PoseEst;
 
 /** Add your docs here. */
 public class InitializeAutoPaths {
@@ -32,11 +29,7 @@ public class InitializeAutoPaths {
     private final SendableChooser<Command> autoCommandChooser = new SendableChooser<>();
     
     // Plays:
-    private TestPath testPath;
-    private TestCase215 testCase215;
-    private IyerTCase iyerCase;
-    private CaseResetPose poseResetCase;
-
+    private Reef18PoseEst reef18PoseEst;
     
     RobotConfig config;
 
@@ -74,15 +67,10 @@ public class InitializeAutoPaths {
 
          // PLAYS:
         try {
-          testPath = new TestPath(this.swerve);
-          testCase215 = new TestCase215(this.swerve);
-          iyerCase = new IyerTCase(this.swerve);
-          poseResetCase = new CaseResetPose(this.swerve);
+          reef18PoseEst = new Reef18PoseEst(this.swerve);
+          
 
-          autoCommandChooser.setDefaultOption("Test Path", testPath);
-          autoCommandChooser.addOption("Test Case 215", testCase215);
-          autoCommandChooser.addOption("IyerT Case", iyerCase);
-          autoCommandChooser.addOption("CaseResetPose", poseResetCase);
+          autoCommandChooser.setDefaultOption("Test Path", reef18PoseEst);
 
           SmartDashboard.putData(autoCommandChooser);
 
