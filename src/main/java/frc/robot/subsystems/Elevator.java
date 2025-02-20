@@ -69,12 +69,8 @@ public class Elevator extends SubsystemBase {
   
   /** Creates a new Elevator. */
   public Elevator(DoubleSupplier rightJoyY) {
-    Preferences.initDouble("P Constant", 0.0125);
-    Preferences.initDouble("I Constant", 0.0);
-    Preferences.initDouble("D Constant", 0.0);
-    Preferences.initDouble("FF Constant", 0.001);
+    
     setpoint = 0;
-    Preferences.getDouble("P Constant", 0.0125);
     this.rightJoyY = rightJoyY;
     double topSoftLimit = 591;
     SparkMaxConfig config = new SparkMaxConfig();
@@ -83,10 +79,10 @@ public class Elevator extends SubsystemBase {
     
     rel_encoder.setPosition(0);
     config.closedLoop.pidf(
-    Preferences.getDouble("P Constant", 0.0125), //p
-    Preferences.getDouble("I Constant", 0.0), //i
-    Preferences.getDouble("D Constant", 0.0), //d
-    Preferences.getDouble("FF Constant", 0.001));//f
+    0.0125, //p
+    0.0, //i
+    0.0, //d
+    0.001);//f
     
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     
@@ -108,7 +104,7 @@ public class Elevator extends SubsystemBase {
 
     // - is down and + is up
     //applies the soft limit configuration to the motor controller
-    config.smartCurrentLimit(3);
+    config.smartCurrentLimit(10);
     
     // config.apply(softLimitConfig);
     config.apply(limitSwitchConfig);
@@ -175,7 +171,7 @@ public class Elevator extends SubsystemBase {
   public Command moveElevator() {
     return this.run(()->{
         input = this.rightJoyY.getAsDouble();
-        motorE.set(input * 0.3);
+        motorE.set(input * 0.5);
     });
   }
 
