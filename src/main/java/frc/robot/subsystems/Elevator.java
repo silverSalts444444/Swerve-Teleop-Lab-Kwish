@@ -22,11 +22,17 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLimitSwitch;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.XboxController;
 // import edu.wpi.first.wpilibj.motorcontrol.Spark;
 // import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
@@ -47,6 +53,7 @@ public class Elevator extends SubsystemBase {
 
   private double setpoint;
   
+  
   /* Thejas Math!
   double axleD = 0.125;
   double distance = 10;
@@ -62,8 +69,12 @@ public class Elevator extends SubsystemBase {
   
   /** Creates a new Elevator. */
   public Elevator(DoubleSupplier rightJoyY) {
+    Preferences.initDouble("P Constant", 0.0125);
+    Preferences.initDouble("I Constant", 0.0);
+    Preferences.initDouble("D Constant", 0.0);
+    Preferences.initDouble("FF Constant", 0.001);
     setpoint = 0;
-    
+    Preferences.getDouble("P Constant", 0.0125);
     this.rightJoyY = rightJoyY;
     double topSoftLimit = 591;
     SparkMaxConfig config = new SparkMaxConfig();
@@ -71,10 +82,11 @@ public class Elevator extends SubsystemBase {
     this.rel_encoder = motorE.getEncoder();
     
     rel_encoder.setPosition(0);
-    config.closedLoop.pidf(.0125, //p
-                           0, //i
-                           0, //d
-                           .001);//f
+    config.closedLoop.pidf(
+    Preferences.getDouble("P Constant", 0.0125), //p
+    Preferences.getDouble("I Constant", 0.0), //i
+    Preferences.getDouble("D Constant", 0.0), //d
+    Preferences.getDouble("FF Constant", 0.001));//f
     
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     
@@ -169,7 +181,7 @@ public class Elevator extends SubsystemBase {
 
   public Command stallElevator(){
     return this.run(()->{
-        PIDController.setReference(conversionFactor*this.currentPos, SparkMax.ControlType.kPosition);
+        PIDController.setReference(this.currentPos, SparkMax.ControlType.kPosition);
     });
   }
 
@@ -185,6 +197,7 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putNumber("Current position in converted rotations",currentPos * conversionFactor);
     SmartDashboard.putBoolean("Rev Limit", isREVPressed());
     SmartDashboard.putBoolean("Fwd Limit", fwdLimit.isPressed());
+    SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());
   }
 
 }

@@ -43,10 +43,10 @@ public class RobotContainer {
   private Elevator elevator;
 
   public RobotContainer() {
-    //createSwerve();
+    // createSwerve();
     //createDeepHang();
-    //createCoralManipulator();
-    //createElevator();
+    createCoralManipulator();
+    // createElevator();
   }
 
   private void createSwerve() {
@@ -76,16 +76,27 @@ public class RobotContainer {
   }
 
   private void createCoralManipulator() {
-    coralManipulator = new CoralManipulator();
+    coralManipulator = new CoralManipulator(()->{
+      return mechXboxController.getLeftY();
 
-    mechXboxController.x().onTrue(coralManipulator.stopCoral());
-    mechXboxController.y().onTrue(coralManipulator.intakeCoral());
-    mechXboxController.b().onTrue(coralManipulator.releaseCoral());
+    });
+
     mechXboxController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
+    mechXboxController.x().whileTrue(coralManipulator.intakeCoral()).whileFalse(coralManipulator.stopCoral());
+    mechXboxController.b().whileTrue(coralManipulator.releaseCoral()).whileFalse(coralManipulator.stopCoral());
+    
     mechXboxController.povUp().onTrue(coralManipulator.pivotL4());
     mechXboxController.povDown().onTrue(coralManipulator.pivotDown());
     mechXboxController.povRight().onTrue(coralManipulator.pivotIntake());
-    mechXboxController.a().onTrue(coralManipulator.spinPivot());
+  
+
+    mechXboxController.axisGreaterThan(1, 0.1).whileTrue(coralManipulator.movePivot());
+    mechXboxController.axisLessThan(1, -0.1).whileTrue(coralManipulator.movePivot());
+
+    Trigger coralStopB1 = mechXboxController.axisLessThan(1, 0.1);
+    Trigger coralStopB2 = mechXboxController.axisGreaterThan(1, -0.1);
+    
+    coralStopB1.and(coralStopB2).onTrue(coralManipulator.pivotStop()); 
   }
 
   private void createElevator() {
