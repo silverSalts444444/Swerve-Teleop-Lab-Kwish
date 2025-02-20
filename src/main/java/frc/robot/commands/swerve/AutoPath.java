@@ -15,6 +15,7 @@ import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
@@ -55,9 +56,10 @@ public class AutoPath extends SequentialCommandGroup {
      // Need to initialize the starting pose in here
       //Possible ways to get the start pose of the path
       Optional<Pose2d> optionalPose2d = path.getStartingHolonomicPose();
-       
+      SmartDashboard.putBoolean("resetpose", false);
       if(firstPath == true){
         if (optionalPose2d.isPresent()) {
+          SmartDashboard.putBoolean("resetpose", true);
           swerve.resetPose(optionalPose2d.get());
         }
       }

@@ -106,7 +106,7 @@ public class RobotContainer {
     mechXboxController.y().onTrue(coralManipulator.intakeCoral());
     mechXboxController.b().onTrue(coralManipulator.releaseCoral());
     mechXboxController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
-    mechXboxController.povUp().onTrue(coralManipulator.pivotUp());
+    //mechXboxController.povUp().onTrue(coralManipulator.pivotUp());
     mechXboxController.povDown().onTrue(coralManipulator.pivotDown());
   }
 
