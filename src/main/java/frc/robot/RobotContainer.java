@@ -69,10 +69,10 @@ public class RobotContainer {
     deepHang = new DeepHang();
     
     mechXboxController.povUp().whileTrue(deepHang.fwd());
-    mechXboxController.povUp().whileFalse(deepHang.stop());
+    mechXboxController.povUp().onFalse(deepHang.stop());
 
     mechXboxController.povDown().whileTrue(deepHang.rev());
-    mechXboxController.povDown().whileFalse(deepHang.stop());
+    mechXboxController.povDown().onFalse(deepHang.stop());
   }
 
   private void createCoralManipulator() {
@@ -82,8 +82,8 @@ public class RobotContainer {
     });
 
     mechXboxController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
-    mechXboxController.x().whileTrue(coralManipulator.intakeCoral()).whileFalse(coralManipulator.stopCoral());
-    mechXboxController.b().whileTrue(coralManipulator.releaseCoral()).whileFalse(coralManipulator.stopCoral());
+    mechXboxController.x().whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    mechXboxController.b().whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
     
     mechXboxController.povUp().onTrue(coralManipulator.pivotL4());
     mechXboxController.povDown().onTrue(coralManipulator.pivotDown());
