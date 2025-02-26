@@ -81,11 +81,10 @@ public class SwerveDriveTrain extends SubsystemBase {
    private final StructPublisher<ChassisSpeeds> chassisSpeedsPublisher;
    private final StructPublisher<Pose2d> poseEstimatorPublisher;
    private Vision vision;
-   private Pose2d pose;
 
    private SwerveDriveSimulation mapleSimDrive;
 
-   private boolean disableVision = false;
+   private boolean enableVision = false;
 
 
    /**
@@ -134,8 +133,8 @@ public class SwerveDriveTrain extends SubsystemBase {
       this.poseEstimator.update(this.getRotation(), this.modulePositions);
 
       // Correct pose estimate with vision measurements
-      if (disableVision) {
-         var visionEst = vision.getEstimatedGlobalPose();
+      if (enableVision) {
+         var visionEst = vision.getLeftCameraEstimatedGlobalPose();
          visionEst.ifPresent( est -> {
             // Change our trust in the measurement based on the tags we can see
             var estStdDevs = vision.getEstimationStdDevs();
