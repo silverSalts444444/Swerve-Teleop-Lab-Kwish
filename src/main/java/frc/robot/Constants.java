@@ -167,7 +167,10 @@ public final class Constants {
         private static final double MotorKV = 473.0; // For neo v1.1
         public static final double FF = 1/MotorKV; // For neo v1.1
         public static final double P = .0085;
+    }
 
+    public static final class CoralManipulatorConstants{
+        public static final int pivotConversionFactor = 360;
     }
 
     public static final int PDH_can_id = 15;

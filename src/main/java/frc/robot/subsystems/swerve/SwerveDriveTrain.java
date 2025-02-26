@@ -28,6 +28,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -46,6 +48,9 @@ import frc.util.lib.SwerveUtil;
  * @author Aric Volman
  */
 public class SwerveDriveTrain extends SubsystemBase {
+
+   private boolean fieldRelative;
+
    // Create Navx
    private AHRS navx = new AHRS(NavXComType.kMXP_SPI);
 
@@ -120,6 +125,8 @@ public class SwerveDriveTrain extends SubsystemBase {
    }
 
    public void periodic() {
+      //SmartDashboard.putBoolean("Field Relative", this.fieldRelative);
+
       // Update module positions
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
 
@@ -141,15 +148,15 @@ public class SwerveDriveTrain extends SubsystemBase {
       this.field.setRobotPose(this.getPoseFromEstimator());
 
       // Update telemetry of each swerve module
-      SwerveUtil.updateTelemetry(moduleIO);
+      //SwerveUtil.updateTelemetry(moduleIO);
 
       // Draw poses of robot's modules in SmartDashboard
       SwerveUtil.drawModulePoses(modulePositions, field, getPoseFromEstimator());
 
       // Put field on SmartDashboard
       SmartDashboard.putData("Field", this.field);
-      SmartDashboard.putNumberArray("Actual States", SwerveUtil.getDoubleStates(getActualStates()));
-      SmartDashboard.putNumberArray("Setpoint States", SwerveUtil.getDoubleStates(getSetpointStates()));
+      //SmartDashboard.putNumberArray("Actual States", SwerveUtil.getDoubleStates(getActualStates()));
+      //SmartDashboard.putNumberArray("Setpoint States", SwerveUtil.getDoubleStates(getSetpointStates()));
       SmartDashboard.putNumber("Robot Rotation", getPoseFromEstimator().getRotation().getRadians());
       SmartDashboard.putNumber("Angle", getHeading());
 
@@ -157,6 +164,30 @@ public class SwerveDriveTrain extends SubsystemBase {
       statePublisher.set(getActualStates());
       absStatePublisher.set(getCanCoderStates());
       chassisSpeedsPublisher.set(this.chassisSpeeds);
+
+/** 
+      SmartDashboard.putData("Swerve Drive", new Sendable() {
+         @Override
+         public void initSendable(SendableBuilder builder) {
+            builder.setSmartDashboardType("SwerveDrive");
+
+            
+            builder.addDoubleProperty("Front Left Angle", () -> moduleIO[0].getTurnPositionInRotations(), null);
+            builder.addDoubleProperty("Front Left Velocity", () -> moduleIO[0].getActualModuleState().speedMetersPerSecond, null);
+
+            builder.addDoubleProperty("Front Right Angle", () -> moduleIO[1].getTurnPositionInRotations(), null);
+            builder.addDoubleProperty("Front Right Velocity", () -> moduleIO[1].getActualModuleState().speedMetersPerSecond, null);
+
+            builder.addDoubleProperty("Back Left Angle", () -> moduleIO[3].getTurnPositionInRotations(), null);
+            builder.addDoubleProperty("Back Left Velocity", () -> moduleIO[3].getActualModuleState().speedMetersPerSecond, null);
+
+            builder.addDoubleProperty("Back Right Angle", () -> moduleIO[2].getTurnPositionInRotations(), null);
+            builder.addDoubleProperty("Back Right Velocity", () -> moduleIO[2].getActualModuleState().speedMetersPerSecond, null);
+
+            builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
+         }
+         });
+         */
    }
 
    public void simulationPeriodic() {
@@ -175,7 +206,8 @@ public class SwerveDriveTrain extends SubsystemBase {
     *                      control
     */
    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-  
+      this.fieldRelative = fieldRelative;
+
       this.chassisSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, this.getRotation())
             : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
