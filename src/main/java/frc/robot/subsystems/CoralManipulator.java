@@ -1,4 +1,6 @@
 package frc.robot.subsystems;
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -25,8 +27,8 @@ public class CoralManipulator extends SubsystemBase {
   //23: RIGHT HAND SIDE (looking from behind)
  
   //Figure out which ones of these is top and bottom
-  public SparkLimitSwitch upperLimit;
-  public SparkLimitSwitch lowerLimit;
+  public SparkLimitSwitch FWDLimit;
+  public SparkLimitSwitch REVLimit;
 
   private final SparkMax coralMotor1 = new SparkMax(22, MotorType.kBrushless);
   private final SparkMax coralMotor2 = new SparkMax(23, MotorType.kBrushless);
@@ -34,9 +36,11 @@ public class CoralManipulator extends SubsystemBase {
   private final SparkMax pivotMotor = new SparkMax(21, MotorType.kBrushless);
   AbsoluteEncoder absEncoder;
   SparkClosedLoopController pidPivot;
+  double input;
+  DoubleSupplier leftJoyY;
 
-  public CoralManipulator(){ 
-
+  public CoralManipulator(DoubleSupplier leftJoyY){ 
+    this.leftJoyY = leftJoyY;
     this.pidPivot = pivotMotor.getClosedLoopController();
     this.absEncoder = pivotMotor.getAbsoluteEncoder();
 
@@ -54,7 +58,7 @@ public class CoralManipulator extends SubsystemBase {
     absEncoder = pivotMotor.getAbsoluteEncoder();
 
     SparkMaxConfig pivotConfig = new SparkMaxConfig();
-    pivotConfig.inverted(true);
+    
     
     //seeting up the closed loop controller for Pivot
     pivotConfig.closedLoop.pidf(
@@ -63,40 +67,29 @@ public class CoralManipulator extends SubsystemBase {
     0, //d
     .001);//f
 
-    pivotConfig.softLimit.forwardSoftLimitEnabled(true);
-    pivotConfig.softLimit.reverseSoftLimitEnabled(true);
+
+    pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
 
     LimitSwitchConfig limitSwitchConfig = new LimitSwitchConfig();
 
     //normally closed
     limitSwitchConfig.forwardLimitSwitchType(Type.kNormallyClosed);
     limitSwitchConfig.reverseLimitSwitchType(Type.kNormallyClosed);
-
-    pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-    
-    SoftLimitConfig softLimitConfig = new SoftLimitConfig();
     
     limitSwitchConfig.forwardLimitSwitchEnabled(true);
     limitSwitchConfig.reverseLimitSwitchEnabled(true);
 
+    SoftLimitConfig softLimitConfig = new SoftLimitConfig();
     softLimitConfig.forwardSoftLimitEnabled(true); //enables the forward soft limit
     softLimitConfig.reverseSoftLimitEnabled(true); //enables the reverse soft limit
 
-    softLimitConfig.forwardSoftLimit(1);
-    softLimitConfig.reverseSoftLimit(0);
+    FWDLimit = pivotMotor.getForwardLimitSwitch();
+    REVLimit = pivotMotor.getReverseLimitSwitch();
 
-    upperLimit = pivotMotor.getReverseLimitSwitch();
-    lowerLimit = pivotMotor.getForwardLimitSwitch();
-
-    // - is down and + is up
-    //applies the soft limit configuration to the motor controller
     pivotConfig.smartCurrentLimit(3);
+    // pivotConfig.apply(softLimitConfig);
+    pivotConfig.apply(limitSwitchConfig); //reverse is at the top and forward is at the bottom
     
-    // config.apply(softLimitConfig);
-    pivotConfig.apply(limitSwitchConfig);
-      
-    coralMotor1.configure(coralConfig1, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    coralMotor2.configure(coralConfig2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
@@ -145,11 +138,21 @@ public class CoralManipulator extends SubsystemBase {
    });
  }
 
- public Command spinPivot() {
-   return this.runOnce(() -> pidPivot.setReference(0.5 , SparkMax.ControlType.kPosition));
- }
 
  public void periodic() {
    SmartDashboard.putNumber("angle of pivot", (absEncoder.getPosition()*360)); 
+
+
+   SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
+
+   SmartDashboard.putBoolean("REV Limit", this.REVLimit.isPressed());
  }
+
+ public Command movePivot() {
+  return this.run(()->{
+      input = this.leftJoyY.getAsDouble();
+      pivotMotor.set(input * 0.1);
+  });
+}
+
  }
