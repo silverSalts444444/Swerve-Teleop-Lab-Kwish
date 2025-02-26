@@ -115,7 +115,7 @@ public class SwerveDriveTrain extends SubsystemBase {
    }
 
    public void periodic() {
-      SmartDashboard.putBoolean("Field Relative", this.fieldRelative);
+      //SmartDashboard.putBoolean("Field Relative", this.fieldRelative);
 
       // Update module positions
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
@@ -125,15 +125,15 @@ public class SwerveDriveTrain extends SubsystemBase {
       this.field.setRobotPose(this.getPoseFromEstimator());
 
       // Update telemetry of each swerve module
-      SwerveUtil.updateTelemetry(moduleIO);
+      //SwerveUtil.updateTelemetry(moduleIO);
 
       // Draw poses of robot's modules in SmartDashboard
       SwerveUtil.drawModulePoses(modulePositions, field, getPoseFromEstimator());
 
       // Put field on SmartDashboard
       SmartDashboard.putData("Field", this.field);
-      SmartDashboard.putNumberArray("Actual States", SwerveUtil.getDoubleStates(getActualStates()));
-      SmartDashboard.putNumberArray("Setpoint States", SwerveUtil.getDoubleStates(getSetpointStates()));
+      //SmartDashboard.putNumberArray("Actual States", SwerveUtil.getDoubleStates(getActualStates()));
+      //SmartDashboard.putNumberArray("Setpoint States", SwerveUtil.getDoubleStates(getSetpointStates()));
       SmartDashboard.putNumber("Robot Rotation", getPoseFromEstimator().getRotation().getRadians());
       SmartDashboard.putNumber("Angle", getHeading());
 
@@ -142,7 +142,7 @@ public class SwerveDriveTrain extends SubsystemBase {
       absStatePublisher.set(getCanCoderStates());
       chassisSpeedsPublisher.set(this.chassisSpeeds);
 
-
+/** 
       SmartDashboard.putData("Swerve Drive", new Sendable() {
          @Override
          public void initSendable(SendableBuilder builder) {
@@ -164,6 +164,7 @@ public class SwerveDriveTrain extends SubsystemBase {
             builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
          }
          });
+         */
    }
 
    public void simulationPeriodic() {

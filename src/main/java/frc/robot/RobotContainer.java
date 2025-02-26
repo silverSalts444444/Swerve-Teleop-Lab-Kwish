@@ -43,10 +43,10 @@ public class RobotContainer {
   private Elevator elevator;
 
   public RobotContainer() {
-    // createSwerve();
+    //createSwerve();
     //createDeepHang();
-    createCoralManipulator();
-    // createElevator();
+    //createCoralManipulator();
+    createElevator();
   }
 
   private void createSwerve() {
@@ -68,6 +68,7 @@ public class RobotContainer {
   private void createDeepHang() {
     deepHang = new DeepHang();
     
+    //deepHang.setDefaultCommand(deepHang.stop());
     mechXboxController.povUp().whileTrue(deepHang.fwd());
     mechXboxController.povUp().onFalse(deepHang.stop());
 
@@ -78,9 +79,9 @@ public class RobotContainer {
   private void createCoralManipulator() {
     coralManipulator = new CoralManipulator(()->{
       return mechXboxController.getLeftY();
-
     });
-
+    //coralManipulator.setDefaultCommand(coralManipulator.stopCoral());
+    /** 
     mechXboxController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
     mechXboxController.x().whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
     mechXboxController.b().whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
@@ -97,30 +98,28 @@ public class RobotContainer {
     Trigger coralStopB2 = mechXboxController.axisGreaterThan(1, -0.1);
     
     coralStopB1.and(coralStopB2).onTrue(coralManipulator.pivotStop()); 
+    */
+    mechXboxController.a().onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    mechXboxController.b().onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
   }
 
   private void createElevator() {
     elevator = new Elevator(()->{
       return mechXboxController.getRightY();
     });
-
-    mechXboxController.leftBumper().onTrue(elevator.homing());
-    mechXboxController.rightBumper().onTrue(elevator.stopElevator());
-
-        
-    mechXboxController.axisGreaterThan(5, 0.1).whileTrue(elevator.moveElevator()); // If joystick is above 0.1, move up 
-    mechXboxController.axisLessThan(5, -0.1).whileTrue(elevator.moveElevator()); // If joystick is below -0.1 move down
-
-    Trigger elevStopB1 = mechXboxController.axisLessThan(5, 0.1);
-    //Elevator stop for bound 1 and 2 - between -0.1 and 0.1
-    Trigger elevStopB2 = mechXboxController.axisGreaterThan(5, -0.1);
+    //mechXboxController.leftBumper().onTrue(elevator.homing());
+    //mechXboxController.rightBumper().onTrue(elevator.stopElevator());
     
-    elevStopB1.and(elevStopB2).onTrue(elevator.stopElevator());  // It needs to hold position not completely stop
     // if the joystick changes from moving to being still (in bounds), then stop the elevator. It only toggles when the state changes, not repeatidly
-    mechXboxController.a().onTrue(elevator.setHeightL1()); //on button press
-    mechXboxController.b().onTrue(elevator.setHeightL2()); //on button press
-    mechXboxController.x().onTrue(elevator.setHeightL3()); //on button press
-    mechXboxController.y().onTrue(elevator.setHeightL4()); //on button press
+    //mechXboxController.a().onTrue(elevator.setHeightL1()); //on button press
+    //mechXboxController.b().onTrue(elevator.setHeightL2()); //on button press
+    //mechXboxController.x().onTrue(elevator.setHeightL3()); //on button press
+    //mechXboxController.y().onTrue(elevator.setHeightL4()); //on button press
+    //We apply the deadband inside this function
+    mechXboxController.y().toggleOnTrue(elevator.moveElevator());
+
+    //Should change this stop to stall so the elevator can hold its position
+    mechXboxController.y().toggleOnFalse(elevator.stopElevator());
     
   }
 

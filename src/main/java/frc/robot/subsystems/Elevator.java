@@ -132,9 +132,8 @@ public class Elevator extends SubsystemBase {
   
   public Command setHeightL1(){
     return this.runOnce(()->{
-        //motorE.set(0);
         // PIDController.setReference(106.55, SparkMax.ControlType.kPosition);
-        PIDController.setReference(10 * conversionFactor, SparkMax.ControlType.kPosition);
+        //PIDController.setReference(10 * conversionFactor, SparkMax.ControlType.kPosition);
         System.out.println("Elevator L1");
         //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
     });
@@ -143,7 +142,6 @@ public class Elevator extends SubsystemBase {
 
   public Command setHeightL2(){
     return this.runOnce(()->{
-        //motorE.set(0);
         // PIDController.setReference(261.27, SparkMax.ControlType.kPosition);
         System.out.println("Elevator L2");
         //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
@@ -152,7 +150,6 @@ public class Elevator extends SubsystemBase {
 
   public Command setHeightL3(){
     return this.runOnce(()->{
-        motorE.set(0);
         // PIDController.setReference(295.082, SparkMax.ControlType.kPosition);
         System.out.println("Elevator L3");
     });
@@ -160,7 +157,6 @@ public class Elevator extends SubsystemBase {
 
   public Command setHeightL4(){
     return this.runOnce(()->{
-    motorE.set(0);
     PIDController.setReference(10 * this.conversionFactor, SparkMax.ControlType.kPosition);
     System.out.println("Elevator setpoint");
     //Sets the setpoint to 10 rotations. PIDController needs to be correctly configured
@@ -170,7 +166,9 @@ public class Elevator extends SubsystemBase {
 
   public Command moveElevator() {
     return this.run(()->{
-        input = this.rightJoyY.getAsDouble();
+        input = MathUtil.applyDeadband(this.rightJoyY.getAsDouble(), .1);
+        //setpoint += input;
+        //PIDController.setReference(this.setpoint, SparkMax.ControlType.kPosition);
         motorE.set(input * 0.5);
     });
   }
