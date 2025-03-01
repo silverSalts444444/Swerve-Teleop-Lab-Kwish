@@ -43,7 +43,7 @@ public class RobotContainer {
   private Elevator elevator;
 
   public RobotContainer() {
-    //createSwerve();
+    createSwerve();
     //createDeepHang();
     //createCoralManipulator();
     createElevator();
@@ -129,7 +129,6 @@ public class RobotContainer {
   }
 
   public void initCommandInTeleop() {
-    //swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
-    createSwerve();
+    swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 }
