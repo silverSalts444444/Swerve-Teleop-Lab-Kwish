@@ -15,6 +15,7 @@ import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
 //import for PID controller
 import com.revrobotics.spark.SparkClosedLoopController;
 // import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -78,11 +79,11 @@ public class Elevator extends SubsystemBase {
     this.rel_encoder = motorE.getEncoder();
     
     rel_encoder.setPosition(0);
-    config.closedLoop.pidf(
+    config.closedLoop.pid(
     0.0125, //p
     0.0, //i
-    0.0, //d
-    0.001);//f
+    0.0 //d
+    );
     
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     
@@ -120,15 +121,15 @@ public class Elevator extends SubsystemBase {
     });    
   }
 
-  //   resets encoders
-  public Command homing(){
-    return this.run(() ->{
-        while (!isREVPressed()){
-            motorE.set(0.2);
-        }
-        rel_encoder.setPosition(0);
-    });
-  }
+  // //   resets encoders
+  // public Command homing(){
+  //   return this.run(() ->{
+  //       while (!isREVPressed()){
+  //           motorE.set(0.2);
+  //       }
+  //       rel_encoder.setPosition(0);
+  //   });
+  // }
   
   public Command setHeightL1(){
     return this.runOnce(()->{
@@ -177,23 +178,36 @@ public class Elevator extends SubsystemBase {
 
   public Command stallElevator(){
     return this.run(()->{
-        PIDController.setReference(this.currentPos, SparkMax.ControlType.kPosition);
+        PIDController.setReference(this.currentPos, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.8);
     });
   }
 
-  public boolean isREVPressed() {
-      return revLimit.isPressed();
+  public boolean isFWDPressed() {
+      return fwdLimit.isPressed();
   }
+  public SparkMax getMotorE(){
+    return motorE;
+  }
+  public void resetEncoder(){
+    rel_encoder.setPosition(0);
+  }
+
 
   // Called when the command is initially scheduled.
   @Override
   public void periodic(){
+    if (isFWDPressed()){
+      this.rel_encoder.setPosition(0);
+    }
+    
     SmartDashboard.putNumber("setpoint", setpoint);
     currentPos = rel_encoder.getPosition();     
     SmartDashboard.putNumber("Current position in converted rotations",currentPos * conversionFactor);
-    SmartDashboard.putBoolean("Rev Limit", isREVPressed());
+    SmartDashboard.putBoolean("Rev Limit", revLimit.isPressed());
     SmartDashboard.putBoolean("Fwd Limit", fwdLimit.isPressed());
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());
+    SmartDashboard.putNumber("Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
+    //https://www.chiefdelphi.com/t/get-voltage-from-spark-max/344136/2
   }
 
 }

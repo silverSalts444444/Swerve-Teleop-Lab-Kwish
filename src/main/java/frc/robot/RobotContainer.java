@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.Homing;
 import frc.robot.commands.swerve.SwerveAutonomousCMD;
 import frc.robot.commands.swerve.SwerveTeleopCMD;
 import frc.robot.subsystems.CoralManipulator;
@@ -103,9 +104,10 @@ public class RobotContainer {
     elevator = new Elevator(()->{
       return mechXboxController.getRightY();
     });
+    Homing home = new Homing(elevator);
 
-    mechXboxController.leftBumper().onTrue(elevator.homing());
-    mechXboxController.rightBumper().onTrue(elevator.stopElevator());
+    mechXboxController.leftBumper().onTrue(home);
+    mechXboxController.rightBumper().onChange(elevator.stopElevator());
 
         
     mechXboxController.axisGreaterThan(5, 0.1).whileTrue(elevator.moveElevator()); // If joystick is above 0.1, move up 
