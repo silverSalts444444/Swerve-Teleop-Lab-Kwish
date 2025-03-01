@@ -141,7 +141,7 @@ public class CoralManipulator extends SubsystemBase {
 
  public void periodic() {
    SmartDashboard.putNumber("angle of pivot", (absEncoder.getPosition()*360)); 
-
+   SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
 
    SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
 

@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -45,7 +46,7 @@ public class RobotContainer {
   public RobotContainer() {
     //createSwerve();
     //createDeepHang();
-    //createCoralManipulator();
+    createCoralManipulator();
     createElevator();
   }
 
@@ -69,6 +70,7 @@ public class RobotContainer {
     deepHang = new DeepHang();
     
     //deepHang.setDefaultCommand(deepHang.stop());
+    
     mechXboxController.povUp().whileTrue(deepHang.fwd());
     mechXboxController.povUp().onFalse(deepHang.stop());
 
@@ -81,7 +83,7 @@ public class RobotContainer {
       return mechXboxController.getLeftY();
     });
     //coralManipulator.setDefaultCommand(coralManipulator.stopCoral());
-    /** 
+     
     mechXboxController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
     mechXboxController.x().whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
     mechXboxController.b().whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
@@ -98,9 +100,7 @@ public class RobotContainer {
     Trigger coralStopB2 = mechXboxController.axisGreaterThan(1, -0.1);
     
     coralStopB1.and(coralStopB2).onTrue(coralManipulator.pivotStop()); 
-    */
-    mechXboxController.a().onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
-    mechXboxController.b().onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+  
   }
 
   private void createElevator() {
