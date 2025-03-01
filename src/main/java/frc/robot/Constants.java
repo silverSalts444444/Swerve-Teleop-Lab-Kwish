@@ -147,10 +147,15 @@ public final class Constants {
     }
 
     public static final class VisionConstants {
-        public static final String kCameraName = "FIND THIS OUT";
+        public static final String kLeftCameraName = "FIND THIS OUT";
+        public static final String kRightCameraName = "FIND THIS OUT";
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-        public static final Transform3d kRobotToCam =
+        public static final Transform3d kLeftRobotToCam =
                 new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+
+        public static final Transform3d kRightRobotToCam =
+                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+
 
         // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout kTagLayout =
@@ -167,7 +172,10 @@ public final class Constants {
         private static final double MotorKV = 473.0; // For neo v1.1
         public static final double FF = 1/MotorKV; // For neo v1.1
         public static final double P = .0085;
+    }
 
+    public static final class CoralManipulatorConstants{
+        public static final int pivotConversionFactor = 360;
     }
 
     public static final int PDH_can_id = 15;

@@ -61,7 +61,7 @@ public class RobotContainer {
   private Vision vision;
 
   public RobotContainer() {
-    createSwerve();
+    //createSwerve();
     //createDeepHang();
     //createCoralManipulator();
     //createElevator();
@@ -92,48 +92,59 @@ public class RobotContainer {
   private void createDeepHang() {
     deepHang = new DeepHang();
     
+    //deepHang.setDefaultCommand(deepHang.stop());
     mechXboxController.povUp().whileTrue(deepHang.fwd());
-    mechXboxController.povUp().whileFalse(deepHang.stop());
+    mechXboxController.povUp().onFalse(deepHang.stop());
 
     mechXboxController.povDown().whileTrue(deepHang.rev());
-    mechXboxController.povDown().whileFalse(deepHang.stop());
+    mechXboxController.povDown().onFalse(deepHang.stop());
   }
 
   private void createCoralManipulator() {
-    coralManipulator = new CoralManipulator(mechXboxController);
-
-    mechXboxController.x().onTrue(coralManipulator.stopCoral());
-    mechXboxController.y().onTrue(coralManipulator.intakeCoral());
-    mechXboxController.b().onTrue(coralManipulator.releaseCoral());
+    coralManipulator = new CoralManipulator(()->{
+      return mechXboxController.getLeftY();
+    });
+    //coralManipulator.setDefaultCommand(coralManipulator.stopCoral());
+    /** 
     mechXboxController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
-    //mechXboxController.povUp().onTrue(coralManipulator.pivotUp());
+    mechXboxController.x().whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    mechXboxController.b().whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+    
+    mechXboxController.povUp().onTrue(coralManipulator.pivotL4());
     mechXboxController.povDown().onTrue(coralManipulator.pivotDown());
+    mechXboxController.povRight().onTrue(coralManipulator.pivotIntake());
+  
+
+    mechXboxController.axisGreaterThan(1, 0.1).whileTrue(coralManipulator.movePivot());
+    mechXboxController.axisLessThan(1, -0.1).whileTrue(coralManipulator.movePivot());
+
+    Trigger coralStopB1 = mechXboxController.axisLessThan(1, 0.1);
+    Trigger coralStopB2 = mechXboxController.axisGreaterThan(1, -0.1);
+    
+    coralStopB1.and(coralStopB2).onTrue(coralManipulator.pivotStop()); 
+    */
+    mechXboxController.a().onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    mechXboxController.b().onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
   }
 
   private void createElevator() {
-    elevator = new Elevator(() -> mechXboxController.getRightY());
-    mechXboxController.a().onTrue(elevator.setHeightL1());
-    /** 
-
-    mechXboxController.a().onTrue(elevator.homing());
-        
-    mechXboxController.axisGreaterThan(5, 0.1).whileTrue(elevator.moveElevatorUp()); // If joystick is above 0.1, move up 
-    mechXboxController.axisLessThan(5, -0.1).whileTrue(elevator.moveElevatorDown()); // If joystick is below -0.1 move down
-
-    // mechXboxController.a().onTrue(elevator.homing());
+    elevator = new Elevator(()->{
+      return mechXboxController.getRightY();
+    });
+    //mechXboxController.leftBumper().onTrue(elevator.homing());
+    //mechXboxController.rightBumper().onTrue(elevator.stopElevator());
     
-    //directions are flipped
-    mechXboxController.axisGreaterThan(5, 0.1).onTrue(elevator.moveElevatorDown()); // If joystick is above 0.1, move down 
-    mechXboxController.axisLessThan(5, -0.1).onTrue(elevator.moveElevatorUp()); // If joystick is below -0.1 move up
-    
-    Trigger elevStopB1 = mechXboxController.axisLessThan(5, 0.1);
-    //Elevator stop for bound 1 and 2 - between -0.1 and 0.1
-    Trigger elevStopB2 = mechXboxController.axisGreaterThan(5, -0.1);
-    
-    elevStopB1.and(elevStopB2).onTrue(elevator.stopElevator());  // It needs to hold position not completely stop
     // if the joystick changes from moving to being still (in bounds), then stop the elevator. It only toggles when the state changes, not repeatidly
-    mechXboxController.x().onTrue(elevator.setHeightL4()); //on button press
-    */
+    //mechXboxController.a().onTrue(elevator.setHeightL1()); //on button press
+    //mechXboxController.b().onTrue(elevator.setHeightL2()); //on button press
+    //mechXboxController.x().onTrue(elevator.setHeightL3()); //on button press
+    //mechXboxController.y().onTrue(elevator.setHeightL4()); //on button press
+    //We apply the deadband inside this function
+    mechXboxController.y().toggleOnTrue(elevator.moveElevator());
+
+    //Should change this stop to stall so the elevator can hold its position
+    mechXboxController.y().toggleOnFalse(elevator.stopElevator());
+    
   }
 
   public Command getAutonomousCommand() {
@@ -141,6 +152,6 @@ public class RobotContainer {
   }
 
   public void initCommandInTeleop() {
-    swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
+    //swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 }

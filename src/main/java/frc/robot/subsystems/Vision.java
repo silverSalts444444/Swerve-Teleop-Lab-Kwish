@@ -47,42 +47,23 @@ import java.util.List;
  import org.photonvision.targeting.PhotonTrackedTarget;
  
  public class Vision {
-     private final PhotonCamera camera;
-     private final PhotonPoseEstimator photonEstimator;
+     private final PhotonCamera leftCamera;
+     //private final PhotonCamera rightCamera;
+     private final PhotonPoseEstimator leftphotonEstimator;
+     //private final PhotonPoseEstimator rightphotonEstimator;
      private Matrix<N3, N1> curStdDevs;
  
-     // Simulation
-     private PhotonCameraSim cameraSim;
-     private VisionSystemSim visionSim;
- 
      public Vision() {
-         camera = new PhotonCamera(VisionConstants.kCameraName);
+         leftCamera = new PhotonCamera(VisionConstants.kLeftCameraName);
+         //rightCamera = new PhotonCamera(VisionConstants.kRightCameraName);
  
-         photonEstimator =
-                 new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kRobotToCam);
-         photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
- 
-         // ----- Simulation
-         if (Robot.isSimulation()) {
-             // Create the vision system simulation which handles cameras and targets on the field.
-             visionSim = new VisionSystemSim("main");
-             // Add all the AprilTags inside the tag layout as visible targets to this simulated field.
-             visionSim.addAprilTags(VisionConstants.kTagLayout);
-             // Create simulated camera properties. These can be set to mimic your actual camera.
-             var cameraProp = new SimCameraProperties();
-             cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90));
-             cameraProp.setCalibError(0.35, 0.10);
-             cameraProp.setFPS(15);
-             cameraProp.setAvgLatencyMs(50);
-             cameraProp.setLatencyStdDevMs(15);
-             // Create a PhotonCameraSim which will update the linked PhotonCamera's values with visible
-             // targets.
-             cameraSim = new PhotonCameraSim(camera, cameraProp);
-             // Add the simulated camera to view the targets on this simulated field.
-             visionSim.addCamera(cameraSim, VisionConstants.kRobotToCam);
- 
-             cameraSim.enableDrawWireframe(true);
-         }
+         leftphotonEstimator =
+                 new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kLeftRobotToCam);
+         leftphotonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+         //rightphotonEstimator =
+           //      new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kRightRobotToCam);
+         //rightphotonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
      }
  
      /**
@@ -95,22 +76,11 @@ import java.util.List;
       * @return An {@link EstimatedRobotPose} with an estimated pose, estimate timestamp, and targets
       *     used for estimation.
       */
-     public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+     public Optional<EstimatedRobotPose> getLeftCameraEstimatedGlobalPose() {
          Optional<EstimatedRobotPose> visionEst = Optional.empty();
-         for (var change : camera.getAllUnreadResults()) {
-             visionEst = photonEstimator.update(change);
-             updateEstimationStdDevs(visionEst, change.getTargets());
- 
-             if (Robot.isSimulation()) {
-                 visionEst.ifPresentOrElse(
-                         est ->
-                                 getSimDebugField()
-                                         .getObject("VisionEstimation")
-                                         .setPose(est.estimatedPose.toPose2d()),
-                         () -> {
-                             getSimDebugField().getObject("VisionEstimation").setPoses();
-                         });
-             }
+         for (var change : leftCamera.getAllUnreadResults()) {
+            visionEst = leftphotonEstimator.update(change);
+            updateEstimationStdDevs(visionEst, change.getTargets());
          }
          return visionEst;
      }
@@ -136,7 +106,7 @@ import java.util.List;
  
              // Precalculation - see how many tags we found, and calculate an average-distance metric
              for (var tgt : targets) {
-                 var tagPose = photonEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
+                 var tagPose = leftphotonEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
                  if (tagPose.isEmpty()) continue;
                  numTags++;
                  avgDist +=
@@ -166,28 +136,11 @@ import java.util.List;
  
      /**
       * Returns the latest standard deviations of the estimated pose from {@link
-      * #getEstimatedGlobalPose()}, for use with {@link
+      * #getLeftCameraEstimatedGlobalPose()}, for use with {@link
       * edu.wpi.first.math.estimator.SwerveDrivePoseEstimator SwerveDrivePoseEstimator}. This should
       * only be used when there are targets visible.
       */
      public Matrix<N3, N1> getEstimationStdDevs() {
          return curStdDevs;
-     }
- 
-     // ----- Simulation
- 
-     public void simulationPeriodic(Pose2d robotSimPose) {
-         visionSim.update(robotSimPose);
-     }
- 
-     /** Reset pose history of the robot in the vision system simulation. */
-     public void resetSimPose(Pose2d pose) {
-         if (Robot.isSimulation()) visionSim.resetRobotPose(pose);
-     }
- 
-     /** A Field2d for visualizing our robot and objects on the field. */
-     public Field2d getSimDebugField() {
-         if (!Robot.isSimulation()) return null;
-         return visionSim.getDebugField();
      }
  }
