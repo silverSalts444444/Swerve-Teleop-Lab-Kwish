@@ -18,11 +18,10 @@ public class Homing extends Command{
     
    @Override
    public void end(boolean interrupted) {
-        this.elevator.resetEncoder();
    }
 
    @Override
     public boolean isFinished() {
-        return this.elevator.isFWDPressed();
+        return this.elevator.isREVPressed();
     }
 }

@@ -67,6 +67,7 @@ public class Elevator extends SubsystemBase {
   private SparkLimitSwitch revLimit;
   private SparkLimitSwitch fwdLimit;
   private DoubleSupplier rightJoyY;
+  private boolean homedStartup = false;
   
   /** Creates a new Elevator. */
   public Elevator(DoubleSupplier rightJoyY) {
@@ -133,39 +134,47 @@ public class Elevator extends SubsystemBase {
   
   public Command setHeightL1(){
     return this.runOnce(()->{
-        //motorE.set(0);
-        // PIDController.setReference(106.55, SparkMax.ControlType.kPosition);
-        PIDController.setReference(10 * conversionFactor, SparkMax.ControlType.kPosition);
-        System.out.println("Elevator L1");
-        //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
+        if (this.homedStartup){
+          //motorE.set(0);
+          // PIDController.setReference(106.55, SparkMax.ControlType.kPosition);
+          PIDController.setReference(10 * conversionFactor, SparkMax.ControlType.kPosition);
+          System.out.println("Elevator L1");
+          //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
+        }
     });
   }
     
 
   public Command setHeightL2(){
     return this.runOnce(()->{
-        //motorE.set(0);
-        // PIDController.setReference(261.27, SparkMax.ControlType.kPosition);
-        System.out.println("Elevator L2");
-        //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
+        if (this.homedStartup){
+          //motorE.set(0);
+          // PIDController.setReference(261.27, SparkMax.ControlType.kPosition);
+          System.out.println("Elevator L2");
+          //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
+        }
     });
   }
 
   public Command setHeightL3(){
     return this.runOnce(()->{
-        motorE.set(0);
-        // PIDController.setReference(295.082, SparkMax.ControlType.kPosition);
-        System.out.println("Elevator L3");
+        if (this.homedStartup){
+          motorE.set(0);
+          // PIDController.setReference(295.082, SparkMax.ControlType.kPosition);
+          System.out.println("Elevator L3");
+        }
     });
   }
 
   public Command setHeightL4(){
     return this.runOnce(()->{
-    motorE.set(0);
-    PIDController.setReference(10 * this.conversionFactor, SparkMax.ControlType.kPosition);
-    System.out.println("Elevator setpoint");
-    //Sets the setpoint to 10 rotations. PIDController needs to be correctly configured
-    //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
+      if (this.homedStartup){
+        motorE.set(0);
+        PIDController.setReference(10 * this.conversionFactor, SparkMax.ControlType.kPosition);
+        System.out.println("Elevator setpoint");
+        //Sets the setpoint to 10 rotations. PIDController needs to be correctly configured
+        //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
+      }
     });
   }
 
@@ -182,8 +191,8 @@ public class Elevator extends SubsystemBase {
     });
   }
 
-  public boolean isFWDPressed() {
-      return fwdLimit.isPressed();
+  public boolean isREVPressed() {
+      return revLimit.isPressed();
   }
   public SparkMax getMotorE(){
     return motorE;
@@ -196,10 +205,11 @@ public class Elevator extends SubsystemBase {
   // Called when the command is initially scheduled.
   @Override
   public void periodic(){
-    if (isFWDPressed()){
+    if (isREVPressed()){ //Whenever the rev limit switch is pressed, resets the encoder position
+      homedStartup = true;
       this.rel_encoder.setPosition(0);
     }
-    
+
     SmartDashboard.putNumber("setpoint", setpoint);
     currentPos = rel_encoder.getPosition();     
     SmartDashboard.putNumber("Current position in converted rotations",currentPos * conversionFactor);
@@ -207,6 +217,7 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putBoolean("Fwd Limit", fwdLimit.isPressed());
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());
     SmartDashboard.putNumber("Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
+    SmartDashboard.putBoolean("Homed Since Startup?", homedStartup);
     //https://www.chiefdelphi.com/t/get-voltage-from-spark-max/344136/2
   }
 
