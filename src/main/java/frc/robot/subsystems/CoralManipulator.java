@@ -102,7 +102,7 @@ public class CoralManipulator extends SubsystemBase {
         });
     }
 
-    public Command pivotDown() {
+    public Command pivotPlace() {
         return this.runOnce(() -> {
             this.setpoint = -35; // Degrees
             this.pidPivot.setReference(zeroedRotations + (setpoint / 360.0), SparkMax.ControlType.kPosition);
@@ -136,7 +136,7 @@ public class CoralManipulator extends SubsystemBase {
 
     public void periodic() {
         SmartDashboard.putNumber("Angle of Pivot", (absEncoder.getPosition() * 360.0));
-        SmartDashboard.putNumber("Angle from 0", (153.2 - (absEncoder.getPosition() * 360.0)));
+        SmartDashboard.putNumber("Angle from 0", (153.2 - (absEncoder.getPosition() * 360.0))); // angle at our defined 0˚ - current angle
         SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
         SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
         SmartDashboard.putBoolean("REV Limit", this.REVLimit.isPressed());

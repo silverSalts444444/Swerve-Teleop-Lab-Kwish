@@ -87,9 +87,9 @@ public class RobotContainer {
     // Intake (Button 16) and Release (Button 18)
     mechJoystick.button(16).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
     mechJoystick.button(18).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
-    
-    mechJoystick.button(0).onTrue(coralManipulator.pivotIntake());
-    mechJoystick.button(0).onTrue(coralManipulator.pivotPlace());
+
+    mechJoystick.button(0).onTrue(coralManipulator.pivotIntake()); // TEMP
+    mechJoystick.button(0).onTrue(coralManipulator.pivotPlace()); //TEMP
 
     mechJoystick.axisMagnitudeGreaterThan(7, 0).whileTrue(coralManipulator.movePivot()); //moves the pivot - deadband of 0.1 is applied in movepivot()
     
