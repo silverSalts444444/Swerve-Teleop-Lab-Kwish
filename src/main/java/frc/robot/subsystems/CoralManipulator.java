@@ -72,14 +72,14 @@ public class CoralManipulator extends SubsystemBase {
         softLimitConfig.reverseSoftLimitEnabled(true);
 
         // Updated Soft Limits
-        double forwardSoftLimit = zeroedRotations + (10.0 / 360.0);    // +10 degrees up
-        double reverseSoftLimit = zeroedRotations + (-44.0 / 360.0);   // -44 degrees down
+        // double forwardSoftLimit = zeroedRotations + (10.0 / 360.0);    // +10 degrees up
+        // double reverseSoftLimit = zeroedRotations + (-44.0 / 360.0);   // -44 degrees down
 
-        softLimitConfig.forwardSoftLimit((float) forwardSoftLimit);
-        softLimitConfig.reverseSoftLimit((float) reverseSoftLimit);
+        // softLimitConfig.forwardSoftLimit((float) forwardSoftLimit);
+        // softLimitConfig.reverseSoftLimit((float) reverseSoftLimit);
 
         // Apply configurations
-        pivotConfig.apply(softLimitConfig);
+        // pivotConfig.apply(softLimitConfig);
         pivotConfig.apply(limitSwitchConfig);
         pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
@@ -140,7 +140,6 @@ public class CoralManipulator extends SubsystemBase {
         SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
         SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
         SmartDashboard.putBoolean("REV Limit", this.REVLimit.isPressed());
-        
     }
 
     public Command movePivot() {

@@ -206,6 +206,8 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());
     SmartDashboard.putNumber("Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
     SmartDashboard.putBoolean("Homed Since Startup?", homedStartup);
+    SmartDashboard.putNumber("Left Slider", rightJoyY.getAsDouble());
+    
     //https://www.chiefdelphi.com/t/get-voltage-from-spark-max/344136/2
   }
 
