@@ -53,13 +53,13 @@ public final class Constants {
                 0, 1,2,9,ROBOT_TYPE.moduleAngleOffsets[0],false);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax module1 = new SwerveModuleIOSparkMax(//front right
-                1, 3,4,10,ROBOT_TYPE.moduleAngleOffsets[1],true);
+                1, 3,4,10,ROBOT_TYPE.moduleAngleOffsets[1],false);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax module2 = new SwerveModuleIOSparkMax(//back right
                 2, 5,6,11,ROBOT_TYPE.moduleAngleOffsets[2],true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax module3 = new SwerveModuleIOSparkMax(//back left
-                3, 7,8,12,ROBOT_TYPE.moduleAngleOffsets[3],false);
+                3, 7,8,12,ROBOT_TYPE.moduleAngleOffsets[3],true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
     }
 

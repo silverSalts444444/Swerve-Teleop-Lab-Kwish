@@ -152,6 +152,6 @@ public class RobotContainer {
   }
 
   public void initCommandInTeleop() {
-    //swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
+    swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 }
