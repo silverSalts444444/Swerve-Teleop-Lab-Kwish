@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
+import frc.robot.commands.autoPaths.DIW;
 import frc.robot.commands.autoPaths.Reef18PoseEst;
 
 /** Add your docs here. */
@@ -30,7 +31,8 @@ public class InitializeAutoPaths {
     
     // Plays:
     private Reef18PoseEst reef18PoseEst;
-    
+    private DIW diw;
+
     RobotConfig config;
 
     public InitializeAutoPaths(SwerveDriveTrain swerve) {
@@ -68,10 +70,10 @@ public class InitializeAutoPaths {
          // PLAYS:
         try {
           reef18PoseEst = new Reef18PoseEst(this.swerve);
-          
+          diw = new DIW(this.swerve);
 
           autoCommandChooser.setDefaultOption("Test Path", reef18PoseEst);
-
+          autoCommandChooser.addOption("DIW-Test", diw);
           SmartDashboard.putData(autoCommandChooser);
 
         } catch (FileVersionException | IOException | ParseException e) {
