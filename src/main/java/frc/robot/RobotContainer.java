@@ -1,19 +1,28 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.swerve.SwerveAutonomousCMD;
 import frc.robot.commands.swerve.SwerveTeleopCMD;
+import frc.robot.commands.targeting.Alignment;
+import frc.robot.commands.targeting.LongitudinalAlignment;
 import frc.robot.subsystems.CoralManipulator;
 import frc.robot.subsystems.DeepHang;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
+import frc.robot.subsystems.targeting.Vision;
+
+import org.photonvision.PhotonCamera;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 
 
 public class RobotContainer {
@@ -29,6 +38,7 @@ public class RobotContainer {
   // Xbox + an additional one for PC use
   private final Joystick drivingXbox = new Joystick(0);
   private final CommandXboxController mechXboxController = new CommandXboxController(1);
+  private final CommandJoystick mechControl = new CommandJoystick(1);
 
   private SwerveDriveTrain swerveDriveTrain;
 
@@ -42,11 +52,27 @@ public class RobotContainer {
 
   private Elevator elevator;
 
+  private Alignment align;
+  private LongitudinalAlignment longAlignment;
+  private Vision vision;
+
+  private final PhotonCamera cam = new PhotonCamera("bob");
+
   public RobotContainer() {
     createSwerve();
     //createDeepHang();
     //createCoralManipulator();
-    createElevator();
+    // createElevator();
+    configVision();
+  }
+
+  private void configVision(){
+    vision = new Vision(cam);
+    longAlignment = new LongitudinalAlignment(swerveDriveTrain, vision);
+    align = new Alignment(swerveDriveTrain, vision);
+    JoystickButton alignButton = new JoystickButton(drivingXbox, XboxController.Button.kA.value);
+    // JoystickButton longAlignButton = new JoystickButton(drivingXbox, XboxController.Button.kX.value);
+    alignButton.toggleOnTrue(align);
   }
 
   private void createSwerve() {
@@ -80,6 +106,10 @@ public class RobotContainer {
     coralManipulator = new CoralManipulator(()->{
       return mechXboxController.getLeftY();
     });
+
+    mechControl.button(16).onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    mechControl.button(18).onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+
     //coralManipulator.setDefaultCommand(coralManipulator.stopCoral());
     /** 
     mechXboxController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
@@ -99,13 +129,13 @@ public class RobotContainer {
     
     coralStopB1.and(coralStopB2).onTrue(coralManipulator.pivotStop()); 
     */
-    mechXboxController.a().onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
-    mechXboxController.b().onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+    // mechXboxController.a().onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    // mechXboxController.b().onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
   }
 
   private void createElevator() {
     elevator = new Elevator(()->{
-      return mechXboxController.getRightY();
+      return mechControl.getY();
     });
     //mechXboxController.leftBumper().onTrue(elevator.homing());
     //mechXboxController.rightBumper().onTrue(elevator.stopElevator());
