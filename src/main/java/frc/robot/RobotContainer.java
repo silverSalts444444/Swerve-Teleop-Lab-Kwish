@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Homing;
 import frc.robot.commands.swerve.SwerveAutonomousCMD;
 import frc.robot.commands.swerve.SwerveTeleopCMD;
@@ -29,7 +30,7 @@ public class RobotContainer {
 
   // Xbox + an additional one for PC use
   private final Joystick drivingXbox = new Joystick(0);
-  private final CommandXboxController mechController = new CommandXboxController(1);
+  private final Joystick mechController = new Joystick(1);
   private final CommandJoystick mechJoystick = new CommandJoystick(2);  // New joystick 
 
 
@@ -48,7 +49,7 @@ public class RobotContainer {
   public RobotContainer() {
     // createSwerve();
     //createDeepHang();
-    //createCoralManipulator();
+    createCoralManipulator();
     createElevator();
   }
 
@@ -72,37 +73,37 @@ public class RobotContainer {
     deepHang = new DeepHang();
     
     
-    mechController.povUp().whileTrue(deepHang.fwd());
-    mechController.povUp().onFalse(deepHang.stop());
+    mechController.axisGreaterThan(1, 0, false).whileTrue(deepHang.fwd());
+    mechController.axisGreaterThan(1, 0, false).onFalse(deepHang.stop());
 
-    mechController.povDown().whileTrue(deepHang.rev());
-    mechController.povDown().onFalse(deepHang.stop());
+    mechController.axisLessThan(1, -0.1, true).whileTrue(deepHang.rev());
+    mechController.axisLessThan(1, -0.1, true).onFalse(deepHang.stop());
   }
 
   private void createCoralManipulator() {
     coralManipulator = new CoralManipulator(() -> {
-      return mechController.getLeftY();
+      return mechController.getAxisType(7);
     });
 
     // Intake (Button 16) and Release (Button 18)
-    mechJoystick.button(16).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
-    mechJoystick.button(18).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
-    mechJoystick.button(1).whileTrue(coralManipulator.pivotDown()).onFalse(coralManipulator.stopCoral());
-    mechJoystick.button(2).whileTrue(coralManipulator.pivotIntake()).onFalse(coralManipulator.stopCoral());
-    mechJoystick.button(3).whileTrue(coralManipulator.pivotL4()).onFalse(coralManipulator.stopCoral());
-    mechJoystick.button(4).whileTrue(coralManipulator.pivotStop()).onFalse(coralManipulator.stopCoral());
+    // mechJoystick.button(16).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    // mechJoystick.button(18).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+    // mechJoystick.button(1).whileTrue(coralManipulator.pivotDown()).onFalse(coralManipulator.stopCoral());
+    // mechJoystick.button(2).whileTrue(coralManipulator.pivotIntake()).onFalse(coralManipulator.stopCoral());
+    // mechJoystick.button(3).whileTrue(coralManipulator.pivotL4()).onFalse(coralManipulator.stopCoral());
+    // mechJoystick.button(4).whileTrue(coralManipulator.pivotStop()).onFalse(coralManipulator.stopCoral());
 
-    mechController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
-    mechController.x().whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
-    mechController.b().whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+    // mechController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
+    mechController.button(16,true).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    mechController.button(18,true).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
     
-    mechController.povUp().onTrue(coralManipulator.pivotL4());
-    mechController.povDown().onTrue(coralManipulator.pivotDown());
-    mechController.povRight().onTrue(coralManipulator.pivotIntake());
+    // mechController.povUp().onTrue(coralManipulator.pivotL4());
+    // mechController.povDown().onTrue(coralManipulator.pivotDown());
+    // mechController.povRight().onTrue(coralManipulator.pivotIntake());
   
 
-    mechController.axisGreaterThan(1, 0.1).whileTrue(coralManipulator.movePivot());
-    mechController.axisLessThan(1, -0.1).whileTrue(coralManipulator.movePivot());
+    mechController.axisGreaterThan(7, 0.1,false).whileTrue(coralManipulator.movePivot());
+    mechController.axisLessThan(7, -0.1, true).whileTrue(coralManipulator.movePivot());
 
     Trigger coralStopB1 = mechController.axisLessThan(1, 0.1);
     Trigger coralStopB2 = mechController.axisGreaterThan(1, -0.1);
@@ -112,7 +113,7 @@ public class RobotContainer {
 
   private void createElevator() {
     elevator = new Elevator(()->{
-      return mechController.getRightY();
+      return mechController.getAxisType(5);
     });
 
     Homing home = new Homing(elevator);
