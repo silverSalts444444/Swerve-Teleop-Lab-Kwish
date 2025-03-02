@@ -1,4 +1,5 @@
 package frc.robot.subsystems;
+
 import java.util.function.DoubleSupplier;
 
 import com.revrobotics.AbsoluteEncoder;
@@ -18,141 +19,132 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
 public class CoralManipulator extends SubsystemBase {
-  double setpoint;
+    double setpoint;
 
-  //22: LEFT HAND SIDE 
-  //21: PIVOT POINT
-  //23: RIGHT HAND SIDE (looking from behind)
- 
-  //Figure out which ones of these is top and bottom
-  public SparkLimitSwitch FWDLimit;
-  public SparkLimitSwitch REVLimit;
+    public SparkLimitSwitch FWDLimit;
+    public SparkLimitSwitch REVLimit;
 
-  private final SparkMax coralMotor1 = new SparkMax(22, MotorType.kBrushless);
-  private final SparkMax coralMotor2 = new SparkMax(23, MotorType.kBrushless);
+    private final SparkMax coralMotor1 = new SparkMax(22, MotorType.kBrushless);
+    private final SparkMax coralMotor2 = new SparkMax(23, MotorType.kBrushless);
+    private final SparkMax pivotMotor = new SparkMax(21, MotorType.kBrushless);
 
-  private final SparkMax pivotMotor = new SparkMax(21, MotorType.kBrushless);
-  AbsoluteEncoder absEncoder;
-  SparkClosedLoopController pidPivot;
-  double input;
-  DoubleSupplier leftJoyY;
+    AbsoluteEncoder absEncoder;
+    SparkClosedLoopController pidPivot;
+    double input;
+    DoubleSupplier leftJoyY;
+    double zeroedRotations = 0.425;  // 0˚ reference point
 
-  public CoralManipulator(DoubleSupplier leftJoyY){ 
-    this.leftJoyY = leftJoyY;
-    this.pidPivot = pivotMotor.getClosedLoopController();
-    this.absEncoder = pivotMotor.getAbsoluteEncoder();
+    public CoralManipulator(DoubleSupplier leftJoyY) {
+        this.leftJoyY = leftJoyY;
+        this.pidPivot = pivotMotor.getClosedLoopController();
+        this.absEncoder = pivotMotor.getAbsoluteEncoder();
 
-    //Config coral motor1
-    SparkMaxConfig coralConfig1 = new SparkMaxConfig();
-    coralMotor1.configure(coralConfig1, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        // Configuration for coral motors
+        SparkMaxConfig coralConfig1 = new SparkMaxConfig();
+        coralMotor1.configure(coralConfig1, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    //Config coral motor2
-    SparkMaxConfig coralConfig2 = new SparkMaxConfig();
-    coralConfig2.inverted(true);
-    coralMotor2.configure(coralConfig2, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        SparkMaxConfig coralConfig2 = new SparkMaxConfig();
+        coralConfig2.inverted(true);
+        coralMotor2.configure(coralConfig2, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    //Config pivot Motor
-    pidPivot = pivotMotor.getClosedLoopController();
-    absEncoder = pivotMotor.getAbsoluteEncoder();
+        // Configuration for pivot motor
+        SparkMaxConfig pivotConfig = new SparkMaxConfig();
+        pivotConfig.closedLoop.pidf(
+            0.01, // p
+            0,    // i
+            0,    // d
+            0.001 // f
+        );
+        pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
 
-    SparkMaxConfig pivotConfig = new SparkMaxConfig();
-    
-    
-    //seeting up the closed loop controller for Pivot
-    pivotConfig.closedLoop.pidf(
-    .01, //p
-    0, //i
-    0, //d
-    .001);//f
+        // Limit switch configuration
+        LimitSwitchConfig limitSwitchConfig = new LimitSwitchConfig();
+        limitSwitchConfig.forwardLimitSwitchType(Type.kNormallyClosed);
+        limitSwitchConfig.reverseLimitSwitchType(Type.kNormallyClosed);
+        limitSwitchConfig.forwardLimitSwitchEnabled(true);
+        limitSwitchConfig.reverseLimitSwitchEnabled(true);
 
+        // Soft limit configuration
+        SoftLimitConfig softLimitConfig = new SoftLimitConfig();
+        softLimitConfig.forwardSoftLimitEnabled(true);
+        softLimitConfig.reverseSoftLimitEnabled(true);
 
-    pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+        // Updated Soft Limits
+        double forwardSoftLimit = zeroedRotations + (10.0 / 360.0);    // +10 degrees up
+        double reverseSoftLimit = zeroedRotations + (-44.0 / 360.0);   // -44 degrees down
 
-    LimitSwitchConfig limitSwitchConfig = new LimitSwitchConfig();
+        softLimitConfig.forwardSoftLimit((float) forwardSoftLimit);
+        softLimitConfig.reverseSoftLimit((float) reverseSoftLimit);
 
-    //normally closed
-    limitSwitchConfig.forwardLimitSwitchType(Type.kNormallyClosed);
-    limitSwitchConfig.reverseLimitSwitchType(Type.kNormallyClosed);
-    
-    limitSwitchConfig.forwardLimitSwitchEnabled(true);
-    limitSwitchConfig.reverseLimitSwitchEnabled(true);
+        // Apply configurations
+        pivotConfig.apply(softLimitConfig);
+        pivotConfig.apply(limitSwitchConfig);
+        pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    SoftLimitConfig softLimitConfig = new SoftLimitConfig();
-    softLimitConfig.forwardSoftLimitEnabled(true); //enables the forward soft limit
-    softLimitConfig.reverseSoftLimitEnabled(true); //enables the reverse soft limit
+        FWDLimit = pivotMotor.getForwardLimitSwitch();
+        REVLimit = pivotMotor.getReverseLimitSwitch();
+    }
 
-    FWDLimit = pivotMotor.getForwardLimitSwitch();
-    REVLimit = pivotMotor.getReverseLimitSwitch();
+    // Commands for pivot control
+    public Command pivotL4() {
+        return this.runOnce(() -> {
+            this.setpoint = 0.05;
+            this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
+        });
+    }
 
-    pivotConfig.smartCurrentLimit(3);
-    // pivotConfig.apply(softLimitConfig);
-    pivotConfig.apply(limitSwitchConfig); //reverse is at the top and forward is at the bottom
-    
-    pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-  }
+    public Command pivotIntake() {
+        return this.runOnce(() -> {
+            this.setpoint = 30;
+            this.pidPivot.setReference(zeroedRotations + (setpoint / 360.0), SparkMax.ControlType.kPosition);
+        });
+    }
 
-  public Command pivotL4() {
-   return this.runOnce(() -> {
-     this.setpoint = 0.05;
-     this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
-   });
- }
+    public Command pivotDown() {
+        return this.runOnce(() -> {
+            this.setpoint = -35; // Degrees
+            this.pidPivot.setReference(zeroedRotations + (setpoint / 360.0), SparkMax.ControlType.kPosition);
+        });
+    }
 
- public Command pivotIntake() {
-   return this.runOnce(() -> {
-     this.setpoint = 0.35;
-     this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
-   });
- }
+    public Command pivotStop() {
+        return this.runOnce(() -> pivotMotor.set(0.0));
+    }
 
- public Command pivotDown() {
-   return this.runOnce(() -> {
-     this.setpoint = 0.15;
-     this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
-   });  }
+    public Command stopCoral() {
+        return this.runOnce(() -> {
+            coralMotor1.set(0.0);
+            coralMotor2.set(0.0);
+        });
+    }
 
- public Command pivotStop() {
-   return this.runOnce(() -> pivotMotor.set(0.0));
- }
+    public Command intakeCoral() {
+        return this.runOnce(() -> {
+            coralMotor1.set(0.2);
+            coralMotor2.set(0.2);
+        });
+    }
 
- public Command stopCoral() {
-   return this.runOnce(() -> {
-     coralMotor1.set(0.0);
-     coralMotor2.set(0.0); 
-   });
- }
+    public Command releaseCoral() {
+        return this.runOnce(() -> {
+            coralMotor1.set(-0.2);
+            coralMotor2.set(-0.2);
+        });
+    }
 
- public Command intakeCoral() {
-   return this.runOnce(() -> {
-     coralMotor1.set(.2);
-     coralMotor2.set(.2);
-   });
- }
+    public void periodic() {
+        SmartDashboard.putNumber("Angle of Pivot", (absEncoder.getPosition() * 360.0));
+        SmartDashboard.putNumber("Angle from 0", (153.2 - (absEncoder.getPosition() * 360.0)));
+        SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
+        SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
+        SmartDashboard.putBoolean("REV Limit", this.REVLimit.isPressed());
+    }
 
- public Command releaseCoral() {
-   return this.runOnce(() -> {
-     coralMotor1.set(-0.2);
-     coralMotor2.set(-0.2);
-   });
- }
-
-
- public void periodic() {
-   SmartDashboard.putNumber("angle of pivot", (absEncoder.getPosition()*360)); 
-   SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
-
-   SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
-
-   SmartDashboard.putBoolean("REV Limit", this.REVLimit.isPressed());
- }
-
- public Command movePivot() {
-  return this.run(()->{
-      input = this.leftJoyY.getAsDouble();
-      pivotMotor.set(input * 0.1);
-  });
+    public Command movePivot() {
+        return this.run(() -> {
+            input = this.leftJoyY.getAsDouble();
+            pivotMotor.set(input * 0.1);
+        });
+    }
 }
-
- }
