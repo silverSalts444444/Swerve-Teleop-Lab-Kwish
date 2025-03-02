@@ -50,12 +50,11 @@ public class CoralManipulator extends SubsystemBase {
         coralMotor2.configure(coralConfig2, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
         // Configuration for pivot motor
-        SparkMaxConfig pivotConfig = new SparkMaxConfig();
-        pivotConfig.closedLoop.pidf(
-            0.01, // p
+        SparkMaxConfig pivotConfig  = new SparkMaxConfig();
+        pivotConfig.closedLoop.pid(
+            0.0125, // p
             0,    // i
-            0,    // d
-            0.001 // f
+            0    // d
         );
         pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
 
@@ -68,8 +67,8 @@ public class CoralManipulator extends SubsystemBase {
 
         // Soft limit configuration
         SoftLimitConfig softLimitConfig = new SoftLimitConfig();
-        softLimitConfig.forwardSoftLimitEnabled(true);
-        softLimitConfig.reverseSoftLimitEnabled(true);
+        softLimitConfig.forwardSoftLimitEnabled(false);
+        softLimitConfig.reverseSoftLimitEnabled(false);
 
         // Updated Soft Limits
         // double forwardSoftLimit = zeroedRotations + (10.0 / 360.0);    // +10 degrees up
@@ -90,8 +89,8 @@ public class CoralManipulator extends SubsystemBase {
     // Commands for pivot control
     public Command pivotL4() {
         return this.runOnce(() -> {
-            this.setpoint = 0.05;
-            this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
+            this.setpoint = 41;
+            this.pidPivot.setReference(zeroedRotations + (setpoint / 360.0), SparkMax.ControlType.kPosition);
         });
     }
 
@@ -105,7 +104,10 @@ public class CoralManipulator extends SubsystemBase {
     public Command pivotPlace() {
         return this.runOnce(() -> {
             this.setpoint = -35; // Degrees
-            this.pidPivot.setReference(zeroedRotations + (setpoint / 360.0), SparkMax.ControlType.kPosition);
+            this.pidPivot.setReference(0.3, SparkMax.ControlType.kPosition);
+            
+            System.out.println(zeroedRotations + (setpoint / 360.0));
+            System.out.println("PLACEMENT");
         });
     }
 
@@ -134,6 +136,7 @@ public class CoralManipulator extends SubsystemBase {
         });
     }
 
+    
     public void periodic() {
         SmartDashboard.putNumber("Angle of Pivot", (absEncoder.getPosition() * 360.0));
         SmartDashboard.putNumber("Angle from 0", (153.2 - (absEncoder.getPosition() * 360.0))); // angle at our defined 0˚ - current angle
@@ -145,7 +148,7 @@ public class CoralManipulator extends SubsystemBase {
     public Command movePivot() {
         return this.run(() -> {
             input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .1);
-            pivotMotor.set(input * 0.1);
+            pivotMotor.set(-input * 0.1);
         });
     }
 }

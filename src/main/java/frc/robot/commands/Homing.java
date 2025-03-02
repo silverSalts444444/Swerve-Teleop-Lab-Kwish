@@ -13,7 +13,7 @@ public class Homing extends Command{
 
     @Override
     public void execute() {
-        this.elevator.getMotorE().set(0.4);
+        this.elevator.getMotorE().set(0.3);
     }
     
    @Override
