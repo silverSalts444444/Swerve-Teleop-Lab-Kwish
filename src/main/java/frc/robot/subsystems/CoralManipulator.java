@@ -15,6 +15,7 @@ import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -96,7 +97,7 @@ public class CoralManipulator extends SubsystemBase {
 
     public Command pivotIntake() {
         return this.runOnce(() -> {
-            this.setpoint = 30;
+            this.setpoint = 25;
             this.pidPivot.setReference(zeroedRotations + (setpoint / 360.0), SparkMax.ControlType.kPosition);
         });
     }
@@ -139,11 +140,12 @@ public class CoralManipulator extends SubsystemBase {
         SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
         SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
         SmartDashboard.putBoolean("REV Limit", this.REVLimit.isPressed());
+        
     }
 
     public Command movePivot() {
         return this.run(() -> {
-            input = this.leftJoyY.getAsDouble();
+            input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .1);
             pivotMotor.set(input * 0.1);
         });
     }

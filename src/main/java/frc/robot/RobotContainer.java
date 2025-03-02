@@ -30,8 +30,7 @@ public class RobotContainer {
 
   // Xbox + an additional one for PC use
   private final Joystick drivingXbox = new Joystick(0);
-  private final Joystick mechController = new Joystick(1);
-  private final CommandJoystick mechJoystick = new CommandJoystick(2);  // New joystick 
+    private final CommandJoystick mechJoystick = new CommandJoystick(1);  // New joystick 
 
 
   private SwerveDriveTrain swerveDriveTrain;
@@ -69,73 +68,60 @@ public class RobotContainer {
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 
-  private void createDeepHang() {
-    deepHang = new DeepHang();
+  // private void createDeepHang() {
+  //   deepHang = new DeepHang();
     
     
-    mechController.axisGreaterThan(1, 0, false).whileTrue(deepHang.fwd());
-    mechController.axisGreaterThan(1, 0, false).onFalse(deepHang.stop());
+  //   mechController.axisGreaterThan(1, 0, false).whileTrue(deepHang.fwd());
+  //   mechController.axisGreaterThan(1, 0, false).onFalse(deepHang.stop());
 
-    mechController.axisLessThan(1, -0.1, true).whileTrue(deepHang.rev());
-    mechController.axisLessThan(1, -0.1, true).onFalse(deepHang.stop());
-  }
+  //   mechController.axisLessThan(1, -0.1, true).whileTrue(deepHang.rev());
+  //   mechController.axisLessThan(1, -0.1, true).onFalse(deepHang.stop());
+  // }
 
   private void createCoralManipulator() {
     coralManipulator = new CoralManipulator(() -> {
-      return mechController.getAxisType(7);
+      return mechJoystick.getRawAxis(7);
     });
 
     // Intake (Button 16) and Release (Button 18)
-    // mechJoystick.button(16).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
-    // mechJoystick.button(18).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
-    // mechJoystick.button(1).whileTrue(coralManipulator.pivotDown()).onFalse(coralManipulator.stopCoral());
-    // mechJoystick.button(2).whileTrue(coralManipulator.pivotIntake()).onFalse(coralManipulator.stopCoral());
-    // mechJoystick.button(3).whileTrue(coralManipulator.pivotL4()).onFalse(coralManipulator.stopCoral());
-    // mechJoystick.button(4).whileTrue(coralManipulator.pivotStop()).onFalse(coralManipulator.stopCoral());
-
-    // mechController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
-    mechController.button(16,true).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
-    mechController.button(18,true).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+    mechJoystick.button(16).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    mechJoystick.button(18).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
     
-    // mechController.povUp().onTrue(coralManipulator.pivotL4());
-    // mechController.povDown().onTrue(coralManipulator.pivotDown());
-    // mechController.povRight().onTrue(coralManipulator.pivotIntake());
-  
+    mechJoystick.button(0).onTrue(coralManipulator.pivotIntake());
+    mechJoystick.button(0).onTrue(coralManipulator.pivotPlace());
 
-    mechController.axisGreaterThan(7, 0.1,false).whileTrue(coralManipulator.movePivot());
-    mechController.axisLessThan(7, -0.1, true).whileTrue(coralManipulator.movePivot());
-
-    Trigger coralStopB1 = mechController.axisLessThan(1, 0.1);
-    Trigger coralStopB2 = mechController.axisGreaterThan(1, -0.1);
+    mechJoystick.axisMagnitudeGreaterThan(7, 0).whileTrue(coralManipulator.movePivot()); //moves the pivot - deadband of 0.1 is applied in movepivot()
+    
+    Trigger coralStopB1 = mechJoystick.axisLessThan(7, 0.1);
+    Trigger coralStopB2 = mechJoystick.axisGreaterThan(7, -0.1);
     
     coralStopB1.and(coralStopB2).onTrue(coralManipulator.pivotStop()); 
   }
 
   private void createElevator() {
     elevator = new Elevator(()->{
-      return mechController.getAxisType(5);
+      return mechJoystick.getRawAxis(5);
     });
 
     Homing home = new Homing(elevator);
 
-    mechController.leftBumper().onTrue(home);
-    mechController.rightBumper().onChange(elevator.stopElevator());
-
-        
-    mechController.axisGreaterThan(5, 0.1).whileTrue(elevator.moveElevator()); // If joystick is above 0.1, move up 
-    mechController.axisLessThan(5, -0.1).whileTrue(elevator.moveElevator()); // If joystick is below -0.1 move down
-
-    Trigger elevStopB1 = mechController.axisLessThan(5, 0.1);
-    //Elevator stop for bound 1 and 2 - between -0.1 and 0.1
-    Trigger elevStopB2 = mechController.axisGreaterThan(5, -0.1);
+    mechJoystick.axisMagnitudeGreaterThan(5, 0).whileTrue(elevator.moveElevator());
     
+
+    Trigger elevStopB1 = mechJoystick.axisLessThan(5, 0.1);
+    //Elevator stop for bound 1 and 2 - between -0.1 and 0.1
+    Trigger elevStopB2 = mechJoystick.axisGreaterThan(5, -0.1);
     elevStopB1.and(elevStopB2).onTrue(elevator.stopElevator());  // It needs to hold position not completely stop
     // if the joystick changes from moving to being still (in bounds), then stop the elevator. It only toggles when the state changes, not repeatidly
-    mechController.a().onTrue(elevator.setHeightL4()); //on button press
-    mechController.b().onTrue(elevator.setHeightL2()); //on button press
-    mechController.x().onTrue(elevator.setHeightL3()); //on button press
-    mechController.y().onTrue(elevator.stallElevator()); //on button press
     
+    mechJoystick.button(0).onTrue(elevator.stallElevator()); //TEMPORARY
+    mechJoystick.button(0).onTrue(elevator.setHeightL2());
+    mechJoystick.button(0).onTrue(elevator.setHeightL3());
+    mechJoystick.button(0).onTrue(elevator.setHeightL4());
+
+    mechJoystick.button(0).onTrue(home); // TEMP
+    mechJoystick.button(0).onTrue(elevator.stopElevator()); //TEMP
   }
 
   public Command getAutonomousCommand() {
