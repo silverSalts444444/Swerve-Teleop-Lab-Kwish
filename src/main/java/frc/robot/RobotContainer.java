@@ -47,7 +47,7 @@ public class RobotContainer {
   private Elevator elevator;
 
   public RobotContainer() {
-    // createSwerve();
+    createSwerve();
     //createDeepHang();
     createCoralManipulator();
     createElevator();
@@ -89,11 +89,14 @@ public class RobotContainer {
     mechJoystick.button(16).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
     mechJoystick.button(18).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
     
+    
     // mechJoystick.button(7).onTrue(coralManipulator.pivotIntake()); // TEMP
     // mechJoystick.button(8).onTrue(coralManipulator.pivotPlace()); //TEMP
-    mechController.a().onTrue(coralManipulator.pivotIntake());
-    mechController.b().onTrue(coralManipulator.pivotPlace());           
-    mechController.x().onTrue(coralManipulator.pivotL4());           
+    // mechController.a().onTrue(coralManipulator.pivotIntake());
+    mechController.b().onTrue(coralManipulator.pivotPreset());           
+    // mechController.x().onTrue(coralManipulator.pivotL4());      
+    // mechJoystick.button(8).onTrue(coralManipulator.pivotPlace());
+    
     
     // mechController.axisGreaterThan(1, 0.1).whileTrue(coralManipulator.movePivot()); 
     // mechController.axisLessThan(1, -0.1).whileTrue(coralManipulator.movePivot()); 
@@ -117,12 +120,14 @@ public class RobotContainer {
     mechJoystick.axisMagnitudeGreaterThan(5, 0.1).whileTrue(elevator.moveElevator());
     
     // mechJoystick.button(0).onTrue(elevator.stallElevator()); //TEMPORARY
-    // mechJoystick.button(1).onTrue(elevator.setHeightL4());
-    // mechJoystick.button(2).onTrue(elevator.setHeightL3());
-    // mechJoystick.button(3).onTrue();
+    mechJoystick.button(1).onTrue(elevator.setHeightL4());
+    mechJoystick.button(2).onTrue(elevator.setHeightL3());
+    mechJoystick.button(3).onTrue(elevator.setHeightL2());
+
     // mechController.a().onTrue(elevator.setHeightL2()); // ALL TEMP
     // mechController.b().onTrue(elevator.setHeightL3());
     // mechController.x().onTrue(elevator.setHeightL4());
+    
     
 
     mechJoystick.button(6).onTrue(home); 
