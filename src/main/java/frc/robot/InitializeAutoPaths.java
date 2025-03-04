@@ -72,7 +72,7 @@ public class InitializeAutoPaths {
           reef18PoseEst = new Reef18PoseEst(this.swerve);
           diw = new DIW(this.swerve);
 
-          autoCommandChooser.setDefaultOption("Test Path", reef18PoseEst);
+          autoCommandChooser.setDefaultOption("Reef 18 Pose Estimation", reef18PoseEst);
           autoCommandChooser.addOption("DIW-Test", diw);
           SmartDashboard.putData(autoCommandChooser);
 
@@ -84,6 +84,6 @@ public class InitializeAutoPaths {
     }
 
     public Command getAutonomousCommand() {
-        return autoCommandChooser.getSelected(); //Gives selected command to RobotContainer
+        return diw; //Gives selected command to RobotContainer
     }
 }

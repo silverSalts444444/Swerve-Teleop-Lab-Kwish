@@ -34,7 +34,7 @@ public class Reef18PoseEst extends SequentialCommandGroup  {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       // *TODO: tune the constants for shooting into the speaker from the left
-      new AutoPath("TestPath", this.swerve, true)
+      new AutoPath("Reef18PoseEst", this.swerve, true)
     );
   }
 }
