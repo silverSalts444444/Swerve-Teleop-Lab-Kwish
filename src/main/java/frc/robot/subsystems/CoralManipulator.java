@@ -74,6 +74,11 @@ public class CoralManipulator extends SubsystemBase {
         //This is a safety check in place to make sure we aren't going super fast
         //Decrease or remove if you are ready to do full testing
         pivotConfig.closedLoopRampRate(5);
+
+        //This might fix the conversion factor issues we were seeing
+        //pivotConfig.absoluteEncoder.positionConversionFactor(Constants.CoralManipulatorConstants.pivotGearRatio / 360);
+        //pivotConfig.absoluteEncoder.velocityConversionFactor((Constants.CoralManipulatorConstants.pivotGearRatio / 360) / 60);
+
         // Limit switch configuration
         LimitSwitchConfig limitSwitchConfig = new LimitSwitchConfig();
         limitSwitchConfig.forwardLimitSwitchType(Type.kNormallyClosed);
