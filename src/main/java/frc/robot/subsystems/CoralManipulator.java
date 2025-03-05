@@ -18,6 +18,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,9 +39,9 @@ public class CoralManipulator extends SubsystemBase {
     SparkClosedLoopController pidPivot;
     double input;
     DoubleSupplier leftJoyY;
-    //This value is in scope of pivot rotations we need to convert it to motor rotations by
-    //applying the gear ratio
-    double zeroedRotations = 0.425 * Constants.CoralManipulatorConstants.pivotGearRatio;  // 0˚ reference point
+
+    //The zero angle of the abs encoder in degrees. We need to apply all target angles with this offset
+    double zereodOffsetDegrees = Units.rotationsToDegrees(0.425);  // 0˚ reference point
     private double conversionFactor = Constants.CoralManipulatorConstants.pivotGearRatio/360; //81 rotations of the motor is 1 rotation of the arm
     //deg * (81/360) Dimensional analysis yay --> deg -> rotation conversion
     PIDController pidController = new PIDController(0.07, 0, 0);
@@ -87,8 +88,8 @@ public class CoralManipulator extends SubsystemBase {
         softLimitConfig.reverseSoftLimitEnabled(true);
 
         // Updated Soft Limits
-        double forwardSoftLimit = zeroedRotations + (10.0 / 360.0);    // +10 degrees up
-        double reverseSoftLimit = zeroedRotations + (-44.0 / 360.0);   // -44 degrees down
+        double forwardSoftLimit = zereodOffsetDegrees + (10.0 / 360.0);    // +10 degrees up
+        double reverseSoftLimit = zereodOffsetDegrees + (-44.0 / 360.0);   // -44 degrees down
 
         softLimitConfig.forwardSoftLimit((float) forwardSoftLimit);
         softLimitConfig.reverseSoftLimit((float) reverseSoftLimit);
@@ -104,14 +105,14 @@ public class CoralManipulator extends SubsystemBase {
     }
 
     //Takes an input of degrees and converts it rotations for the pivot
+    //First apply the offset to the input
     //81 rotations of motor = 1 rotation of pivot.
     //We then want this in degrees so divide by 360
-    //Example 90 degrees on pivot = (90 * 81) / 360 = 20.25 motor rotations
-    //The zerod value on abs encoder is zeroedRotations so add that to get amount of
-    //Motor rotations to get 90 degrees on pivot
+    //Example 90 degrees on pivot (assuming offset of 180 degrees) =
+    //(90 - 180) = (-90 * 81) / 360 = -20.25 motor rotations
+    //To reach 90 degrees on pivot we will need to reach -20.25 motor rotations
     private double pivotDegreesToRotations(double input) {
-        double targetRotations = input * conversionFactor;
-        return zeroedRotations + targetRotations;
+        return (input - zereodOffsetDegrees) * conversionFactor;
     }
 
     // Commands for pivot control
