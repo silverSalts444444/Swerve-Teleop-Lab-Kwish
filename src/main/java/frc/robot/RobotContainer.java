@@ -31,7 +31,7 @@ public class RobotContainer {
   // Xbox + an additional one for PC use
   private final Joystick drivingXbox = new Joystick(0);
   private final CommandJoystick mechJoystick = new CommandJoystick(1);  // New joystick 
-  private final CommandXboxController mechController = new CommandXboxController(2);
+  //private final CommandXboxController mechController = new CommandXboxController(2);
 
 
   private SwerveDriveTrain swerveDriveTrain;
@@ -89,8 +89,8 @@ public class RobotContainer {
     mechJoystick.button(16).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
     mechJoystick.button(18).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
     
-    
-    mechController.b().onTrue(coralManipulator.pivotPreset());           
+    //TODO: Figure out what this button should be
+    mechJoystick.button(5).onTrue(coralManipulator.pivotIntake());           
     
 
     mechJoystick.axisMagnitudeGreaterThan(7, 0.1).whileTrue(coralManipulator.movePivot());

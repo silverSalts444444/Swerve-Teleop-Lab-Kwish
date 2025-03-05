@@ -18,6 +18,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -37,6 +38,7 @@ public class CoralManipulator extends SubsystemBase {
     SparkClosedLoopController pidPivot;
     double input;
     DoubleSupplier leftJoyY;
+    //This value is in rotations but everything else is in degrees this doesn't seem right
     double zeroedRotations = 0.425;  // 0˚ reference point
     private double conversionFactor = 81/360; //81 rotations of the motor is 1 rotation of the arm
     //deg * (81/360) Dimensional analysis yay --> deg -> rotation conversion
@@ -65,8 +67,11 @@ public class CoralManipulator extends SubsystemBase {
             0    // d
         );
         
-        pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+        pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
         pivotConfig.smartCurrentLimit(10);
+        //This is a safety check in place to make sure we aren't going super fast
+        //Decrease or remove if you are ready to do full testing
+        pivotConfig.closedLoopRampRate(5);
         // Limit switch configuration
         LimitSwitchConfig limitSwitchConfig = new LimitSwitchConfig();
         limitSwitchConfig.forwardLimitSwitchType(Type.kNormallyClosed);
@@ -77,46 +82,57 @@ public class CoralManipulator extends SubsystemBase {
 
         // Soft limit configuration
         SoftLimitConfig softLimitConfig = new SoftLimitConfig();
-        softLimitConfig.forwardSoftLimitEnabled(false);
-        softLimitConfig.reverseSoftLimitEnabled(false);
+        softLimitConfig.forwardSoftLimitEnabled(true);
+        softLimitConfig.reverseSoftLimitEnabled(true);
 
         // Updated Soft Limits
-        // double forwardSoftLimit = zeroedRotations + (10.0 / 360.0);    // +10 degrees up
-        // double reverseSoftLimit = zeroedRotations + (-44.0 / 360.0);   // -44 degrees down
+        double forwardSoftLimit = zeroedRotations + (10.0 / 360.0);    // +10 degrees up
+        double reverseSoftLimit = zeroedRotations + (-44.0 / 360.0);   // -44 degrees down
 
-        // softLimitConfig.forwardSoftLimit((float) forwardSoftLimit);
-        // softLimitConfig.reverseSoftLimit((float) reverseSoftLimit);
+        softLimitConfig.forwardSoftLimit((float) forwardSoftLimit);
+        softLimitConfig.reverseSoftLimit((float) reverseSoftLimit);
 
         // Apply configurations
         // pivotConfig.apply(softLimitConfig);
         pivotConfig.apply(limitSwitchConfig);
         pivotConfig.inverted(true);
-        pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-
         FWDLimit = pivotMotor.getForwardLimitSwitch();
         REVLimit = pivotMotor.getReverseLimitSwitch();
+    }
+
+    //Takes an input of degrees and converts it rotations for the pivot
+    //81 rotations of motor = 1 rotation of pivot.
+    //We then want this in degrees so divide by 360
+    private double pivotDegreesToRotations(double input) {
+        double targetRotations = input * conversionFactor;
+        return zeroedRotations + targetRotations;
+        
     }
 
     // Commands for pivot control
     public Command pivotL4() {
         return this.runOnce(() -> {
             this.setpoint = 41;
-            this.pidPivot.setReference(-(zeroedRotations + (setpoint / 360.0)), SparkMax.ControlType.kPosition);
+            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
+                                        SparkMax.ControlType.kPosition);
         });
     }
 
     public Command pivotIntake() {
         return this.runOnce(() -> {
             this.setpoint = 25;
-            this.pidPivot.setReference(-(zeroedRotations + (setpoint / 360.0)), SparkMax.ControlType.kPosition);
+            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
+                                        SparkMax.ControlType.kPosition);
         });
     }
 
     public Command pivotPlace() {
         return this.runOnce(() -> {
             this.setpoint = -35; // Degrees
-            this.pidPivot.setReference(setpoint * this.conversionFactor, SparkMax.ControlType.kPosition);
+            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
+                                       SparkMax.ControlType.kPosition);
             
             System.out.println(this.absEncoder.getPosition());
             System.out.println("PLACEMENT");
@@ -162,12 +178,6 @@ public class CoralManipulator extends SubsystemBase {
 
     
     public void periodic() {
-
-        if (this.REVLimit.isPressed()){
-            this.relEnc.setPosition(0);
-        }
-        
-
         // SmartDashboard.putNumber("ABSENC POS", this.absEncoder.getPosition());
         SmartDashboard.putNumber("RelEnc Pos", this.relEnc.getPosition());
         SmartDashboard.putNumber("Relative Encoder Angle", this.relEnc.getPosition()/this.conversionFactor);

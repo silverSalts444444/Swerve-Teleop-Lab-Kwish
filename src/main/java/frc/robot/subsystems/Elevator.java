@@ -96,6 +96,7 @@ public class Elevator extends SubsystemBase {
     // - is down and + is up
     //applies the soft limit configuration to the motor controller
     config.smartCurrentLimit(10);
+    config.inverted(true);
     
     // config.apply(softLimitConfig);
     config.apply(limitSwitchConfig);
@@ -117,7 +118,7 @@ public class Elevator extends SubsystemBase {
           //L1 height is inches
           //setting the height to be 10 inches 
           setpoint = 10;
-          PIDController.setReference(setpoint * -conversionFactor, SparkMax.ControlType.kPosition);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition);
           System.out.println("Elevator L1");
           //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
         }
@@ -129,7 +130,7 @@ public class Elevator extends SubsystemBase {
     return this.run(()->{
         if (this.homedStartup){ //2.5, 0.009
           setpoint = 3.9;
-          PIDController.setReference(setpoint * -conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.2);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.2);
           System.out.println("Elevator L2");
           //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
         }
@@ -140,7 +141,7 @@ public class Elevator extends SubsystemBase {
     return this.runOnce(()->{
         if (this.homedStartup){
           setpoint = 12.6;
-          PIDController.setReference(setpoint * -conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.009);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.009);
           System.out.println("Elevator L3");
         }
     });
@@ -150,7 +151,7 @@ public class Elevator extends SubsystemBase {
     return this.runOnce(()->{
       if (this.homedStartup){ 
           setpoint = 26;
-          PIDController.setReference(setpoint * -conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.271);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.271);
           System.out.println("Elevator setpoint");
         //Sets the setpoint to 10 rotations. PIDController needs to be correctly configured
         //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
@@ -163,7 +164,7 @@ public class Elevator extends SubsystemBase {
         input = MathUtil.applyDeadband(this.rightJoyY.getAsDouble(), .1);
         //setpoint += input;
         //PIDController.setReference(this.setpoint, SparkMax.ControlType.kPosition);
-        motorE.set(-input * 0.5);
+        motorE.set(input * 0.5);
     });
   }
 
@@ -176,6 +177,10 @@ public class Elevator extends SubsystemBase {
   public boolean isFWDLimit() {
       return fwdLimit.isPressed();
   }
+
+  public boolean isREVLimit() {
+    return revLimit.isPressed();
+  }
   public SparkMax getMotorE(){
     return motorE;
   }
@@ -187,7 +192,7 @@ public class Elevator extends SubsystemBase {
   // Called when the command is initially scheduled.
   @Override
   public void periodic(){
-    if (isFWDLimit()){ //Whenever the rev limit switch is pressed, resets the encoder position
+    if (isREVLimit()){ //Whenever the rev limit switch is pressed, resets the encoder position
       homedStartup = true;
       this.rel_encoder.setPosition(0);
     }
