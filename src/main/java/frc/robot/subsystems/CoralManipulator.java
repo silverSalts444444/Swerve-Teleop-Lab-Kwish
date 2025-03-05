@@ -18,9 +18,11 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class CoralManipulator extends SubsystemBase {
     double setpoint;
@@ -37,8 +39,10 @@ public class CoralManipulator extends SubsystemBase {
     SparkClosedLoopController pidPivot;
     double input;
     DoubleSupplier leftJoyY;
-    double zeroedRotations = 0.425;  // 0˚ reference point
-    private double conversionFactor = 81/360; //81 rotations of the motor is 1 rotation of the arm
+
+    //The zero angle of the abs encoder in degrees. We need to apply all target angles with this offset
+    double zereodOffsetDegrees = Units.rotationsToDegrees(0.425);  // 0˚ reference point
+    private double conversionFactor = Constants.CoralManipulatorConstants.pivotGearRatio/360; //81 rotations of the motor is 1 rotation of the arm
     //deg * (81/360) Dimensional analysis yay --> deg -> rotation conversion
     PIDController pidController = new PIDController(0.07, 0, 0);
     
@@ -65,8 +69,16 @@ public class CoralManipulator extends SubsystemBase {
             0    // d
         );
         
-        pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+        pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
         pivotConfig.smartCurrentLimit(10);
+        //This is a safety check in place to make sure we aren't going super fast
+        //Decrease or remove if you are ready to do full testing
+        pivotConfig.closedLoopRampRate(5);
+
+        //This might fix the conversion factor issues we were seeing
+        //pivotConfig.absoluteEncoder.positionConversionFactor(Constants.CoralManipulatorConstants.pivotGearRatio / 360);
+        //pivotConfig.absoluteEncoder.velocityConversionFactor((Constants.CoralManipulatorConstants.pivotGearRatio / 360) / 60);
+
         // Limit switch configuration
         LimitSwitchConfig limitSwitchConfig = new LimitSwitchConfig();
         limitSwitchConfig.forwardLimitSwitchType(Type.kNormallyClosed);
@@ -77,46 +89,59 @@ public class CoralManipulator extends SubsystemBase {
 
         // Soft limit configuration
         SoftLimitConfig softLimitConfig = new SoftLimitConfig();
-        softLimitConfig.forwardSoftLimitEnabled(false);
-        softLimitConfig.reverseSoftLimitEnabled(false);
+        softLimitConfig.forwardSoftLimitEnabled(true);
+        softLimitConfig.reverseSoftLimitEnabled(true);
 
         // Updated Soft Limits
-        // double forwardSoftLimit = zeroedRotations + (10.0 / 360.0);    // +10 degrees up
-        // double reverseSoftLimit = zeroedRotations + (-44.0 / 360.0);   // -44 degrees down
+        double forwardSoftLimit = zereodOffsetDegrees + (10.0 / 360.0);    // +10 degrees up
+        double reverseSoftLimit = zereodOffsetDegrees + (-44.0 / 360.0);   // -44 degrees down
 
-        // softLimitConfig.forwardSoftLimit((float) forwardSoftLimit);
-        // softLimitConfig.reverseSoftLimit((float) reverseSoftLimit);
+        softLimitConfig.forwardSoftLimit((float) forwardSoftLimit);
+        softLimitConfig.reverseSoftLimit((float) reverseSoftLimit);
 
         // Apply configurations
         // pivotConfig.apply(softLimitConfig);
         pivotConfig.apply(limitSwitchConfig);
         pivotConfig.inverted(true);
-        pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-
         FWDLimit = pivotMotor.getForwardLimitSwitch();
         REVLimit = pivotMotor.getReverseLimitSwitch();
+    }
+
+    //Takes an input of degrees and converts it rotations for the pivot
+    //First apply the offset to the input
+    //81 rotations of motor = 1 rotation of pivot.
+    //We then want this in degrees so divide by 360
+    //Example 90 degrees on pivot (assuming offset of 180 degrees) =
+    //(90 - 180) = (-90 * 81) / 360 = -20.25 motor rotations
+    //To reach 90 degrees on pivot we will need to reach -20.25 motor rotations
+    private double pivotDegreesToRotations(double input) {
+        return (input - zereodOffsetDegrees) * conversionFactor;
     }
 
     // Commands for pivot control
     public Command pivotL4() {
         return this.runOnce(() -> {
             this.setpoint = 41;
-            this.pidPivot.setReference(-(zeroedRotations + (setpoint / 360.0)), SparkMax.ControlType.kPosition);
+            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
+                                        SparkMax.ControlType.kPosition);
         });
     }
 
     public Command pivotIntake() {
         return this.runOnce(() -> {
             this.setpoint = 25;
-            this.pidPivot.setReference(-(zeroedRotations + (setpoint / 360.0)), SparkMax.ControlType.kPosition);
+            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
+                                        SparkMax.ControlType.kPosition);
         });
     }
 
     public Command pivotPlace() {
         return this.runOnce(() -> {
             this.setpoint = -35; // Degrees
-            this.pidPivot.setReference(setpoint * this.conversionFactor, SparkMax.ControlType.kPosition);
+            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
+                                       SparkMax.ControlType.kPosition);
             
             System.out.println(this.absEncoder.getPosition());
             System.out.println("PLACEMENT");
@@ -162,12 +187,6 @@ public class CoralManipulator extends SubsystemBase {
 
     
     public void periodic() {
-
-        if (this.REVLimit.isPressed()){
-            this.relEnc.setPosition(0);
-        }
-        
-
         // SmartDashboard.putNumber("ABSENC POS", this.absEncoder.getPosition());
         SmartDashboard.putNumber("RelEnc Pos", this.relEnc.getPosition());
         SmartDashboard.putNumber("Relative Encoder Angle", this.relEnc.getPosition()/this.conversionFactor);

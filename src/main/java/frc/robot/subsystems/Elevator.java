@@ -1,43 +1,27 @@
-
 package frc.robot.subsystems;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-//import for SparkMax
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.LimitSwitchConfig;
-import com.revrobotics.spark.config.SoftLimitConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.LimitSwitchConfig.Type;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 
 import java.util.function.DoubleSupplier;
 
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
-//import for PID controller
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
-// import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-// import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkLimitSwitch;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.LimitSwitchConfig;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
+import com.revrobotics.spark.config.SoftLimitConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.XboxController;
-// import edu.wpi.first.wpilibj.motorcontrol.Spark;
-// import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
-import frc.robot.subsystems.Elevator;
 
 
 
@@ -46,7 +30,7 @@ public class Elevator extends SubsystemBase {
   private SparkMax motorE = new SparkMax(25, MotorType.kBrushless);
   private SparkClosedLoopController PIDController;
   
-  private double conversionFactor = (45/5.5);
+  private double conversionFactor = (Constants.ElevatorConstants.elevatorGearRatio / 5.5);
   private RelativeEncoder rel_encoder;
 
   private double input;
@@ -96,6 +80,7 @@ public class Elevator extends SubsystemBase {
     // - is down and + is up
     //applies the soft limit configuration to the motor controller
     config.smartCurrentLimit(10);
+    config.inverted(true);
     
     // config.apply(softLimitConfig);
     config.apply(limitSwitchConfig);
@@ -117,7 +102,7 @@ public class Elevator extends SubsystemBase {
           //L1 height is inches
           //setting the height to be 10 inches 
           setpoint = 10;
-          PIDController.setReference(setpoint * -conversionFactor, SparkMax.ControlType.kPosition);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition);
           System.out.println("Elevator L1");
           //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
         }
@@ -129,7 +114,7 @@ public class Elevator extends SubsystemBase {
     return this.run(()->{
         if (this.homedStartup){ //2.5, 0.009
           setpoint = 3.9;
-          PIDController.setReference(setpoint * -conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.2);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.2);
           System.out.println("Elevator L2");
           //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
         }
@@ -140,7 +125,7 @@ public class Elevator extends SubsystemBase {
     return this.runOnce(()->{
         if (this.homedStartup){
           setpoint = 12.6;
-          PIDController.setReference(setpoint * -conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.009);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.009);
           System.out.println("Elevator L3");
         }
     });
@@ -150,7 +135,7 @@ public class Elevator extends SubsystemBase {
     return this.runOnce(()->{
       if (this.homedStartup){ 
           setpoint = 26;
-          PIDController.setReference(setpoint * -conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.271);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.271);
           System.out.println("Elevator setpoint");
         //Sets the setpoint to 10 rotations. PIDController needs to be correctly configured
         //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
@@ -163,8 +148,13 @@ public class Elevator extends SubsystemBase {
         input = MathUtil.applyDeadband(this.rightJoyY.getAsDouble(), .1);
         //setpoint += input;
         //PIDController.setReference(this.setpoint, SparkMax.ControlType.kPosition);
-        motorE.set(-input * 0.5);
+        motorE.set(input * 0.5);
     });
+  }
+
+  //Move the elevator down at a constant speed for homing
+  public void homeElevatorDown() {
+    motorE.set(-0.3);
   }
 
   public Command stallElevator(){
@@ -173,28 +163,22 @@ public class Elevator extends SubsystemBase {
     });
   }
 
-  public boolean isFWDLimit() {
-      return fwdLimit.isPressed();
-  }
-  public SparkMax getMotorE(){
-    return motorE;
-  }
-  public void resetEncoder(){
-    rel_encoder.setPosition(0);
+  public boolean isREVLimit() {
+    return revLimit.isPressed();
   }
 
+  public Command resetEncoder() {
+    return this.runOnce(() -> {
+      homedStartup = true;
+      rel_encoder.setPosition(0);
+    });   
+  }
 
-  // Called when the command is initially scheduled.
   @Override
   public void periodic(){
-    if (isFWDLimit()){ //Whenever the rev limit switch is pressed, resets the encoder position
-      homedStartup = true;
-      this.rel_encoder.setPosition(0);
-    }
-
     SmartDashboard.putNumber("setpoint", setpoint);
     currentPos = rel_encoder.getPosition();     
-    SmartDashboard.putNumber("Current position in converted rotations",currentPos / conversionFactor);
+    SmartDashboard.putNumber("Current position in converted rotations",currentPos * conversionFactor);
     SmartDashboard.putBoolean("Rev Limit", revLimit.isPressed());
     SmartDashboard.putBoolean("Fwd Limit", fwdLimit.isPressed());
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());

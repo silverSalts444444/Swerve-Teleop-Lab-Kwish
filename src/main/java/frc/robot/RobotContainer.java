@@ -1,9 +1,10 @@
 package frc.robot;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Homing;
 import frc.robot.commands.swerve.SwerveAutonomousCMD;
@@ -12,10 +13,6 @@ import frc.robot.subsystems.CoralManipulator;
 import frc.robot.subsystems.DeepHang;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Joystick;
 
 
 public class RobotContainer {
@@ -31,7 +28,7 @@ public class RobotContainer {
   // Xbox + an additional one for PC use
   private final Joystick drivingXbox = new Joystick(0);
   private final CommandJoystick mechJoystick = new CommandJoystick(1);  // New joystick 
-  private final CommandXboxController mechController = new CommandXboxController(2);
+  //private final CommandXboxController mechController = new CommandXboxController(2);
 
 
   private SwerveDriveTrain swerveDriveTrain;
@@ -89,8 +86,8 @@ public class RobotContainer {
     mechJoystick.button(16).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
     mechJoystick.button(18).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
     
-    
-    mechController.b().onTrue(coralManipulator.pivotPreset());           
+    //TODO: Figure out what this button should be
+    mechJoystick.button(5).onTrue(coralManipulator.pivotIntake());           
     
 
     mechJoystick.axisMagnitudeGreaterThan(7, 0.1).whileTrue(coralManipulator.movePivot());
@@ -111,6 +108,16 @@ public class RobotContainer {
     mechJoystick.button(3).onTrue(elevator.setHeightL2());
 
     mechJoystick.button(6).onTrue(home); 
+
+    //Creates a new trigger for when the rev limit is pressed.
+    Trigger elevatorHoming = new Trigger(() -> {
+      return elevator.isREVLimit();
+    });
+    //When the rev limit switch is pressed, reset the encoders.
+    //This approach is better than having it in periodic since
+    //when the rev limit is pressed an interrupt is sent to reset the encoders
+    //instead of constantly checking in periodic if the rev limit switch is pressed
+    elevatorHoming.onTrue(elevator.resetEncoder());
   }
 
   public Command getAutonomousCommand() {
