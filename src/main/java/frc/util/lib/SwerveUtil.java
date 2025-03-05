@@ -20,7 +20,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Constants;
-
 import frc.robot.subsystems.swerve.SwerveModuleIOSparkMax;
 
 /**

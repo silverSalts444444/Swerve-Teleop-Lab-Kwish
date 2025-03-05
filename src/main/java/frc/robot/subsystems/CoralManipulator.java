@@ -18,10 +18,10 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class CoralManipulator extends SubsystemBase {
     double setpoint;
@@ -38,9 +38,10 @@ public class CoralManipulator extends SubsystemBase {
     SparkClosedLoopController pidPivot;
     double input;
     DoubleSupplier leftJoyY;
-    //This value is in rotations but everything else is in degrees this doesn't seem right
-    double zeroedRotations = 0.425;  // 0˚ reference point
-    private double conversionFactor = 81/360; //81 rotations of the motor is 1 rotation of the arm
+    //This value is in scope of pivot rotations we need to convert it to motor rotations by
+    //applying the gear ratio
+    double zeroedRotations = 0.425 * Constants.CoralManipulatorConstants.pivotGearRatio;  // 0˚ reference point
+    private double conversionFactor = Constants.CoralManipulatorConstants.pivotGearRatio/360; //81 rotations of the motor is 1 rotation of the arm
     //deg * (81/360) Dimensional analysis yay --> deg -> rotation conversion
     PIDController pidController = new PIDController(0.07, 0, 0);
     
@@ -105,10 +106,12 @@ public class CoralManipulator extends SubsystemBase {
     //Takes an input of degrees and converts it rotations for the pivot
     //81 rotations of motor = 1 rotation of pivot.
     //We then want this in degrees so divide by 360
+    //Example 90 degrees on pivot = (90 * 81) / 360 = 20.25 motor rotations
+    //The zerod value on abs encoder is zeroedRotations so add that to get amount of
+    //Motor rotations to get 90 degrees on pivot
     private double pivotDegreesToRotations(double input) {
         double targetRotations = input * conversionFactor;
         return zeroedRotations + targetRotations;
-        
     }
 
     // Commands for pivot control
