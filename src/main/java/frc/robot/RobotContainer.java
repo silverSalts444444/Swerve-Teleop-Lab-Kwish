@@ -87,7 +87,7 @@ public class RobotContainer {
     mechJoystick.button(18).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
     
     //TODO: Figure out what this button should be
-    mechJoystick.button(5).onTrue(coralManipulator.pivotIntake());           
+    mechJoystick.button(5).onTrue(coralManipulator.pivotIntake());         
     
 
     mechJoystick.axisMagnitudeGreaterThan(7, 0.1).whileTrue(coralManipulator.movePivot());
@@ -117,7 +117,7 @@ public class RobotContainer {
     //This approach is better than having it in periodic since
     //when the rev limit is pressed an interrupt is sent to reset the encoders
     //instead of constantly checking in periodic if the rev limit switch is pressed
-    elevatorHoming.onTrue(elevator.resetEncoder());
+    elevatorHoming.onFalse(elevator.resetEncoder());
   }
 
   public Command getAutonomousCommand() {

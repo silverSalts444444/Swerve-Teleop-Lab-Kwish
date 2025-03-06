@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -64,8 +65,8 @@ public class CoralManipulator extends SubsystemBase {
         // Configuration for pivot motor
         SparkMaxConfig pivotConfig  = new SparkMaxConfig();
         pivotConfig.closedLoop.pid(
-            0.005, // p
-            0,    // i
+            2, // p
+            0.0001,    // i
             0    // d
         );
         
@@ -131,9 +132,10 @@ public class CoralManipulator extends SubsystemBase {
 
     public Command pivotIntake() {
         return this.runOnce(() -> {
+            System.out.println("Running coral manip pivot intake");
             this.setpoint = 25;
-            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
-                                        SparkMax.ControlType.kPosition);
+            this.pidPivot.setReference(0.425,
+                                       SparkMax.ControlType.kPosition); //ClosedLoopSlot.kSlot0, 0.05);
         });
     }
 
@@ -188,21 +190,23 @@ public class CoralManipulator extends SubsystemBase {
     
     public void periodic() {
         // SmartDashboard.putNumber("ABSENC POS", this.absEncoder.getPosition());
-        SmartDashboard.putNumber("RelEnc Pos", this.relEnc.getPosition());
-        SmartDashboard.putNumber("Relative Encoder Angle", this.relEnc.getPosition()/this.conversionFactor);
+        SmartDashboard.putNumber("pivot AbsEnc Pos", this.absEncoder.getPosition());
+        //SmartDashboard.putNumber("Relative Encoder Angle", this.relEnc.getPosition()/this.conversionFactor);
 
-        SmartDashboard.putNumber("Angle of Pivot", (absEncoder.getPosition() * 360.0));
-        SmartDashboard.putNumber("Angle from 0", (153.2 - (absEncoder.getPosition() * 360.0))); // angle at our defined 0˚ - current angle
-        SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
+        //SmartDashboard.putNumber("Angle of Pivot", (absEncoder.getPosition() * 360.0));
+        //SmartDashboard.putNumber("Angle from 0", (153.2 - (absEncoder.getPosition() * 360.0))); // angle at our defined 0˚ - current angle
+        //SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
         SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
         SmartDashboard.putBoolean("REV Limit", this.REVLimit.isPressed());
-        SmartDashboard.putNumber("Voltage2", this.pivotMotor.getBusVoltage() * this.pivotMotor.getAppliedOutput());
+        SmartDashboard.putNumber("pivot voltage", this.pivotMotor.getBusVoltage() * this.pivotMotor.getAppliedOutput());
     }
 
     public Command movePivot() {
         return this.run(() -> {
             input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .1);
             pivotMotor.set(input * 0.1);
+            setpoint += .01;
+            
         });
     }
 }
