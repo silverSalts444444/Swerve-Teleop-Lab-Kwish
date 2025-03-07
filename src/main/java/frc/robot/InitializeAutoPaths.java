@@ -20,8 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
-import frc.robot.commands.autoPaths.DIW;
-import frc.robot.commands.autoPaths.Reef18PoseEst;
+import frc.robot.commands.autoPaths.StraightLine;
 
 /** Add your docs here. */
 public class InitializeAutoPaths {
@@ -30,8 +29,7 @@ public class InitializeAutoPaths {
     private final SendableChooser<Command> autoCommandChooser = new SendableChooser<>();
     
     // Plays:
-    private Reef18PoseEst reef18PoseEst;
-    private DIW diw;
+    private StraightLine straightLine;
 
     RobotConfig config;
 
@@ -68,12 +66,11 @@ public class InitializeAutoPaths {
         );
 
          // PLAYS:
+         
         try {
-          reef18PoseEst = new Reef18PoseEst(this.swerve);
-          diw = new DIW(this.swerve);
-
-          autoCommandChooser.setDefaultOption("Reef 18 Pose Estimation", reef18PoseEst);
-          autoCommandChooser.addOption("DIW-Test", diw);
+          straightLine = new StraightLine(this.swerve);
+          
+          autoCommandChooser.setDefaultOption("straightLine", straightLine);
           SmartDashboard.putData(autoCommandChooser);
 
         } catch (FileVersionException | IOException | ParseException e) {
@@ -84,6 +81,6 @@ public class InitializeAutoPaths {
     }
 
     public Command getAutonomousCommand() {
-        return diw; //Gives selected command to RobotContainer
+        return autoCommandChooser.getSelected(); //Gives selected command to RobotContainer
     }
 }

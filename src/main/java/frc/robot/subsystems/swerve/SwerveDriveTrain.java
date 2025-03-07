@@ -84,8 +84,8 @@ public class SwerveDriveTrain extends SubsystemBase {
 
    private SwerveDriveSimulation mapleSimDrive;
 
-   private boolean enableVision = false;
-
+   private boolean enableVision = true;
+   private boolean visionForRotation = false;
 
    /**
     * Creates a new SwerveDrive object. Intended to work both with real modules and
