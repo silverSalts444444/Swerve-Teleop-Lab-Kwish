@@ -6,6 +6,7 @@ import frc.robot.subsystems.Elevator;
 public class Homing extends Command{
     
     Elevator elevator;
+    double output;
     public Homing (Elevator elevator){
         this.elevator = elevator;
         addRequirements(elevator);
@@ -14,12 +15,14 @@ public class Homing extends Command{
 
     @Override
     public void execute() {
-        //this.elevator.getMotorE().set(-0.3);
+        // output = -0.6*()
+        this.elevator.getMotorE().set(-0.6);
     }
     
    @Override
    public void end(boolean interrupted) {
         this.elevator.resetEncoder();
+        this.elevator.getMotorE().set(0);
    }
 
    @Override

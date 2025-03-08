@@ -45,7 +45,7 @@ public class CoralManipulator extends SubsystemBase {
     double zereodOffsetDegrees = Units.rotationsToDegrees(0.425);  // 0˚ reference point
     private double conversionFactor = Constants.CoralManipulatorConstants.pivotGearRatio/360; //81 rotations of the motor is 1 rotation of the arm
     //deg * (81/360) Dimensional analysis yay --> deg -> rotation conversion
-    PIDController pidController = new PIDController(0.07, 0, 0);
+    PIDController pidController = new PIDController(0.5, 0, 0);
     
 
     public CoralManipulator(DoubleSupplier leftJoyY) {
@@ -65,8 +65,8 @@ public class CoralManipulator extends SubsystemBase {
         // Configuration for pivot motor
         SparkMaxConfig pivotConfig  = new SparkMaxConfig();
         pivotConfig.closedLoop.pid(
-            2, // p
-            0.0001,    // i
+            0.5, // p
+            0,    // i
             0    // d
         );
         
@@ -74,7 +74,7 @@ public class CoralManipulator extends SubsystemBase {
         pivotConfig.smartCurrentLimit(10);
         //This is a safety check in place to make sure we aren't going super fast
         //Decrease or remove if you are ready to do full testing
-        pivotConfig.closedLoopRampRate(5);
+        // pivotConfig.closedLoopRampRate(5);
 
         //This might fix the conversion factor issues we were seeing
         //pivotConfig.absoluteEncoder.positionConversionFactor(Constants.CoralManipulatorConstants.pivotGearRatio / 360);
@@ -117,7 +117,7 @@ public class CoralManipulator extends SubsystemBase {
     //Example 90 degrees on pivot (assuming offset of 180 degrees) =
     //(90 - 180) = (-90 * 81) / 360 = -20.25 motor rotations
     //To reach 90 degrees on pivot we will need to reach -20.25 motor rotations
-    private double pivotDegreesToRotations(double input) {
+    public double pivotDegreesToRotations(double input) {
         return (input - zereodOffsetDegrees) * conversionFactor;
     }
 
@@ -134,9 +134,20 @@ public class CoralManipulator extends SubsystemBase {
         return this.runOnce(() -> {
             System.out.println("Running coral manip pivot intake");
             this.setpoint = 25;
-            this.pidPivot.setReference(0.425,
-                                       SparkMax.ControlType.kPosition); //ClosedLoopSlot.kSlot0, 0.05);
+            double output = -pidController.calculate(absEncoder.getPosition(), 0.425);
+            System.out.println(absEncoder.getPosition());
+            System.out.println(output);
+            while(!pidController.atSetpoint()) {
+                pivotMotor.set(output);
+            }
+
+            // pidPivot.setReference(0.425,
+            //                            SparkMax.ControlType.kPosition);
         });
+    }
+
+    public SparkMax getPivotMotor() {
+        return pivotMotor;
     }
 
     public Command pivotPlace() {
@@ -187,6 +198,18 @@ public class CoralManipulator extends SubsystemBase {
         });
     }
 
+    public Command pivotUp() {
+        return this.run(() -> {
+            pivotMotor.set(0.3);
+        });
+    }
+
+    public Command pivotDown() {
+        return this.runOnce(() -> {
+            pivotMotor.set(-0.3);
+        });
+    }
+
     
     public void periodic() {
         // SmartDashboard.putNumber("ABSENC POS", this.absEncoder.getPosition());
@@ -199,11 +222,12 @@ public class CoralManipulator extends SubsystemBase {
         SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
         SmartDashboard.putBoolean("REV Limit", this.REVLimit.isPressed());
         SmartDashboard.putNumber("pivot voltage", this.pivotMotor.getBusVoltage() * this.pivotMotor.getAppliedOutput());
+        SmartDashboard.putNumber("rotation test", pivotDegreesToRotations(35));
     }
 
     public Command movePivot() {
         return this.run(() -> {
-            input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .1);
+            input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .05);
             pivotMotor.set(input * 0.1);
             setpoint += .01;
             

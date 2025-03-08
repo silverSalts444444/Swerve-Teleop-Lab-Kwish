@@ -54,7 +54,7 @@ public class Elevator extends SubsystemBase {
     
     rel_encoder.setPosition(0);
     config.closedLoop.pid(
-    0.0125, //p
+    0.02, //p
     0.0, //i
     0.0 //d
     );
@@ -64,7 +64,7 @@ public class Elevator extends SubsystemBase {
       .maxAcceleration(10); // in rpm/s
       //.allowedClosedLoopError(allowedErr);
     
-    config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+    config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     
     SoftLimitConfig softLimitConfig = new SoftLimitConfig();
     LimitSwitchConfig limitSwitchConfig = new LimitSwitchConfig();
@@ -84,7 +84,7 @@ public class Elevator extends SubsystemBase {
 
     // - is down and + is up
     //applies the soft limit configuration to the motor controller
-    config.smartCurrentLimit(10);
+    config.smartCurrentLimit(15);
     config.inverted(true);
     
     // config.apply(softLimitConfig);
@@ -112,7 +112,7 @@ public class Elevator extends SubsystemBase {
           //L1 height is inches
           //setting the height to be 10 inches 
           setpoint = 10;
-          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition);
           System.out.println("Elevator L1");
           //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
         }
@@ -121,11 +121,11 @@ public class Elevator extends SubsystemBase {
     
 
   public Command setHeightL2(){
-    return this.run(()->{
+    return this.runOnce(()->{
         if (this.homedStartup){ //2.5, 0.009
           setpoint = 3.9;
-          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, 0.2);
-          System.out.println("Elevator L2");
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.2);
+          System.out.println("Elevator L2 " + setpoint*conversionFactor);
           //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
         }
     });
@@ -135,18 +135,22 @@ public class Elevator extends SubsystemBase {
     return this.runOnce(()->{
         if (this.homedStartup){
           setpoint = 12.6;
-          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, 0.009);
-          System.out.println("Elevator L3");
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.009);
+          System.out.println("Elevator L3 " + setpoint*conversionFactor);
         }
     });
+  }
+
+  public SparkMax getMotorE() {
+    return motorE;
   }
 
   public Command setHeightL4(){ //41˚
     return this.runOnce(()->{
       if (this.homedStartup){ 
           setpoint = 26;
-          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, 0.271);
-          System.out.println("Elevator setpoint");
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.271);
+          System.out.println("Elevator setpoint " + setpoint*conversionFactor);
         //Sets the setpoint to 10 rotations. PIDController needs to be correctly configured
         //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
       }
@@ -188,7 +192,7 @@ public class Elevator extends SubsystemBase {
   public void periodic(){
     SmartDashboard.putNumber("setpoint", setpoint);
     currentPos = rel_encoder.getPosition();     
-    SmartDashboard.putNumber("Current position in converted rotations",currentPos * conversionFactor);
+    SmartDashboard.putNumber("Current position in converted rotations",currentPos / conversionFactor);
     SmartDashboard.putBoolean("Rev Limit", revLimit.isPressed());
     SmartDashboard.putBoolean("Fwd Limit", fwdLimit.isPressed());
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());

@@ -17,7 +17,7 @@ public class SwerveTeleopCMD extends Command {
 
    private boolean fieldRelative = false;
 
-   private double robotSpeed = .8;
+   private double robotSpeed = 2.0;
 
    private double xMult = 1.0;
    private double yMult = 1.0;
