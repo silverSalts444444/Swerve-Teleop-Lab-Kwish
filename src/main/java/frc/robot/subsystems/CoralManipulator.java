@@ -15,6 +15,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SoftLimitConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
@@ -65,7 +66,7 @@ public class CoralManipulator extends SubsystemBase {
         // Configuration for pivot motor
         SparkMaxConfig pivotConfig  = new SparkMaxConfig();
         pivotConfig.closedLoop.pid(
-            0.5, // p
+            2, // p
             0,    // i
             0    // d
         );
@@ -79,6 +80,10 @@ public class CoralManipulator extends SubsystemBase {
         //This might fix the conversion factor issues we were seeing
         //pivotConfig.absoluteEncoder.positionConversionFactor(Constants.CoralManipulatorConstants.pivotGearRatio / 360);
         //pivotConfig.absoluteEncoder.velocityConversionFactor((Constants.CoralManipulatorConstants.pivotGearRatio / 360) / 60);
+
+        pivotConfig.absoluteEncoder.zeroOffset(.425);
+
+        pivotConfig.absoluteEncoder.zeroCentered(true);
 
         // Limit switch configuration
         LimitSwitchConfig limitSwitchConfig = new LimitSwitchConfig();
@@ -104,6 +109,9 @@ public class CoralManipulator extends SubsystemBase {
         // pivotConfig.apply(softLimitConfig);
         pivotConfig.apply(limitSwitchConfig);
         pivotConfig.inverted(true);
+        pivotConfig.absoluteEncoder.inverted(true);
+        //pivotConfig.closedLoop.positionWrappingEnabled(true);
+        //pivotConfig.closedLoop.positionWrappingInputRange(0, 1);
         pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         FWDLimit = pivotMotor.getForwardLimitSwitch();
@@ -121,11 +129,13 @@ public class CoralManipulator extends SubsystemBase {
         return (input - zereodOffsetDegrees) * conversionFactor;
     }
 
+    //.115 for L1
+
     // Commands for pivot control
     public Command pivotL4() {
         return this.runOnce(() -> {
             this.setpoint = 41;
-            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
+            this.pidPivot.setReference(-.147,
                                         SparkMax.ControlType.kPosition);
         });
     }
@@ -133,13 +143,7 @@ public class CoralManipulator extends SubsystemBase {
     public Command pivotIntake() {
         return this.runOnce(() -> {
             System.out.println("Running coral manip pivot intake");
-            this.setpoint = 25;
-            double output = -pidController.calculate(absEncoder.getPosition(), 0.425);
-            System.out.println(absEncoder.getPosition());
-            System.out.println(output);
-            while(!pidController.atSetpoint()) {
-                pivotMotor.set(output);
-            }
+            pidPivot.setReference(.079, SparkMax.ControlType.kPosition);
 
             // pidPivot.setReference(0.425,
             //                            SparkMax.ControlType.kPosition);
@@ -152,12 +156,8 @@ public class CoralManipulator extends SubsystemBase {
 
     public Command pivotPlace() {
         return this.runOnce(() -> {
-            this.setpoint = -35; // Degrees
-            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
+            this.pidPivot.setReference(-.082,
                                        SparkMax.ControlType.kPosition);
-            
-            System.out.println(this.absEncoder.getPosition());
-            System.out.println("PLACEMENT");
         });
     }
 
@@ -219,8 +219,8 @@ public class CoralManipulator extends SubsystemBase {
         //SmartDashboard.putNumber("Angle of Pivot", (absEncoder.getPosition() * 360.0));
         //SmartDashboard.putNumber("Angle from 0", (153.2 - (absEncoder.getPosition() * 360.0))); // angle at our defined 0˚ - current angle
         //SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
-        SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
-        SmartDashboard.putBoolean("REV Limit", this.REVLimit.isPressed());
+        SmartDashboard.putBoolean("Pivot FWD Limit", this.FWDLimit.isPressed());
+        SmartDashboard.putBoolean("Pivot REV Limit", this.REVLimit.isPressed());
         SmartDashboard.putNumber("pivot voltage", this.pivotMotor.getBusVoltage() * this.pivotMotor.getAppliedOutput());
         SmartDashboard.putNumber("rotation test", pivotDegreesToRotations(35));
     }

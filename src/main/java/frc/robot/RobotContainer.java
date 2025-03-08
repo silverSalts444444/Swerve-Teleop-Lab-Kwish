@@ -54,9 +54,9 @@ public class RobotContainer {
 
   public RobotContainer() {
     createSwerve();
-    createDeepHang();
-    // createCoralManipulator();
-    // createElevator();
+    //createDeepHang();
+    createCoralManipulator();
+    createElevator();
   }
 
   private void createSwerve() {
@@ -101,11 +101,13 @@ public class RobotContainer {
     // mechJoystick.button(7).onTrue(coralManipulator.pivotIntake());
     
     //TODO: Figure out what this button should be
-    // mechJoystick.button(5).onTrue(horiz);  
-    mechJoystick.button(6).onTrue(coralManipulator.pivotPlace());           
+    mechJoystick.button(17).toggleOnTrue(coralManipulator.movePivot());  
+    mechJoystick.button(6).onTrue(coralManipulator.pivotIntake()); 
+    mechJoystick.button(7).onTrue(coralManipulator.pivotL4());
+    mechJoystick.button(8).onTrue(coralManipulator.pivotPlace());
     
 
-    mechJoystick.axisMagnitudeGreaterThan(7, 0.1).whileTrue(coralManipulator.movePivot());
+    //mechJoystick.axisMagnitudeGreaterThan(7, 0.1).whileTrue(coralManipulator.movePivot());
     
   }
 
@@ -115,8 +117,8 @@ public class RobotContainer {
     });
 
     Homing home = new Homing(elevator);
-    mechJoystick.axisMagnitudeGreaterThan(5, 0.1).whileTrue(elevator.moveElevator());
-    
+    //mechJoystick.axisMagnitudeGreaterThan(5, 0.1).whileTrue(elevator.moveElevator());
+    mechJoystick.button(17).toggleOnTrue(elevator.moveElevator());
 
     mechJoystick.button(1).onTrue(elevator.setHeightL4());
     mechJoystick.button(2).onTrue(elevator.setHeightL3());
