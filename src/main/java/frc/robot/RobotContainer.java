@@ -27,7 +27,7 @@ public class RobotContainer {
   // ---------------------- END OF CONFIG SECTION --------------------------
 
   // Xbox + an additional one for PC use
-  private final Joystick drivingXbox = new Joystick(0);
+  private final CommandXboxController drivingXbox = new CommandXboxController(0);
   private final CommandXboxController test = new CommandXboxController(0);
   private final CommandJoystick mechJoystick = new CommandJoystick(1);  // New joystick 
   //private final CommandXboxController mechController = new CommandXboxController(2);
@@ -74,7 +74,9 @@ public class RobotContainer {
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
 
     //This requires the swerve subsystem make sure to create that first before creating this
-    autoPaths = new InitializeAutoPaths(swerveDriveTrain);
+    autoPaths = new InitializeAutoPaths(this.swerveDriveTrain);
+    drivingXbox.button(3).onTrue(this.swerveDriveTrain.toggleFieldCentric());
+    drivingXbox.button(4).onTrue(this.swerveDriveTrain.resetHeadingCommand());
   }
 
   private void createDeepHang() {

@@ -39,9 +39,15 @@ import frc.robot.subsystems.Vision;
 import frc.util.lib.SwerveUtil;
 
 /**
- * <p>Creates a SwerveDrive class.</p>
+ * <p>
+ * Creates a SwerveDrive class.
+ * </p>
  * 
- * <p>In its current form, it can be simulated using the simulation integration method from the static SwerveUtil class. This simulation is less precise than real life, but much better than AutoDesk Synthesis :).</p>
+ * <p>
+ * In its current form, it can be simulated using the simulation integration
+ * method from the static SwerveUtil class. This simulation is less precise than
+ * real life, but much better than AutoDesk Synthesis :).
+ * </p>
  * 
  * @author Aric Volman
  */
@@ -52,13 +58,14 @@ public class SwerveDriveTrain extends SubsystemBase {
    // Create Navx
    private AHRS navx = new AHRS(NavXComType.kMXP_SPI);
 
-   //Creates pdh
+   // Creates pdh
    private PowerDistribution pdh = new PowerDistribution(Constants.PDH_can_id, PowerDistribution.ModuleType.kCTRE);
 
    // Create object representing swerve modules
    private SwerveModuleIOSparkMax[] moduleIO;
 
-   // Create object that represents swerve module positions (i.e. radians and meters)
+   // Create object that represents swerve module positions (i.e. radians and
+   // meters)
    private SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
 
    // Create kinematics object
@@ -67,7 +74,8 @@ public class SwerveDriveTrain extends SubsystemBase {
    private ChassisSpeeds chassisSpeeds;
 
    // Create poseEstimator object
-   // This can fuse Visual and Encoder odometry with different standard deviations/priorities
+   // This can fuse Visual and Encoder odometry with different standard
+   // deviations/priorities
    private SwerveDrivePoseEstimator poseEstimator;
 
    // Add field to show robot
@@ -88,22 +96,24 @@ public class SwerveDriveTrain extends SubsystemBase {
    /**
     * Creates a new SwerveDrive object. Intended to work both with real modules and
     * simulation.
+    * 
     * @author Aric Volman
     */
    public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BR, SwerveModuleIOSparkMax BL,
                            Vision vision) {
       // Assign modules to their object
-      this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BR, BL};
+      this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BR, BL };
 
       // Iterate through module positions and assign initial values
-      modulePositions = SwerveUtil.setModulePositions(moduleIO);   
+      modulePositions = SwerveUtil.setModulePositions(moduleIO);
 
       // Initialize all other objects
       this.kinematics = new SwerveDriveKinematics(Constants.SwerveConstants.moduleLocations);
       // Can set any robot pose here (x, y, theta) -> Built in Kalman Filter
       // FUTURE: Seed pose with CV
       // Auto is field-oriented
-      this.poseEstimator = new SwerveDrivePoseEstimator(this.kinematics, Rotation2d.fromDegrees(getGyroYaw()), this.modulePositions, startingPose);
+      this.poseEstimator = new SwerveDrivePoseEstimator(this.kinematics, Rotation2d.fromDegrees(getGyroYaw()),
+            this.modulePositions, startingPose);
       this.field = new Field2d();
 
       this.vision = vision;
@@ -122,7 +132,7 @@ public class SwerveDriveTrain extends SubsystemBase {
    }
 
    public void periodic() {
-      //SmartDashboard.putBoolean("Field Relative", this.fieldRelative);
+      // SmartDashboard.putBoolean("Field Relative", this.fieldRelative);
 
       // Update module positions
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
@@ -145,15 +155,17 @@ public class SwerveDriveTrain extends SubsystemBase {
       this.field.setRobotPose(this.getPoseFromEstimator());
 
       // Update telemetry of each swerve module
-      //SwerveUtil.updateTelemetry(moduleIO);
+      // SwerveUtil.updateTelemetry(moduleIO);
 
       // Draw poses of robot's modules in SmartDashboard
       SwerveUtil.drawModulePoses(modulePositions, field, getPoseFromEstimator());
 
       // Put field on SmartDashboard
       SmartDashboard.putData("Field", this.field);
-      //SmartDashboard.putNumberArray("Actual States", SwerveUtil.getDoubleStates(getActualStates()));
-      //SmartDashboard.putNumberArray("Setpoint States", SwerveUtil.getDoubleStates(getSetpointStates()));
+      // SmartDashboard.putNumberArray("Actual States",
+      // SwerveUtil.getDoubleStates(getActualStates()));
+      // SmartDashboard.putNumberArray("Setpoint States",
+      // SwerveUtil.getDoubleStates(getSetpointStates()));
       SmartDashboard.putNumber("Robot Rotation", getPoseFromEstimator().getRotation().getRadians());
       SmartDashboard.putNumber("Angle", getHeading());
 
@@ -162,29 +174,39 @@ public class SwerveDriveTrain extends SubsystemBase {
       absStatePublisher.set(getCanCoderStates());
       chassisSpeedsPublisher.set(this.chassisSpeeds);
 
-/** 
-      SmartDashboard.putData("Swerve Drive", new Sendable() {
-         @Override
-         public void initSendable(SendableBuilder builder) {
-            builder.setSmartDashboardType("SwerveDrive");
-
-            
-            builder.addDoubleProperty("Front Left Angle", () -> moduleIO[0].getTurnPositionInRotations(), null);
-            builder.addDoubleProperty("Front Left Velocity", () -> moduleIO[0].getActualModuleState().speedMetersPerSecond, null);
-
-            builder.addDoubleProperty("Front Right Angle", () -> moduleIO[1].getTurnPositionInRotations(), null);
-            builder.addDoubleProperty("Front Right Velocity", () -> moduleIO[1].getActualModuleState().speedMetersPerSecond, null);
-
-            builder.addDoubleProperty("Back Left Angle", () -> moduleIO[3].getTurnPositionInRotations(), null);
-            builder.addDoubleProperty("Back Left Velocity", () -> moduleIO[3].getActualModuleState().speedMetersPerSecond, null);
-
-            builder.addDoubleProperty("Back Right Angle", () -> moduleIO[2].getTurnPositionInRotations(), null);
-            builder.addDoubleProperty("Back Right Velocity", () -> moduleIO[2].getActualModuleState().speedMetersPerSecond, null);
-
-            builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
-         }
-         });
-         */
+      /**
+       * SmartDashboard.putData("Swerve Drive", new Sendable() {
+       * 
+       * @Override
+       *           public void initSendable(SendableBuilder builder) {
+       *           builder.setSmartDashboardType("SwerveDrive");
+       * 
+       * 
+       *           builder.addDoubleProperty("Front Left Angle", () ->
+       *           moduleIO[0].getTurnPositionInRotations(), null);
+       *           builder.addDoubleProperty("Front Left Velocity", () ->
+       *           moduleIO[0].getActualModuleState().speedMetersPerSecond, null);
+       * 
+       *           builder.addDoubleProperty("Front Right Angle", () ->
+       *           moduleIO[1].getTurnPositionInRotations(), null);
+       *           builder.addDoubleProperty("Front Right Velocity", () ->
+       *           moduleIO[1].getActualModuleState().speedMetersPerSecond, null);
+       * 
+       *           builder.addDoubleProperty("Back Left Angle", () ->
+       *           moduleIO[3].getTurnPositionInRotations(), null);
+       *           builder.addDoubleProperty("Back Left Velocity", () ->
+       *           moduleIO[3].getActualModuleState().speedMetersPerSecond, null);
+       * 
+       *           builder.addDoubleProperty("Back Right Angle", () ->
+       *           moduleIO[2].getTurnPositionInRotations(), null);
+       *           builder.addDoubleProperty("Back Right Velocity", () ->
+       *           moduleIO[2].getActualModuleState().speedMetersPerSecond, null);
+       * 
+       *           builder.addDoubleProperty("Robot Angle", () ->
+       *           getRotation().getRadians(), null);
+       *           }
+       *           });
+       */
    }
 
    public void simulationPeriodic() {
@@ -193,7 +215,12 @@ public class SwerveDriveTrain extends SubsystemBase {
       SwerveUtil.addSwerveSimulation(moduleIO, getActualStates(), kinematics);
    }
 
-
+   // command toggle field centric
+   public Command toggleFieldCentric() {
+      return this.runOnce(() -> {
+         this.fieldRelative = !this.fieldRelative;
+      });
+   }
 
    /**
     * Drive either field oriented, or not field oriented
@@ -205,16 +232,18 @@ public class SwerveDriveTrain extends SubsystemBase {
     *                      control
     */
    public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-      this.fieldRelative = fieldRelative;
+      //this.fieldRelative = fieldRelative;
 
       this.chassisSpeeds = fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, this.getRotation())
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation,
+                  this.getRotation())
             : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
 
       this.chassisSpeeds = SwerveUtil.discretize(this.chassisSpeeds, -4.0);
 
-      //Convert the robot vector into module states which is a vector for each module
-      //Explanation found here https://samliu.dev/blog/a-deep-dive-into-swerve#16d4e0ca3f0280b19d85cdb8b2adac83
+      // Convert the robot vector into module states which is a vector for each module
+      // Explanation found here
+      // https://samliu.dev/blog/a-deep-dive-into-swerve#16d4e0ca3f0280b19d85cdb8b2adac83
       SwerveModuleState[] swerveModuleStates = this.kinematics.toSwerveModuleStates(this.chassisSpeeds);
 
       // MUST USE SECOND TYPE OF METHOD
@@ -287,9 +316,10 @@ public class SwerveDriveTrain extends SubsystemBase {
 
    /**
     * Sets the velocities and positions (drive, turn) of one module
+    * 
     * @param driveVel Drive velocity (m/s)
-    * @param turnPos Turn position (degrees)
-    * @param index Index of module
+    * @param turnPos  Turn position (degrees)
+    * @param index    Index of module
     */
    public void setModuleSetpoints(double driveVel, double turnPos, int index) {
       // Precondition: Safety check within bounds
@@ -300,7 +330,8 @@ public class SwerveDriveTrain extends SubsystemBase {
    }
 
    /**
-    * Stops the motors of the swerve drive. Useful for stopping all sorts of Commands.
+    * Stops the motors of the swerve drive. Useful for stopping all sorts of
+    * Commands.
     */
    public void stopMotors() {
       for (SwerveModuleIOSparkMax module : moduleIO) {
@@ -309,30 +340,30 @@ public class SwerveDriveTrain extends SubsystemBase {
       }
    }
 
-   //Returns the current yaw value (in degrees, from -180 to 180)
+   // Returns the current yaw value (in degrees, from -180 to 180)
    public double getGyroYaw() {
       return navx.getYaw();
    }
 
-   /**
+   /** TODO: FIX THIS
     * Get heading of Navx. Negative because Navx is CW positive.
     */
     public double getHeading() {
       return -navx.getRotation2d().plus(offsetNavx).getDegrees();
    }
 
-   /**
+   /** TODO: FIX THIS
     * Get rate of rotation of Navx. Negative because Navx is CW positive.
     */
    public double getTurnRate() {
       return -navx.getRate();
    }
 
-   /**
+   /** TODO: FIX THIS not good
     * Get Rotation2d of Navx. Positive value (CCW positive default).
     */
    public Rotation2d getRotation() {
-      return navx.getRotation2d().plus(offsetNavx); 
+      return navx.getRotation2d().plus(offsetNavx);
    }
 
    /**
@@ -369,43 +400,42 @@ public class SwerveDriveTrain extends SubsystemBase {
       return field;
    }
 
-   public void setModulesPositions(double velocity, double angle){
-      for(int i = 0; i < 4; i++){
+   public void setModulesPositions(double velocity, double angle) {
+      for (int i = 0; i < 4; i++) {
          setModuleSetpoints(velocity, angle, i);
       }
    }
 
    public Command resetHeadingCommand() {
       return runOnce(() -> {
-         navx.reset();   
+         navx.reset();
       });
    }
 
    private void createSimulationSwerve(Pose2d startingPose) {
       DriveTrainSimulationConfig simulationConfig = DriveTrainSimulationConfig.Default()
-                                                                           .withBumperSize(
-                                                                                 Meters.of(Constants.SwerveConstants.swerveModuleYdistance)
-                                                                                       .plus(Inches.of(5)),
-                                                                                 Meters.of(Constants.SwerveConstants.swerveModuleXdistance)
-                                                                                       .plus(Inches.of(5)))
-                                                                           .withRobotMass(Kilograms.of(Constants.SwerveConstants.robotMassInKg))
-                                                                           .withCustomModuleTranslations(Constants.SwerveConstants.moduleLocations)
-                                                                           .withGyro(COTS.ofNav2X())
-                                                                           .withSwerveModule(new SwerveModuleSimulationConfig(
-                                                                              //Hopefully these motors are right
-                                                                                 DCMotor.getNEO(1),
-                                                                                 DCMotor.getNEO(1),
-                                                                                 Constants.ModuleConstants.driveGearRatio,
-                                                                                 Constants.ModuleConstants.turnGearRatio,
-                                                                                 //Should probably move to constants, might need to double check later
-                                                                                 Volts.of(.02),
-                                                                                 Volts.of(.03),
-                                                                                 Inches.of(
-                                                                                    Units.metersToInches(Constants.ModuleConstants.wheelDiameterMeters) /
-                                                                                    2),
-                                                                                 KilogramSquareMeters.of(0.02),
-                                                                                 Constants.SwerveConstants.wheelGripCoefficientOfFriction)
-                                                                                             );
+            .withBumperSize(
+                  Meters.of(Constants.SwerveConstants.swerveModuleYdistance)
+                        .plus(Inches.of(5)),
+                  Meters.of(Constants.SwerveConstants.swerveModuleXdistance)
+                        .plus(Inches.of(5)))
+            .withRobotMass(Kilograms.of(Constants.SwerveConstants.robotMassInKg))
+            .withCustomModuleTranslations(Constants.SwerveConstants.moduleLocations)
+            .withGyro(COTS.ofNav2X())
+            .withSwerveModule(new SwerveModuleSimulationConfig(
+                  // Hopefully these motors are right
+                  DCMotor.getNEO(1),
+                  DCMotor.getNEO(1),
+                  Constants.ModuleConstants.driveGearRatio,
+                  Constants.ModuleConstants.turnGearRatio,
+                  // Should probably move to constants, might need to double check later
+                  Volts.of(.02),
+                  Volts.of(.03),
+                  Inches.of(
+                        Units.metersToInches(Constants.ModuleConstants.wheelDiameterMeters) /
+                              2),
+                  KilogramSquareMeters.of(0.02),
+                  Constants.SwerveConstants.wheelGripCoefficientOfFriction));
 
       mapleSimDrive = new SwerveDriveSimulation(simulationConfig, startingPose);
 
@@ -416,9 +446,9 @@ public class SwerveDriveTrain extends SubsystemBase {
       // register the drivetrain simulation
       SimulatedArena.getInstance().addDriveTrainSimulation(mapleSimDrive);
 
-      //Figure out imu later
-      //simIMU = new SwerveIMUSimulation(mapleSimDrive.getGyroSimulation());
-      //imuReadingCache = new Cache<>(simIMU::getGyroRotation3d, 5L);
+      // Figure out imu later
+      // simIMU = new SwerveIMUSimulation(mapleSimDrive.getGyroSimulation());
+      // imuReadingCache = new Cache<>(simIMU::getGyroRotation3d, 5L);
    }
 
 }
