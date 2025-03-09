@@ -159,9 +159,9 @@ public class Elevator extends SubsystemBase {
   public Command moveElevator() {
     return this.run(()->{
         input = MathUtil.applyDeadband(this.rightJoyY.getAsDouble(), .1);
-        //setpoint += input;
-        //PIDController.setReference(this.setpoint, SparkMax.ControlType.kPosition);
-        motorE.set(input * 0.5);
+        setpoint += input;
+        PIDController.setReference(this.setpoint, SparkMax.ControlType.kPosition);
+        //motorE.set(input * 0.5);
     });
   }
 

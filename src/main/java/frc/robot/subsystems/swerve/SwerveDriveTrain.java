@@ -285,21 +285,21 @@ public class SwerveDriveTrain extends SubsystemBase {
       return navx.getYaw();
    }
 
-   /** TODO: FIX THIS
+   /**
     * Get heading of Navx. Negative because Navx is CW positive.
     */
-   public double getHeading() {
+    public double getHeading() {
       return -navx.getRotation2d().plus(offsetNavx).getDegrees();
    }
 
-   /** TODO: FIX THIS
+   /**
     * Get rate of rotation of Navx. Negative because Navx is CW positive.
     */
    public double getTurnRate() {
       return -navx.getRate();
    }
 
-   /** TODO: FIX THIS not good
+   /**
     * Get Rotation2d of Navx. Positive value (CCW positive default).
     */
    public Rotation2d getRotation() {
