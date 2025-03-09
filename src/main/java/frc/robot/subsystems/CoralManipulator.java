@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -14,6 +15,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SoftLimitConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
@@ -44,7 +46,7 @@ public class CoralManipulator extends SubsystemBase {
     double zereodOffsetDegrees = Units.rotationsToDegrees(0.425);  // 0˚ reference point
     private double conversionFactor = Constants.CoralManipulatorConstants.pivotGearRatio/360; //81 rotations of the motor is 1 rotation of the arm
     //deg * (81/360) Dimensional analysis yay --> deg -> rotation conversion
-    PIDController pidController = new PIDController(0.07, 0, 0);
+    PIDController pidController = new PIDController(0.5, 0, 0);
     
 
     public CoralManipulator(DoubleSupplier leftJoyY) {
@@ -64,7 +66,7 @@ public class CoralManipulator extends SubsystemBase {
         // Configuration for pivot motor
         SparkMaxConfig pivotConfig  = new SparkMaxConfig();
         pivotConfig.closedLoop.pid(
-            0.005, // p
+            2, // p
             0,    // i
             0    // d
         );
@@ -73,11 +75,15 @@ public class CoralManipulator extends SubsystemBase {
         pivotConfig.smartCurrentLimit(10);
         //This is a safety check in place to make sure we aren't going super fast
         //Decrease or remove if you are ready to do full testing
-        pivotConfig.closedLoopRampRate(5);
+        // pivotConfig.closedLoopRampRate(5);
 
         //This might fix the conversion factor issues we were seeing
         //pivotConfig.absoluteEncoder.positionConversionFactor(Constants.CoralManipulatorConstants.pivotGearRatio / 360);
         //pivotConfig.absoluteEncoder.velocityConversionFactor((Constants.CoralManipulatorConstants.pivotGearRatio / 360) / 60);
+
+        pivotConfig.absoluteEncoder.zeroOffset(.425);
+
+        pivotConfig.absoluteEncoder.zeroCentered(true);
 
         // Limit switch configuration
         LimitSwitchConfig limitSwitchConfig = new LimitSwitchConfig();
@@ -103,6 +109,9 @@ public class CoralManipulator extends SubsystemBase {
         // pivotConfig.apply(softLimitConfig);
         pivotConfig.apply(limitSwitchConfig);
         pivotConfig.inverted(true);
+        pivotConfig.absoluteEncoder.inverted(true);
+        //pivotConfig.closedLoop.positionWrappingEnabled(true);
+        //pivotConfig.closedLoop.positionWrappingInputRange(0, 1);
         pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         FWDLimit = pivotMotor.getForwardLimitSwitch();
@@ -116,35 +125,39 @@ public class CoralManipulator extends SubsystemBase {
     //Example 90 degrees on pivot (assuming offset of 180 degrees) =
     //(90 - 180) = (-90 * 81) / 360 = -20.25 motor rotations
     //To reach 90 degrees on pivot we will need to reach -20.25 motor rotations
-    private double pivotDegreesToRotations(double input) {
+    public double pivotDegreesToRotations(double input) {
         return (input - zereodOffsetDegrees) * conversionFactor;
     }
+
+    //.115 for L1
 
     // Commands for pivot control
     public Command pivotL4() {
         return this.runOnce(() -> {
             this.setpoint = 41;
-            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
+            this.pidPivot.setReference(-.147,
                                         SparkMax.ControlType.kPosition);
         });
     }
 
     public Command pivotIntake() {
         return this.runOnce(() -> {
-            this.setpoint = 25;
-            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
-                                        SparkMax.ControlType.kPosition);
+            System.out.println("Running coral manip pivot intake");
+            pidPivot.setReference(.079, SparkMax.ControlType.kPosition);
+
+            // pidPivot.setReference(0.425,
+            //                            SparkMax.ControlType.kPosition);
         });
+    }
+
+    public SparkMax getPivotMotor() {
+        return pivotMotor;
     }
 
     public Command pivotPlace() {
         return this.runOnce(() -> {
-            this.setpoint = -35; // Degrees
-            this.pidPivot.setReference(pivotDegreesToRotations(setpoint),
+            this.pidPivot.setReference(-.082,
                                        SparkMax.ControlType.kPosition);
-            
-            System.out.println(this.absEncoder.getPosition());
-            System.out.println("PLACEMENT");
         });
     }
 
@@ -185,24 +198,39 @@ public class CoralManipulator extends SubsystemBase {
         });
     }
 
+    public Command pivotUp() {
+        return this.run(() -> {
+            pivotMotor.set(0.3);
+        });
+    }
+
+    public Command pivotDown() {
+        return this.runOnce(() -> {
+            pivotMotor.set(-0.3);
+        });
+    }
+
     
     public void periodic() {
         // SmartDashboard.putNumber("ABSENC POS", this.absEncoder.getPosition());
-        SmartDashboard.putNumber("RelEnc Pos", this.relEnc.getPosition());
-        SmartDashboard.putNumber("Relative Encoder Angle", this.relEnc.getPosition()/this.conversionFactor);
+        SmartDashboard.putNumber("pivot AbsEnc Pos", this.absEncoder.getPosition());
+        //SmartDashboard.putNumber("Relative Encoder Angle", this.relEnc.getPosition()/this.conversionFactor);
 
-        SmartDashboard.putNumber("Angle of Pivot", (absEncoder.getPosition() * 360.0));
-        SmartDashboard.putNumber("Angle from 0", (153.2 - (absEncoder.getPosition() * 360.0))); // angle at our defined 0˚ - current angle
-        SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
-        SmartDashboard.putBoolean("FWD Limit", this.FWDLimit.isPressed());
-        SmartDashboard.putBoolean("REV Limit", this.REVLimit.isPressed());
-        SmartDashboard.putNumber("Voltage2", this.pivotMotor.getBusVoltage() * this.pivotMotor.getAppliedOutput());
+        //SmartDashboard.putNumber("Angle of Pivot", (absEncoder.getPosition() * 360.0));
+        //SmartDashboard.putNumber("Angle from 0", (153.2 - (absEncoder.getPosition() * 360.0))); // angle at our defined 0˚ - current angle
+        //SmartDashboard.putNumber("Rotations", (absEncoder.getPosition()));
+        SmartDashboard.putBoolean("Pivot FWD Limit", this.FWDLimit.isPressed());
+        SmartDashboard.putBoolean("Pivot REV Limit", this.REVLimit.isPressed());
+        SmartDashboard.putNumber("pivot voltage", this.pivotMotor.getBusVoltage() * this.pivotMotor.getAppliedOutput());
+        SmartDashboard.putNumber("rotation test", pivotDegreesToRotations(35));
     }
 
     public Command movePivot() {
         return this.run(() -> {
-            input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .1);
+            input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .05);
             pivotMotor.set(input * 0.1);
+            setpoint += .01;
+            
         });
     }
 }
