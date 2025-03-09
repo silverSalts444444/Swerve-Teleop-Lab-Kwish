@@ -11,7 +11,7 @@ import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
-
+import org.photonvision.PhotonCamera;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.subsystems.Vision;
 import frc.util.lib.SwerveUtil;
 
 /**
@@ -71,21 +72,26 @@ public class SwerveDriveTrain extends SubsystemBase {
 
    // Add field to show robot
    private Field2d field;
-   private Rotation2d offsetNavx = Rotation2d.fromDegrees(90);
+   private Rotation2d offsetNavx = Rotation2d.fromDegrees(-90);
    private final StructArrayPublisher<SwerveModuleState> statePublisher;
    private final StructArrayPublisher<SwerveModuleState> targetStatePublisher;
    private final StructArrayPublisher<SwerveModuleState> absStatePublisher;
    private final StructPublisher<ChassisSpeeds> chassisSpeedsPublisher;
+   private final StructPublisher<Pose2d> poseEstimatorPublisher;
+   private Vision vision;
 
    private SwerveDriveSimulation mapleSimDrive;
 
+   private boolean enableVision = true;
+   private boolean visionForRotation = false;
 
    /**
     * Creates a new SwerveDrive object. Intended to work both with real modules and
     * simulation.
     * @author Aric Volman
     */
-   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BR, SwerveModuleIOSparkMax BL) {
+   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BR, SwerveModuleIOSparkMax BL,
+                           Vision vision) {
       // Assign modules to their object
       this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BR, BL};
 
@@ -99,12 +105,15 @@ public class SwerveDriveTrain extends SubsystemBase {
       // Auto is field-oriented
       this.poseEstimator = new SwerveDrivePoseEstimator(this.kinematics, Rotation2d.fromDegrees(getGyroYaw()), this.modulePositions, startingPose);
       this.field = new Field2d();
+
+      this.vision = vision;
       
       this.chassisSpeeds =  new ChassisSpeeds(0.0, 0.0, 0.0);
       statePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStates", SwerveModuleState.struct).publish();
       absStatePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStates_abs", SwerveModuleState.struct).publish();
       targetStatePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/SwerveStates_target", SwerveModuleState.struct).publish();
       chassisSpeedsPublisher = NetworkTableInstance.getDefault().getStructTopic("/ChassisSpeeds", ChassisSpeeds.struct).publish();
+      poseEstimatorPublisher = NetworkTableInstance.getDefault().getStructTopic("/EstimatedPose", Pose2d.struct).publish();
 
       //Make sure to call this last since we want everything else to be configured
       if (Robot.isSimulation()) {
@@ -118,8 +127,21 @@ public class SwerveDriveTrain extends SubsystemBase {
       // Update module positions
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
 
-      // Update odometry, field, and poseEstimator
+      //Update pose using gyro and encoders.
       this.poseEstimator.update(this.getRotation(), this.modulePositions);
+
+      // Correct pose estimate with vision measurements
+      if (enableVision) {
+         var visionEst = vision.getLeftCameraEstimatedGlobalPose();
+         visionEst.ifPresent( est -> {
+            // Change our trust in the measurement based on the tags we can see
+            var estStdDevs = vision.getEstimationStdDevs();
+            poseEstimator.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+         });
+      }  
+      
+      poseEstimatorPublisher.set(poseEstimator.getEstimatedPosition());
+
       this.field.setRobotPose(this.getPoseFromEstimator());
 
       // Update telemetry of each swerve module
@@ -226,6 +248,13 @@ public class SwerveDriveTrain extends SubsystemBase {
       }
    }
 
+   public void setModuleVoltages(double driveVoltage, double turnVoltage) {
+      for (int i = 0; i < moduleIO.length; i++) {
+         moduleIO[i].setDriveVoltage(driveVoltage);
+         moduleIO[i].setTurnVoltage(turnVoltage);
+      }
+   }
+
    /**
     * Gets the SwerveModuleState[] for our use in code.
     */
@@ -317,7 +346,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     * Reset pose of robot to pose
     */
    public void resetPose(Pose2d pose) {
-      SmartDashboard.putNumber("Pose", pose.getX());
+      System.out.println("resetPose");
       poseEstimator.resetPosition(pose.getRotation(), modulePositions, pose);
       offsetNavx = pose.getRotation().minus(navx.getRotation2d());
 
@@ -330,7 +359,9 @@ public class SwerveDriveTrain extends SubsystemBase {
     * Get chassis speeds for PathPlannerLib
     */
    public ChassisSpeeds getRobotRelativeSpeeds() {
-      return ChassisSpeeds.fromFieldRelativeSpeeds(kinematics.toChassisSpeeds(getActualStates()), getRotation());
+      //TODO is this right?
+      return kinematics.toChassisSpeeds(getActualStates());
+      //return ChassisSpeeds.fromFieldRelativeSpeeds(kinematics.toChassisSpeeds(getActualStates()), getRotation());
    }
 
    /** Gets field */

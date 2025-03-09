@@ -3,19 +3,16 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Homing;
-import frc.robot.commands.PivotPlace;
-import frc.robot.commands.swerve.SwerveAutonomousCMD;
 import frc.robot.commands.swerve.SwerveTeleopCMD;
 import frc.robot.subsystems.CoralManipulator;
 import frc.robot.subsystems.DeepHang;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
 
 
@@ -25,7 +22,7 @@ public class RobotContainer {
 
   // Defines starting pose of robot
   // TODO - Please remove this in future if developing for AprilTags
-  Pose2d startpose = new Pose2d(new Translation2d(0,0), new Rotation2d());//new Pose2d(new Translation2d(8.2,4.2), new Rotation2d());
+  Pose2d startpose = new Pose2d(new Translation2d(1.8, 6), new Rotation2d());
   // add start pose if needed
   // ---------------------- END OF CONFIG SECTION --------------------------
 
@@ -40,40 +37,44 @@ public class RobotContainer {
 
   private SwerveTeleopCMD swerveTeleopCMD;
 
-  private SwerveAutonomousCMD serveAutoCMD;
-
+  // Auto Trajectories
+  private InitializeAutoPaths autoPaths;
+  
   private DeepHang deepHang;
 
   private CoralManipulator coralManipulator;
 
   private Elevator elevator;
 
-  private PivotPlace horiz;
-
-  private JoystickButton buton = new JoystickButton(drivingXbox, XboxController.Button.kLeftBumper.value);
+  private Vision vision;
 
   public RobotContainer() {
     createSwerve();
     //createDeepHang();
     createCoralManipulator();
-    createElevator();
+    //createElevator();
+    this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 
   private void createSwerve() {
+    //Swerve needs the vision make sure to create this first
+    vision = new Vision();
     //Create swerveDriveTrain
     swerveDriveTrain = new SwerveDriveTrain(startpose,
     Constants.SwerveModuleIOConfig.module0,
     Constants.SwerveModuleIOConfig.module1,
     Constants.SwerveModuleIOConfig.module2,
-    Constants.SwerveModuleIOConfig.module3);
+    Constants.SwerveModuleIOConfig.module3,
+    vision);
     
     //Create swerve commands here
     swerveTeleopCMD = new SwerveTeleopCMD(this.swerveDriveTrain, this.drivingXbox);
-    serveAutoCMD = new SwerveAutonomousCMD(this.swerveDriveTrain, Constants.allianceEnabled);
 
     //Set default swerve command to the basic drive command, not field orientated
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
-    buton.onTrue(swerveDriveTrain.resetHeadingCommand());
+
+    //This requires the swerve subsystem make sure to create that first before creating this
+    autoPaths = new InitializeAutoPaths(swerveDriveTrain);
   }
 
   private void createDeepHang() {
@@ -90,7 +91,6 @@ public class RobotContainer {
     coralManipulator = new CoralManipulator(() -> {
       return mechJoystick.getRawAxis(7);
     });
-    horiz = new PivotPlace(coralManipulator);
     // Intake (Button 16) and Release (Button 18)
     mechJoystick.button(16).whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
     mechJoystick.button(18).whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
@@ -138,8 +138,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return null;
-    
+    return autoPaths.getAutonomousCommand();
   }
 
   public void initCommandInTeleop() {
