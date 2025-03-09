@@ -16,13 +16,13 @@ public class Homing extends Command{
     @Override
     public void execute() {
         // output = -0.6*()
-        this.elevator.getMotorE().set(-0.6);
+        //this.elevator.getMotorE().set(-0.6);
     }
     
    @Override
    public void end(boolean interrupted) {
         this.elevator.resetEncoder();
-        this.elevator.getMotorE().set(0);
+        //this.elevator.getMotorE().set(0);
    }
 
    @Override

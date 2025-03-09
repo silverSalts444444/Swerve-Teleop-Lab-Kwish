@@ -70,19 +70,13 @@ public class CoralManipulator extends SubsystemBase {
             0,    // i
             0    // d
         );
-        
         pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+
         pivotConfig.smartCurrentLimit(10);
-        //This is a safety check in place to make sure we aren't going super fast
-        //Decrease or remove if you are ready to do full testing
-        // pivotConfig.closedLoopRampRate(5);
+        pivotConfig.inverted(true);
 
-        //This might fix the conversion factor issues we were seeing
-        //pivotConfig.absoluteEncoder.positionConversionFactor(Constants.CoralManipulatorConstants.pivotGearRatio / 360);
-        //pivotConfig.absoluteEncoder.velocityConversionFactor((Constants.CoralManipulatorConstants.pivotGearRatio / 360) / 60);
-
+        pivotConfig.absoluteEncoder.inverted(true);
         pivotConfig.absoluteEncoder.zeroOffset(.425);
-
         pivotConfig.absoluteEncoder.zeroCentered(true);
 
         // Limit switch configuration
@@ -107,26 +101,12 @@ public class CoralManipulator extends SubsystemBase {
 
         // Apply configurations
         // pivotConfig.apply(softLimitConfig);
+        
         pivotConfig.apply(limitSwitchConfig);
-        pivotConfig.inverted(true);
-        pivotConfig.absoluteEncoder.inverted(true);
-        //pivotConfig.closedLoop.positionWrappingEnabled(true);
-        //pivotConfig.closedLoop.positionWrappingInputRange(0, 1);
         pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         FWDLimit = pivotMotor.getForwardLimitSwitch();
         REVLimit = pivotMotor.getReverseLimitSwitch();
-    }
-
-    //Takes an input of degrees and converts it rotations for the pivot
-    //First apply the offset to the input
-    //81 rotations of motor = 1 rotation of pivot.
-    //We then want this in degrees so divide by 360
-    //Example 90 degrees on pivot (assuming offset of 180 degrees) =
-    //(90 - 180) = (-90 * 81) / 360 = -20.25 motor rotations
-    //To reach 90 degrees on pivot we will need to reach -20.25 motor rotations
-    public double pivotDegreesToRotations(double input) {
-        return (input - zereodOffsetDegrees) * conversionFactor;
     }
 
     //.115 for L1
@@ -135,8 +115,7 @@ public class CoralManipulator extends SubsystemBase {
     public Command pivotL4() {
         return this.runOnce(() -> {
             this.setpoint = 41;
-            this.pidPivot.setReference(-.147,
-                                        SparkMax.ControlType.kPosition);
+            this.pidPivot.setReference(-.147, SparkMax.ControlType.kPosition);
         });
     }
 
@@ -144,9 +123,6 @@ public class CoralManipulator extends SubsystemBase {
         return this.runOnce(() -> {
             System.out.println("Running coral manip pivot intake");
             pidPivot.setReference(.079, SparkMax.ControlType.kPosition);
-
-            // pidPivot.setReference(0.425,
-            //                            SparkMax.ControlType.kPosition);
         });
     }
 
@@ -156,20 +132,7 @@ public class CoralManipulator extends SubsystemBase {
 
     public Command pivotPlace() {
         return this.runOnce(() -> {
-            this.pidPivot.setReference(-.082,
-                                       SparkMax.ControlType.kPosition);
-        });
-    }
-
-    public Command pivotPreset(){
-        return this.run(()->{
-            while (!pidController.atSetpoint()){
-                double val = pidController.calculate(this.relEnc.getPosition(), 35 * this.conversionFactor);
-                this.pivotMotor.set(val);
-                System.out.println(this.relEnc.getPosition());
-                
-                //35 degrees * (81 rotations / 360 degrees )
-            }
+            this.pidPivot.setReference(-.082, SparkMax.ControlType.kPosition);
         });
     }
 
@@ -197,19 +160,6 @@ public class CoralManipulator extends SubsystemBase {
             coralMotor2.set(-0.2);
         });
     }
-
-    public Command pivotUp() {
-        return this.run(() -> {
-            pivotMotor.set(0.3);
-        });
-    }
-
-    public Command pivotDown() {
-        return this.runOnce(() -> {
-            pivotMotor.set(-0.3);
-        });
-    }
-
     
     public void periodic() {
         // SmartDashboard.putNumber("ABSENC POS", this.absEncoder.getPosition());
@@ -222,7 +172,6 @@ public class CoralManipulator extends SubsystemBase {
         SmartDashboard.putBoolean("Pivot FWD Limit", this.FWDLimit.isPressed());
         SmartDashboard.putBoolean("Pivot REV Limit", this.REVLimit.isPressed());
         SmartDashboard.putNumber("pivot voltage", this.pivotMotor.getBusVoltage() * this.pivotMotor.getAppliedOutput());
-        SmartDashboard.putNumber("rotation test", pivotDegreesToRotations(35));
     }
 
     public Command movePivot() {

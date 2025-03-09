@@ -91,6 +91,7 @@ public class Elevator extends SubsystemBase {
       
     motorE.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+    //We started homed make sure to reset encoder
     if (isREVLimit()) {
       this.rel_encoder.setPosition(0);
       homedStartup = true;
@@ -140,10 +141,6 @@ public class Elevator extends SubsystemBase {
     });
   }
 
-  public SparkMax getMotorE() {
-    return motorE;
-  }
-
   public Command setHeightL4(){ //41˚
     return this.runOnce(()->{
       if (this.homedStartup){ 
@@ -160,14 +157,18 @@ public class Elevator extends SubsystemBase {
     return this.run(()->{
         input = MathUtil.applyDeadband(this.rightJoyY.getAsDouble(), .1);
         setpoint += input;
-        PIDController.setReference(this.setpoint, SparkMax.ControlType.kPosition);
+        PIDController.setReference(this.setpoint, SparkMax.ControlType.kMAXMotionPositionControl);
         //motorE.set(input * 0.5);
     });
   }
 
   //Move the elevator down at a constant speed for homing
   public void homeElevatorDown() {
-    motorE.set(-0.3);
+    if (homedStartup) {
+      PIDController.setReference(-1, SparkMax.ControlType.kMAXMotionPositionControl);
+    } else {
+      motorE.set(-0.3);
+    }
   }
 
   public Command stallElevator(){
