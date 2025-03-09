@@ -1,15 +1,11 @@
 package frc.robot.commands.targeting;
 
-import java.util.ArrayList;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.swerve.SwerveTeleopCMD;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
 import frc.robot.subsystems.targeting.Vision;
 
@@ -37,7 +33,7 @@ public class Alignment extends Command{
 
     @Override
     public void initialize() {
-        swerve.drive(new Translation2d(0,0), 0, false, false);
+        swerve.driveRelative(new ChassisSpeeds(0, 0, 0));
     }
 
 
@@ -66,7 +62,7 @@ public class Alignment extends Command{
         SmartDashboard.putNumber("align val", val);
         System.out.println(val);
         SmartDashboard.putNumber("error", (vision.getSetpoint() - vision.getHorizontalDisplacement()));
-        swerve.drive(new Translation2d(0, val), 0.6*rotDirection, false, false);
+        swerve.driveRelative(new ChassisSpeeds( 0, val, 0.6*rotDirection));
       }
       else if (!vision.targetDetected() && (vision.getLastHorizPosition() != 0 || vision.getLastRotAngle() != 0)) {
 
@@ -86,18 +82,18 @@ public class Alignment extends Command{
             lRotDirection = 1;
         }
         
-        swerve.drive(new Translation2d(0, 0.6*lHorizDirection), 0.6*lRotDirection, false, false);
+        swerve.driveRelative(new ChassisSpeeds(0, 0.6*lHorizDirection, 0.6*lRotDirection));
       }
       if (vision.joystickHeld()) {
        
-        swerve.drive(new Translation2d(-0.65*xbox.getRawAxis(1), -0.65*xbox.getRawAxis(0)), -0.8*xbox.getRawAxis(4), false, false);
+        swerve.drive(new Translation2d(-0.65*xbox.getRawAxis(1), -0.65*xbox.getRawAxis(0)), -0.8*xbox.getRawAxis(4), false);
       }
     }
 
     @Override
     public void end(boolean interrupted) {
 
-        swerve.drive(new Translation2d(0, 0), 0, false, false);
+        swerve.driveRelative(new ChassisSpeeds(0, 0, 0));
 
         swerve.stopMotors();
     }

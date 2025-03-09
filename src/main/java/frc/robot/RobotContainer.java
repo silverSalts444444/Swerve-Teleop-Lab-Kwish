@@ -1,12 +1,14 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.swerve.SwerveAutonomousCMD;
+import frc.robot.commands.Homing;
 import frc.robot.commands.swerve.SwerveTeleopCMD;
 import frc.robot.commands.targeting.Alignment;
 import frc.robot.commands.targeting.LongitudinalAlignment;
@@ -16,14 +18,6 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
 import frc.robot.subsystems.targeting.Vision;
 
-import org.photonvision.PhotonCamera;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
-
 
 public class RobotContainer {
 
@@ -31,21 +25,23 @@ public class RobotContainer {
 
   // Defines starting pose of robot
   // TODO - Please remove this in future if developing for AprilTags
-  Pose2d startpose = new Pose2d(new Translation2d(0,0), new Rotation2d());//new Pose2d(new Translation2d(8.2,4.2), new Rotation2d());
+  Pose2d startpose = new Pose2d(new Translation2d(1.8, 6), new Rotation2d());
   // add start pose if needed
   // ---------------------- END OF CONFIG SECTION --------------------------
 
   // Xbox + an additional one for PC use
-  private final Joystick drivingXbox = new Joystick(0);
-  private final CommandXboxController mechXboxController = new CommandXboxController(1);
-  private final CommandJoystick mechControl = new CommandJoystick(1);
+  private final CommandXboxController drivingXbox = new CommandXboxController(0);
+  private final CommandJoystick mechJoystick = new CommandJoystick(1);  // New joystick 
+  //private final CommandXboxController mechController = new CommandXboxController(2);
+
 
   private SwerveDriveTrain swerveDriveTrain;
 
   private SwerveTeleopCMD swerveTeleopCMD;
 
-  private SwerveAutonomousCMD serveAutoCMD;
-
+  // Auto Trajectories
+  private InitializeAutoPaths autoPaths;
+  
   private DeepHang deepHang;
 
   private CoralManipulator coralManipulator;
@@ -56,109 +52,101 @@ public class RobotContainer {
   private LongitudinalAlignment longAlignment;
   private Vision vision;
 
-  private final PhotonCamera cam = new PhotonCamera("bob");
+  
 
   public RobotContainer() {
     createSwerve();
     //createDeepHang();
-    //createCoralManipulator();
-    // createElevator();
-    configVision();
-  }
-
-  private void configVision(){
-    vision = new Vision(cam);
-    longAlignment = new LongitudinalAlignment(swerveDriveTrain, vision);
-    align = new Alignment(swerveDriveTrain, vision);
-    JoystickButton alignButton = new JoystickButton(drivingXbox, XboxController.Button.kA.value);
-    // JoystickButton longAlignButton = new JoystickButton(drivingXbox, XboxController.Button.kX.value);
-    alignButton.toggleOnTrue(align);
+    createCoralManipulator();
+    createElevator();
   }
 
   private void createSwerve() {
+    //Swerve needs the vision make sure to create this first
     //Create swerveDriveTrain
+    vision = new Vision();
     swerveDriveTrain = new SwerveDriveTrain(startpose,
     Constants.SwerveModuleIOConfig.module0,
     Constants.SwerveModuleIOConfig.module1,
     Constants.SwerveModuleIOConfig.module2,
-    Constants.SwerveModuleIOConfig.module3);
+    Constants.SwerveModuleIOConfig.module3,
+    vision);
     
     //Create swerve commands here
     swerveTeleopCMD = new SwerveTeleopCMD(this.swerveDriveTrain, this.drivingXbox);
-    serveAutoCMD = new SwerveAutonomousCMD(this.swerveDriveTrain, Constants.allianceEnabled);
 
     //Set default swerve command to the basic drive command, not field orientated
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
+
+    //This requires the swerve subsystem make sure to create that first before creating this
+    autoPaths = new InitializeAutoPaths(this.swerveDriveTrain);
+    drivingXbox.button(3).onTrue(this.swerveDriveTrain.toggleFieldCentric());
+    drivingXbox.button(4).onTrue(this.swerveDriveTrain.resetHeadingCommand());
+
+    longAlignment = new LongitudinalAlignment(swerveDriveTrain, vision);
+    align = new Alignment(swerveDriveTrain, vision);
+    drivingXbox.a().toggleOnTrue(new SequentialCommandGroup(align, longAlignment));
   }
 
   private void createDeepHang() {
     deepHang = new DeepHang();
     
-    //deepHang.setDefaultCommand(deepHang.stop());
-    mechXboxController.povUp().whileTrue(deepHang.fwd());
-    mechXboxController.povUp().onFalse(deepHang.stop());
+    mechJoystick.axisGreaterThan(1, 0).whileTrue(deepHang.fwd());
+    mechJoystick.axisGreaterThan(1, 0).onFalse(deepHang.stop());
 
-    mechXboxController.povDown().whileTrue(deepHang.rev());
-    mechXboxController.povDown().onFalse(deepHang.stop());
+    mechJoystick.axisLessThan(1, -0.1).whileTrue(deepHang.rev());
+    mechJoystick.axisLessThan(1, -0.1).onFalse(deepHang.stop());
   }
 
   private void createCoralManipulator() {
-    coralManipulator = new CoralManipulator(()->{
-      return mechXboxController.getLeftY();
+    coralManipulator = new CoralManipulator(() -> {
+      return mechJoystick.getRawAxis(7);
     });
 
-    mechControl.button(16).onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
-    mechControl.button(18).onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
-
-    //coralManipulator.setDefaultCommand(coralManipulator.stopCoral());
-    /** 
-    mechXboxController.axisGreaterThan(2, 0).whileTrue(coralManipulator.pivotStop());
-    mechXboxController.x().whileTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
-    mechXboxController.b().whileTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+    mechJoystick.button(16).onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
+    mechJoystick.button(18).onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
     
-    mechXboxController.povUp().onTrue(coralManipulator.pivotL4());
-    mechXboxController.povDown().onTrue(coralManipulator.pivotDown());
-    mechXboxController.povRight().onTrue(coralManipulator.pivotIntake());
-  
-
-    mechXboxController.axisGreaterThan(1, 0.1).whileTrue(coralManipulator.movePivot());
-    mechXboxController.axisLessThan(1, -0.1).whileTrue(coralManipulator.movePivot());
-
-    Trigger coralStopB1 = mechXboxController.axisLessThan(1, 0.1);
-    Trigger coralStopB2 = mechXboxController.axisGreaterThan(1, -0.1);
+    //TODO: Figure out what this button should be
+    mechJoystick.button(17).toggleOnTrue(coralManipulator.movePivot());  
+    mechJoystick.button(6).onTrue(coralManipulator.pivotIntake()); 
+    mechJoystick.button(7).onTrue(coralManipulator.pivotL4());
+    mechJoystick.button(8).onTrue(coralManipulator.pivotPlace());
     
-    coralStopB1.and(coralStopB2).onTrue(coralManipulator.pivotStop()); 
-    */
-    // mechXboxController.a().onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
-    // mechXboxController.b().onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+    mechJoystick.axisMagnitudeGreaterThan(7, 0.1).whileTrue(coralManipulator.movePivot());
+    
   }
 
   private void createElevator() {
     elevator = new Elevator(()->{
-      return mechControl.getY();
+      return mechJoystick.getRawAxis(5);
     });
-    //mechXboxController.leftBumper().onTrue(elevator.homing());
-    //mechXboxController.rightBumper().onTrue(elevator.stopElevator());
-    
-    // if the joystick changes from moving to being still (in bounds), then stop the elevator. It only toggles when the state changes, not repeatidly
-    //mechXboxController.a().onTrue(elevator.setHeightL1()); //on button press
-    //mechXboxController.b().onTrue(elevator.setHeightL2()); //on button press
-    //mechXboxController.x().onTrue(elevator.setHeightL3()); //on button press
-    //mechXboxController.y().onTrue(elevator.setHeightL4()); //on button press
-    //We apply the deadband inside this function
-    mechXboxController.y().toggleOnTrue(elevator.moveElevator());
 
-    //Should change this stop to stall so the elevator can hold its position
-    mechXboxController.y().toggleOnFalse(elevator.stopElevator());
-    
+    Homing home = new Homing(elevator);
+    //mechJoystick.axisMagnitudeGreaterThan(5, 0.1).whileTrue(elevator.moveElevator());
+    mechJoystick.button(17).toggleOnTrue(elevator.moveElevator());
+
+    mechJoystick.button(1).onTrue(elevator.setHeightL4());
+    mechJoystick.button(2).onTrue(elevator.setHeightL3());
+    mechJoystick.button(3).onTrue(elevator.setHeightL2());
+
+    mechJoystick.button(20).onTrue(home); 
+
+    //Creates a new trigger for when the rev limit is pressed.
+    Trigger elevatorHoming = new Trigger(() -> {
+      return elevator.isREVLimit();
+    });
+    //When the rev limit switch is pressed, reset the encoders.
+    //This approach is better than having it in periodic since
+    //when the rev limit is pressed an interrupt is sent to reset the encoders
+    //instead of constantly checking in periodic if the rev limit switch is pressed
+    elevatorHoming.onTrue(elevator.resetEncoder());
   }
 
   public Command getAutonomousCommand() {
-    return null;
-    
+    return autoPaths.getAutonomousCommand();
   }
 
   public void initCommandInTeleop() {
-    swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
+    //swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 }
