@@ -146,7 +146,7 @@ public final class Constants {
     }
 
     public static final class VisionConstants {
-        public static final String kLeftCameraName = "Arducam_OV9281_MonkeyEyes";
+        public static final String kLeftCameraName = "bob";
         public static final String kRightCameraName = "FIND THIS OUT";
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
         public static final Transform3d kLeftRobotToCam =

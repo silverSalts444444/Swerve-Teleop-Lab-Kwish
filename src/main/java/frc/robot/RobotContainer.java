@@ -52,7 +52,7 @@ public class RobotContainer {
     createSwerve();
     //createDeepHang();
     createCoralManipulator();
-    //createElevator();
+    createElevator();
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 

@@ -80,7 +80,7 @@ public class SwerveDriveTrain extends SubsystemBase {
 
    // Add field to show robot
    private Field2d field;
-   private Rotation2d offsetNavx = Rotation2d.fromDegrees(-90);
+   private Rotation2d offsetNavx = Rotation2d.fromDegrees(0);
    private final StructArrayPublisher<SwerveModuleState> statePublisher;
    private final StructArrayPublisher<SwerveModuleState> targetStatePublisher;
    private final StructArrayPublisher<SwerveModuleState> absStatePublisher;
@@ -132,7 +132,7 @@ public class SwerveDriveTrain extends SubsystemBase {
    }
 
    public void periodic() {
-      // SmartDashboard.putBoolean("Field Relative", this.fieldRelative);
+      SmartDashboard.putBoolean("Field Relative", this.fieldRelative);
 
       // Update module positions
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
@@ -231,8 +231,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     * @param isOpenLoop    Whether or not to control robot with closed or open loop
     *                      control
     */
-   public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-      //this.fieldRelative = fieldRelative;
+   public void drive(Translation2d translation, double rotation, boolean isOpenLoop) {
 
       this.chassisSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation,

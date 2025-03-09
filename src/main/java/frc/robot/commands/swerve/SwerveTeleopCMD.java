@@ -91,13 +91,13 @@ public class SwerveTeleopCMD extends Command {
       // Drive swerveDriveTrain with values
       this.swerveDriveTrain.drive(new Translation2d(correctedX, correctedY),
             rotationVal * Constants.SwerveConstants.maxChassisAngularVelocity,
-            this.fieldRelative, false);
+             false);
    }
 
    // Called once the command ends or is interrupted.
    @Override
    public void end(boolean interrupted) {
-      this.swerveDriveTrain.drive(new Translation2d(0, 0), 0, true, false);
+      this.swerveDriveTrain.drive(new Translation2d(0, 0), 0, false);
       // PLEASE SET THIS FOR SAFETY!!!
       this.swerveDriveTrain.stopMotors();
    }
