@@ -34,7 +34,7 @@ public class StraightLine extends SequentialCommandGroup  {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       // *TODO: tune the constants for shooting into the speaker from the left
-      new AutoPath("StraightLine", this.swerve, true)
+      new AutoPath("StraightLine", this.swerve, false)
     );
   }
 }

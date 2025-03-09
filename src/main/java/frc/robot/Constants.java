@@ -8,7 +8,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -147,11 +146,11 @@ public final class Constants {
     }
 
     public static final class VisionConstants {
-        public static final String kLeftCameraName = "bob";
+        public static final String kLeftCameraName = "Arducam_OV9281_MonkeyEyes";
         public static final String kRightCameraName = "FIND THIS OUT";
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
         public static final Transform3d kLeftRobotToCam =
-                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+                new Transform3d(new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(12.75), Units.inchesToMeters(12.5)), new Rotation3d(0, 0, 0));
 
         public static final Transform3d kRightRobotToCam =
                 new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
