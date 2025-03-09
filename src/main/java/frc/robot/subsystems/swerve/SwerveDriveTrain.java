@@ -390,8 +390,8 @@ public class SwerveDriveTrain extends SubsystemBase {
     */
    public ChassisSpeeds getRobotRelativeSpeeds() {
       //TODO is this right?
-      return kinematics.toChassisSpeeds(getActualStates());
-      //return ChassisSpeeds.fromFieldRelativeSpeeds(kinematics.toChassisSpeeds(getActualStates()), getRotation());
+      //return kinematics.toChassisSpeeds(getActualStates());
+      return ChassisSpeeds.fromFieldRelativeSpeeds(kinematics.toChassisSpeeds(getActualStates()), getRotation());
    }
 
    /** Gets field */
