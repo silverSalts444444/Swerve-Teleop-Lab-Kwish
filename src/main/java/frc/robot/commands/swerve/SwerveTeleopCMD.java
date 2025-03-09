@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
-import frc.util.lib.AsymmetricLimiter;
 import frc.util.lib.ArcadeJoystickUtil;
+import frc.util.lib.AsymmetricLimiter;
 
 public class SwerveTeleopCMD extends Command {
    // Initialize empty swerveDriveTrain object
@@ -17,7 +17,7 @@ public class SwerveTeleopCMD extends Command {
 
    private boolean fieldRelative = false;
 
-   private double robotSpeed = .8;
+   private double robotSpeed = 2.0;
 
    private double xMult = 1.0;
    private double yMult = 1.0;

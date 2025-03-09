@@ -28,8 +28,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -195,6 +193,8 @@ public class SwerveDriveTrain extends SubsystemBase {
       SwerveUtil.addSwerveSimulation(moduleIO, getActualStates(), kinematics);
    }
 
+
+
    /**
     * Drive either field oriented, or not field oriented
     * 
@@ -314,21 +314,21 @@ public class SwerveDriveTrain extends SubsystemBase {
       return navx.getYaw();
    }
 
-   /** TODO: FIX THIS
+   /**
     * Get heading of Navx. Negative because Navx is CW positive.
     */
-   public double getHeading() {
+    public double getHeading() {
       return -navx.getRotation2d().plus(offsetNavx).getDegrees();
    }
 
-   /** TODO: FIX THIS
+   /**
     * Get rate of rotation of Navx. Negative because Navx is CW positive.
     */
    public double getTurnRate() {
       return -navx.getRate();
    }
 
-   /** TODO: FIX THIS not good
+   /**
     * Get Rotation2d of Navx. Positive value (CCW positive default).
     */
    public Rotation2d getRotation() {
