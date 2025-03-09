@@ -148,6 +148,7 @@ public class RobotContainer {
   public void CreateAutoCommands(){
       new EventTrigger("Lift Elevator L4").onTrue(new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotL4()));
       new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral().withTimeout(1), coralManipulator.stopCoral()));
+      new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), coralManipulator.stopCoral()));
   }
 
   public Command getAutonomousCommand() {
