@@ -1,9 +1,13 @@
 package frc.robot;
+import com.pathplanner.lib.events.EventTrigger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -52,8 +56,9 @@ public class RobotContainer {
     createSwerve();
     //createDeepHang();
     createCoralManipulator();
-    //createElevator();
+    createElevator();
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
+    CreateAutoCommands();
   }
 
   private void createSwerve() {
@@ -135,6 +140,11 @@ public class RobotContainer {
     //when the rev limit is pressed an interrupt is sent to reset the encoders
     //instead of constantly checking in periodic if the rev limit switch is pressed
     elevatorHoming.onTrue(elevator.resetEncoder());
+  }
+
+  public void CreateAutoCommands(){
+      new EventTrigger("Lift Elevator L4").onTrue(new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotL4()));
+      new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral().withTimeout(1), coralManipulator.stopCoral()));
   }
 
   public Command getAutonomousCommand() {
