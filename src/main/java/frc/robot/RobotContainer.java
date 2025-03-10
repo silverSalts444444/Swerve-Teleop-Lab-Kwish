@@ -154,6 +154,11 @@ public class RobotContainer {
     new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), coralManipulator.stopCoral()));
   }
 
+  public void disablePoseEst() {
+    swerveDriveTrain.disablePoseEst();
+    vision.disablePoseEst();
+  }
+
   public Command getAutonomousCommand() {
     return autoPaths.getAutonomousCommand();
   }
