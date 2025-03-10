@@ -50,7 +50,7 @@ public class Vision extends SubsystemBase{
         //rightCamera = new PhotonCamera(VisionConstants.kRightCameraName);
 
         bottomPhotonPoseEstimator =
-                new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kLeftRobotToCam);
+                new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kBottomRobotToCam);
         bottomPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         
     }
