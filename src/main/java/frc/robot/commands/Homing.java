@@ -16,7 +16,7 @@ public class Homing extends Command{
     @Override
     public void execute() {
         // output = -0.6*()
-        //this.elevator.getMotorE().set(-0.6);
+        this.elevator.getMotor().set(-0.6);
     }
     
    @Override

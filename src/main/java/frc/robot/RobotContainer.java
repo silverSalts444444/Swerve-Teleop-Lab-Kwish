@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -59,6 +60,7 @@ public class RobotContainer {
     //createDeepHang();
     createCoralManipulator();
     createElevator();
+    BALLASDHAKHSDHASDKJAS();
   }
 
   private void createSwerve() {
@@ -85,7 +87,7 @@ public class RobotContainer {
 
     longAlignment = new LongitudinalAlignment(swerveDriveTrain, vision);
     align = new Alignment(swerveDriveTrain, vision);
-    drivingXbox.a().toggleOnTrue(new SequentialCommandGroup(align, longAlignment));
+    drivingXbox.a().toggleOnTrue(align);
   }
 
   private void createDeepHang() {
@@ -107,12 +109,17 @@ public class RobotContainer {
     mechJoystick.button(18).onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
     
     //TODO: Figure out what this button should be
-    mechJoystick.button(17).toggleOnTrue(coralManipulator.movePivot());  
-    mechJoystick.button(6).onTrue(coralManipulator.pivotIntake()); 
+   mechJoystick.button(6).onTrue(coralManipulator.pivotIntake()); 
     mechJoystick.button(7).onTrue(coralManipulator.pivotL4());
     mechJoystick.button(8).onTrue(coralManipulator.pivotPlace());
     
     mechJoystick.axisMagnitudeGreaterThan(7, 0.1).whileTrue(coralManipulator.movePivot());
+    
+  }
+
+  private void BALLASDHAKHSDHASDKJAS() {
+    Homing home = new Homing(elevator);
+    mechJoystick.button(17).onTrue(new ParallelCommandGroup(coralManipulator.pivotIntake(), home));  
     
   }
 
@@ -125,11 +132,11 @@ public class RobotContainer {
     //mechJoystick.axisMagnitudeGreaterThan(5, 0.1).whileTrue(elevator.moveElevator());
     mechJoystick.button(17).toggleOnTrue(elevator.moveElevator());
 
-    mechJoystick.button(1).onTrue(elevator.setHeightL4());
-    mechJoystick.button(2).onTrue(elevator.setHeightL3());
-    mechJoystick.button(3).onTrue(elevator.setHeightL2());
+    mechJoystick.button(1).onTrue(new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotPlace()));
+    mechJoystick.button(2).onTrue(new ParallelCommandGroup(elevator.setHeightL3(), coralManipulator.pivotPlace()));
+    mechJoystick.button(3).onTrue(new ParallelCommandGroup(elevator.setHeightL2(), coralManipulator.pivotPlace()));
 
-    mechJoystick.button(20).onTrue(home); 
+    //mechJoystick.button(20).onTrue(home); 
 
     //Creates a new trigger for when the rev limit is pressed.
     Trigger elevatorHoming = new Trigger(() -> {

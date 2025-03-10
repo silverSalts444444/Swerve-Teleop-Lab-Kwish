@@ -53,7 +53,7 @@ import frc.util.lib.SwerveUtil;
  */
 public class SwerveDriveTrain extends SubsystemBase {
 
-   private boolean fieldRelative;
+   private boolean fieldRelative = true;
 
    // Create Navx
    private AHRS navx = new AHRS(NavXComType.kMXP_SPI);
