@@ -53,14 +53,14 @@ public class Elevator extends SubsystemBase {
     this.rel_encoder = motorE.getEncoder();
     
     config.closedLoop.pid(
-    6, //p
+    10, //p
     0.0, //i
     0.0 //d
     );
 
     config.closedLoop.maxMotion
-       .maxVelocity(2500) //in rpm
-       .maxAcceleration(1700); // in rpm/s
+       .maxVelocity(5000) //in rpm
+       .maxAcceleration(3000); // in rpm/s
     //   //.allowedClosedLoopError(allowedErr);
     
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
@@ -163,12 +163,14 @@ public class Elevator extends SubsystemBase {
   }
 
   //Move the elevator down at a constant speed for homing
-  public void homeElevatorDown() {
-    if (homedStartup) {
-      PIDController.setReference(-1, SparkMax.ControlType.kMAXMotionPositionControl);
-    } else {
-      motorE.set(-0.3);
-    }
+  public Command homeElevatorDown() {
+    return this.runOnce(() -> {
+      if (homedStartup) {
+        PIDController.setReference(0, SparkMax.ControlType.kMAXMotionPositionControl);
+      } else {
+        motorE.set(-0.3);
+      }
+    });
   }
 
   public Command stallElevator(){
@@ -187,6 +189,10 @@ public class Elevator extends SubsystemBase {
       homedStartup = true;
       rel_encoder.setPosition(0);
     });   
+  }
+  
+  public SparkMax getMotor() {
+    return motorE;
   }
 
   @Override

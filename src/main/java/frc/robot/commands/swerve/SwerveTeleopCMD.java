@@ -16,7 +16,7 @@ public class SwerveTeleopCMD extends Command {
    private final SwerveDriveTrain swerveDriveTrain;
    private final CommandXboxController joystick;
 
-   private boolean fieldRelative = false;
+   private boolean fieldRelative = true;
 
    private double robotSpeed = 2.0;
 

@@ -176,10 +176,10 @@ public class CoralManipulator extends SubsystemBase {
 
     public Command movePivot() {
         return this.run(() -> {
-            input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .05);
-            pivotMotor.set(input * 0.1);
-            setpoint += .01;
-            
+            input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .1);
+            //pivotMotor.set(input * 0.1);
+            setpoint += input * 0.05;
+            this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
         });
     }
 }

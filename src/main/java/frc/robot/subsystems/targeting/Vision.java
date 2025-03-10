@@ -43,6 +43,8 @@ public class Vision extends SubsystemBase{
 
     double pidVal;
 
+    boolean targetDetected = false;
+
     public Vision() {
         bottomCamera.setPipelineIndex(0);
         //rightCamera = new PhotonCamera(VisionConstants.kRightCameraName);
@@ -54,13 +56,20 @@ public class Vision extends SubsystemBase{
     }
 
     //returns whether a target (AprilTag) has been detected
-    public boolean targetDetected() {
-        PhotonPipelineResult result = bottomCamera.getLatestResult();
+    // public boolean targetDetected() {
+    //     List<PhotonPipelineResult> results = bottomCamera.getAllUnreadResults();
 
-        if (result.hasTargets()) {
-            return true;
-        }
-        return false;
+    //     for (PhotonPipelineResult result : results) {
+    //         if (result.hasTargets()) {
+    //             return true;
+    //         }
+    //     }
+
+    //     return false;
+    // }
+
+    public boolean targetDetected() {
+        return targetDetected;
     }
 
     // public double getYaw() {
@@ -81,19 +90,24 @@ public class Vision extends SubsystemBase{
 
     //gets target data such as x and y offset, rotational offset, and returns everything as a Transform3d 
     public Transform3d getTargetData() {
-        PhotonPipelineResult result = bottomCamera.getLatestResult();
-        if (targetDetected()) {
-            PhotonTrackedTarget target = result.getBestTarget();
+        List<PhotonPipelineResult> results = bottomCamera.getAllUnreadResults();
+
+        for (PhotonPipelineResult result : results) {
+            if (result.hasTargets()) {
+                PhotonTrackedTarget target = result.getBestTarget();
                 if (target != null) {
+                    targetDetected = true;
                     return target.getBestCameraToTarget();
                 }
             }
+        }   
+        targetDetected = false;
         return null;
         }
 
     //returns the current horizontal displacement with respect to the AprilTag (uses getY() because the Y offset in PhotonVision is the horizontal axis)
     public double getHorizontalDisplacement() {
-        if (targetDetected()) {
+        if (targetDetected) {
             if (targetData != null) {
                 return targetData.getY();
             }
@@ -103,7 +117,7 @@ public class Vision extends SubsystemBase{
     }
     
     public double getLongitudinalDisplacement() {
-        if (targetDetected()) {
+        if (targetDetected) {
             if (targetData != null) {
                 return targetData.getX();
             }
@@ -113,7 +127,7 @@ public class Vision extends SubsystemBase{
     }
     
     public double getZAngle() {
-        if (targetDetected()) {
+        if (targetDetected) {
             if (targetData != null) {
                 Rotation3d rot = targetData.getRotation();
                 return Math.toDegrees(rot.getAngle());
@@ -125,7 +139,7 @@ public class Vision extends SubsystemBase{
 
     public double getRotationalDirection() {
         double direction;
-        if (targetDetected()) {
+        if (targetDetected) {
             if (getZAngle() > 182) { //counterclockwise turn
                 direction = -1;
             }
@@ -142,7 +156,7 @@ public class Vision extends SubsystemBase{
 
     public double getHorizontalDirection() {
         double direction;
-        if (targetDetected()) {
+        if (targetDetected) {
             if (getHorizontalDisplacement() < array[0]) {
                 direction = -1;
             }
@@ -190,7 +204,7 @@ public class Vision extends SubsystemBase{
 
     public void switchHorizontalSetpoint() {
         if(cont.getLeftBumperButtonPressed()) {
-            pidVal = -0.21;
+            pidVal = -0.17;
         }
         else if(cont.getRightBumperButtonPressed()) {
             pidVal = 0.16;
@@ -240,7 +254,7 @@ public class Vision extends SubsystemBase{
     public void periodic() {
         //update targetData with current info
         targetData = getTargetData();
-        if (targetDetected()) {
+        if (targetDetected) {
             horizVals.add(0, getHorizontalDisplacement());
             rotVals.add(0, getZAngle());
         } 
