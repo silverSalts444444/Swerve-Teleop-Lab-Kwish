@@ -28,6 +28,8 @@ public class InitializeAutoPaths {
     private final SwerveDriveTrain swerve;
 
     private final SendableChooser<Command> autoCommandChooser = new SendableChooser<>();
+
+    private SendableChooser<Command> autoChooser = new SendableChooser<>();
     
     // Plays:
     private StraightLine straightLine;
@@ -75,6 +77,11 @@ public class InitializeAutoPaths {
 
           autoCommandChooser.setDefaultOption("straightLine", straightLine);
           autoCommandChooser.setDefaultOption("S2_H1_C2", s2_h1_c2);
+
+          //Might be able to just do this instead of having to list out each path like above
+          //Will need to be tested further
+          //autoChooser = AutoBuilder.buildAutoChooser();
+          //SmartDashboard.putData(autoChooser);
 
           SmartDashboard.putData(autoCommandChooser);
 
