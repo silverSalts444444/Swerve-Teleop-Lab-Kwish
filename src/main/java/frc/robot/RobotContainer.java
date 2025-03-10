@@ -1,4 +1,5 @@
 package frc.robot;
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -109,7 +110,7 @@ public class RobotContainer {
     mechJoystick.button(18).onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
     
     //TODO: Figure out what this button should be
-   mechJoystick.button(6).onTrue(coralManipulator.pivotIntake()); 
+    mechJoystick.button(6).onTrue(coralManipulator.pivotIntake()); 
     mechJoystick.button(7).onTrue(coralManipulator.pivotL4());
     mechJoystick.button(8).onTrue(coralManipulator.pivotPlace());
     
@@ -147,6 +148,12 @@ public class RobotContainer {
     //when the rev limit is pressed an interrupt is sent to reset the encoders
     //instead of constantly checking in periodic if the rev limit switch is pressed
     elevatorHoming.onTrue(elevator.resetEncoder());
+  }
+
+  public void CreateAutoCommands(){
+      new EventTrigger("Lift Elevator L4").onTrue(new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotL4()));
+      new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral().withTimeout(1), coralManipulator.stopCoral()));
+      new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), coralManipulator.stopCoral()));
   }
 
   public Command getAutonomousCommand() {

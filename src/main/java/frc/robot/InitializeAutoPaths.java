@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
+import frc.robot.commands.autoPaths.S2_H1_C2;
 import frc.robot.commands.autoPaths.StraightLine;
 
 /** Add your docs here. */
@@ -30,6 +31,7 @@ public class InitializeAutoPaths {
     
     // Plays:
     private StraightLine straightLine;
+    private S2_H1_C2 s2_h1_c2;
 
     RobotConfig config;
 
@@ -69,8 +71,11 @@ public class InitializeAutoPaths {
          
         try {
           straightLine = new StraightLine(this.swerve);
-          
+          s2_h1_c2 = new S2_H1_C2(this.swerve);
+
           autoCommandChooser.setDefaultOption("straightLine", straightLine);
+          autoCommandChooser.setDefaultOption("S2_H1_C2", s2_h1_c2);
+
           SmartDashboard.putData(autoCommandChooser);
 
         } catch (FileVersionException | IOException | ParseException e) {
