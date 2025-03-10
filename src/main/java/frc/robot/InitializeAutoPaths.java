@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
 import frc.robot.commands.autoPaths.S2_H1_C2;
 import frc.robot.commands.autoPaths.StraightLine;
+import frc.robot.commands.autoPaths.TestingEventMarkers;
 
 /** Add your docs here. */
 public class InitializeAutoPaths {
@@ -32,6 +33,7 @@ public class InitializeAutoPaths {
     // Plays:
     private StraightLine straightLine;
     private S2_H1_C2 s2_h1_c2;
+    private TestingEventMarkers testingEventMarkers;
 
     RobotConfig config;
 
@@ -72,9 +74,12 @@ public class InitializeAutoPaths {
         try {
           straightLine = new StraightLine(this.swerve);
           s2_h1_c2 = new S2_H1_C2(this.swerve);
+          testingEventMarkers = new TestingEventMarkers(this.swerve);
+          
 
           autoCommandChooser.setDefaultOption("straightLine", straightLine);
           autoCommandChooser.setDefaultOption("S2_H1_C2", s2_h1_c2);
+          autoCommandChooser.setDefaultOption("TestingEventMarkers", testingEventMarkers);
 
           SmartDashboard.putData(autoCommandChooser);
 
