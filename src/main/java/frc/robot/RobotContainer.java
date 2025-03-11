@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -150,8 +151,8 @@ public class RobotContainer {
       new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral().withTimeout(1), coralManipulator.stopCoral()));
       new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), coralManipulator.stopCoral()));
       // Testing Purposes:
-      new EventTrigger("Test Coral Intake").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), coralManipulator.stopCoral()));
-      new EventTrigger("Test Coral Outake").onTrue(new SequentialCommandGroup(coralManipulator.pivotL4(), coralManipulator.releaseCoral(), coralManipulator.stopCoral()));
+      new EventTrigger("Test Coral Intake").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), new WaitCommand(2), coralManipulator.stopCoral()));
+      new EventTrigger("Test Coral Outake").onTrue(new SequentialCommandGroup(coralManipulator.pivotL4(), coralManipulator.releaseCoral(), new WaitCommand(2), coralManipulator.stopCoral()));
       new EventTrigger("Test Elevator").onTrue(new SequentialCommandGroup(elevator.setHeightL2()));
   }
 

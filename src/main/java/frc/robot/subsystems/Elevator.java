@@ -24,12 +24,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 
-
-
 public class Elevator extends SubsystemBase {
   private SparkMax motorE = new SparkMax(25, MotorType.kBrushless);
   private SparkClosedLoopController PIDController;
-  
+
   private double conversionFactor = (Constants.ElevatorConstants.elevatorGearRatio / 5.5);
   private RelativeEncoder rel_encoder;
 
@@ -53,16 +51,15 @@ public class Elevator extends SubsystemBase {
     this.rel_encoder = motorE.getEncoder();
     
     config.closedLoop.pid(
-    6, //p
+    10, //p
     0.0, //i
     0.0 //d
     );
-
     config.closedLoop.maxMotion
-       .maxVelocity(2500) //in rpm
-       .maxAcceleration(1700); // in rpm/s
+       .maxVelocity(5000) //in rpm
+       .maxAcceleration(3000); // in rpm/s
     //   //.allowedClosedLoopError(allowedErr);
-    
+
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     
     SoftLimitConfig softLimitConfig = new SoftLimitConfig();
@@ -97,15 +94,13 @@ public class Elevator extends SubsystemBase {
       homedStartup = true;
     }
   }
-  
-
   //command to stop the motor
   public Command stopElevator() {
     return this.runOnce(() -> {
         motorE.set(0);
     });    
   }
-  
+
   public Command setHeightL1(){
     return this.runOnce(()->{
         if (this.homedStartup){
@@ -118,7 +113,6 @@ public class Elevator extends SubsystemBase {
         }
     });
   }
-    
 
   public Command setHeightL2(){
     return this.runOnce(()->{
@@ -163,12 +157,14 @@ public class Elevator extends SubsystemBase {
   }
 
   //Move the elevator down at a constant speed for homing
-  public void homeElevatorDown() {
-    if (homedStartup) {
-      PIDController.setReference(-1, SparkMax.ControlType.kMAXMotionPositionControl);
-    } else {
-      motorE.set(-0.3);
-    }
+  public Command homeElevatorDown() {
+    return this.runOnce(() -> {
+      if (homedStartup) {
+        PIDController.setReference(0, SparkMax.ControlType.kMAXMotionPositionControl);
+      } else {
+        motorE.set(-0.3);
+      }
+    });
   }
 
   public Command stallElevator(){
@@ -188,6 +184,10 @@ public class Elevator extends SubsystemBase {
       rel_encoder.setPosition(0);
     });   
   }
+  
+  public SparkMax getMotor() {
+    return motorE;
+  }
 
   @Override
   public void periodic(){
@@ -196,11 +196,8 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putNumber("Current position in converted rotations",currentPos / conversionFactor);
     SmartDashboard.putBoolean("Rev Limit", revLimit.isPressed());
     SmartDashboard.putBoolean("Fwd Limit", fwdLimit.isPressed());
-    SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());
     SmartDashboard.putNumber("Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
     SmartDashboard.putBoolean("Homed Since Startup?", homedStartup);
-    SmartDashboard.putNumber("Left Slider", rightJoyY.getAsDouble());
-    
     //https://www.chiefdelphi.com/t/get-voltage-from-spark-max/344136/2
   }
 
