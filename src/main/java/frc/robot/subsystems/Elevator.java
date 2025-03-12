@@ -19,7 +19,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -53,14 +52,14 @@ public class Elevator extends SubsystemBase {
     this.rel_encoder = motorE.getEncoder();
     
     config.closedLoop.pid(
-    10, //p
+    .0125, //p
     0.0, //i
     0.0 //d
     );
 
     config.closedLoop.maxMotion
-       .maxVelocity(5000) //in rpm
-       .maxAcceleration(3000); // in rpm/s
+       .maxVelocity(2500) //in rpm
+       .maxAcceleration(1500); // in rpm/s
     //   //.allowedClosedLoopError(allowedErr);
     
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
@@ -102,6 +101,7 @@ public class Elevator extends SubsystemBase {
   //command to stop the motor
   public Command stopElevator() {
     return this.runOnce(() -> {
+        System.out.println("stop the elevator");
         motorE.set(0);
     });    
   }
@@ -155,10 +155,12 @@ public class Elevator extends SubsystemBase {
 
   public Command moveElevator() {
     return this.run(()->{
-        input = MathUtil.applyDeadband(this.rightJoyY.getAsDouble(), .1);
-        setpoint += input;
-        PIDController.setReference(this.setpoint, SparkMax.ControlType.kMAXMotionPositionControl);
-        //motorE.set(input * 0.5);
+        //This joystick up is negative and down is positive so we need to invert it.
+        input = MathUtil.applyDeadband(-this.rightJoyY.getAsDouble(), .1);
+        //setpoint += input;
+        //PIDController.setReference(this.setpoint, SparkMax.ControlType.kMAXMotionPositionControl);
+        
+        motorE.set(input * 0.3);
     });
   }
 
@@ -173,39 +175,28 @@ public class Elevator extends SubsystemBase {
     });
   }
 
-  public Command stallElevator(){
-    return this.run(()->{
-        PIDController.setReference(this.currentPos, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, 0.8);
-    });
-  }
-
   public boolean isREVLimit() {
     return revLimit.isPressed();
   }
 
   public Command resetEncoder() {
     return this.runOnce(() -> {
-      System.out.println("RESET");
       homedStartup = true;
       rel_encoder.setPosition(0);
+      setpoint = 0;
     });   
-  }
-  
-  public SparkMax getMotor() {
-    return motorE;
   }
 
   @Override
   public void periodic(){
-    SmartDashboard.putNumber("setpoint", setpoint);
+    SmartDashboard.putNumber("Elevator setpoint", setpoint);
     currentPos = rel_encoder.getPosition();     
-    SmartDashboard.putNumber("Current position in converted rotations",currentPos / conversionFactor);
-    SmartDashboard.putBoolean("Rev Limit", revLimit.isPressed());
-    SmartDashboard.putBoolean("Fwd Limit", fwdLimit.isPressed());
-    SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());
-    SmartDashboard.putNumber("Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
-    SmartDashboard.putBoolean("Homed Since Startup?", homedStartup);
-    SmartDashboard.putNumber("Left Slider", rightJoyY.getAsDouble());
+    SmartDashboard.putNumber("Elevator pos",currentPos / conversionFactor);
+    SmartDashboard.putNumber("Elevator vel", rel_encoder.getVelocity());
+    SmartDashboard.putBoolean("Elevator Rev Limit", revLimit.isPressed());
+    SmartDashboard.putBoolean("Elevator Fwd Limit", fwdLimit.isPressed());
+    SmartDashboard.putNumber("Elevator Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
+    SmartDashboard.putBoolean("Elevator Homed?", homedStartup);
     
     //https://www.chiefdelphi.com/t/get-voltage-from-spark-max/344136/2
   }
