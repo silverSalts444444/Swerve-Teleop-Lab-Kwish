@@ -75,7 +75,7 @@ public class Robot extends TimedRobot {
 
     //Uncomment this if you want to disable pose est when running teleop
     //This will allow allignment to work
-    //m_robotContainer.disablePoseEst();
+    m_robotContainer.disablePoseEst();
     
     alliance = DriverStation.getAlliance();
     

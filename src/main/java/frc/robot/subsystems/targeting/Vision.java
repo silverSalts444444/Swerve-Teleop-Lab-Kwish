@@ -192,7 +192,7 @@ public class Vision extends SubsystemBase{
             pidVal = -0.17;
         }
         else if(cont.getRightBumperButtonPressed()) {
-            pidVal = 0.16;
+            pidVal = 0.20;
         }
         else if(cont.getBButtonPressed()) {
             pidVal = 0;

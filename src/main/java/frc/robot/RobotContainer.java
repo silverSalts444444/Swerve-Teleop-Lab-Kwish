@@ -72,10 +72,11 @@ public class RobotContainer {
     Constants.SwerveModuleIOConfig.module1,
     Constants.SwerveModuleIOConfig.module2,
     Constants.SwerveModuleIOConfig.module3,
-    vision);
+    vision, () -> {return drivingXbox.getLeftTriggerAxis();});
     
     //Create swerve commands here
     swerveTeleopCMD = new SwerveTeleopCMD(this.swerveDriveTrain, this.drivingXbox);
+
 
     //Set default swerve command to the basic drive command, not field orientated
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
@@ -85,7 +86,10 @@ public class RobotContainer {
     drivingXbox.button(3).onTrue(this.swerveDriveTrain.toggleFieldCentric());
     drivingXbox.button(4).onTrue(this.swerveDriveTrain.resetHeadingCommand());
 
-    longAlignment = new LongitudinalAlignment(swerveDriveTrain, vision);
+    drivingXbox.leftTrigger(0.1).whileTrue(swerveDriveTrain.driveForward());
+
+
+    // longAlignment = new LongitudinalAlignment(swerveDriveTrain, vision);
     align = new Alignment(swerveDriveTrain, vision);
     drivingXbox.a().toggleOnTrue(align);
   }
@@ -140,7 +144,7 @@ public class RobotContainer {
 
     ParallelCommandGroup gotoL2 = new ParallelCommandGroup(elevator.setHeightL2(), coralManipulator.pivotPlace());
     ParallelCommandGroup gotoL3 = new ParallelCommandGroup(elevator.setHeightL3(), coralManipulator.pivotPlace());
-    ParallelCommandGroup gotoL4 = new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotPlace());
+    ParallelCommandGroup gotoL4 = new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotL4());
     //Change this to use the home command if the homeEleavtorDown doesn't work
     ParallelCommandGroup gotoIntake = new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotIntake());
     mechJoystick.button(17).onTrue(gotoIntake);
