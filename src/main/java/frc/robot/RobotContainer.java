@@ -33,9 +33,7 @@ public class RobotContainer {
 
   // Xbox + an additional one for PC use
   private final CommandXboxController drivingXbox = new CommandXboxController(0);
-  private final CommandJoystick mechJoystick = new CommandJoystick(1);  // New joystick 
-  //private final CommandXboxController mechController = new CommandXboxController(2);
-
+  private final CommandJoystick mechJoystick = new CommandJoystick(1);
 
   private SwerveDriveTrain swerveDriveTrain;
 
@@ -54,15 +52,15 @@ public class RobotContainer {
   private LongitudinalAlignment longAlignment;
   private Vision vision;
 
-  
-
   public RobotContainer() {
     createSwerve();
     //createDeepHang();
     createCoralManipulator();
-    //createElevator();
-    mechJoystick.button(7).onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(),  new WaitCommand(1), coralManipulator.stopCoral()));
-    this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
+    createElevator();
+
+    //Call this last since this creates the parallel command groups
+    //and requires elevator and coral manipulator
+    BALLASDHAKHSDHASDKJAS();
   }
 
   private void createSwerve() {
@@ -89,7 +87,7 @@ public class RobotContainer {
 
     longAlignment = new LongitudinalAlignment(swerveDriveTrain, vision);
     align = new Alignment(swerveDriveTrain, vision);
-    drivingXbox.a().toggleOnTrue(new SequentialCommandGroup(align, longAlignment));
+    drivingXbox.a().toggleOnTrue(align);
   }
 
   private void createDeepHang() {
@@ -109,28 +107,24 @@ public class RobotContainer {
 
     mechJoystick.button(16).onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
     mechJoystick.button(18).onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
+    //mechJoystick.button(6).toggleOnTrue(coralManipulator.movePivot());
+    //mechJoystick.button(6).onTrue(coralManipulator.pivotIntake()); 
+    //mechJoystick.button(7).onTrue(coralManipulator.pivotL4());
+    //mechJoystick.button(8).onTrue(coralManipulator.pivotPlace());
     
-    //TODO: Figure out what this button should be
-    mechJoystick.button(17).toggleOnTrue(coralManipulator.movePivot());  
-    mechJoystick.button(6).onTrue(coralManipulator.pivotIntake()); 
-    mechJoystick.button(7).onTrue(coralManipulator.pivotL4());
-    mechJoystick.button(8).onTrue(coralManipulator.pivotPlace());
+    //mechJoystick.axisMagnitudeGreaterThan(7, 0.1).whileTrue(coralManipulator.movePivot());
     
-    mechJoystick.axisMagnitudeGreaterThan(7, 0.1).whileTrue(coralManipulator.movePivot());
-    
+    mechJoystick.button(6).onTrue(coralManipulator.toggleTeleop());
+    mechJoystick.povUp().onTrue(coralManipulator.movePivotUp());
+    mechJoystick.povDown().onTrue(coralManipulator.movePivotDown());
   }
 
   private void createElevator() {
     elevator = new Elevator(()->{
-      return mechJoystick.getRawAxis(5);
+      return mechJoystick.getRawAxis(4);
     });
 
-    //mechJoystick.axisMagnitudeGreaterThan(5, 0.1).whileTrue(elevator.moveElevator());
-    mechJoystick.button(17).toggleOnTrue(elevator.moveElevator());
-
-    mechJoystick.button(1).onTrue(elevator.setHeightL4());
-    mechJoystick.button(2).onTrue(elevator.setHeightL3());
-    mechJoystick.button(3).onTrue(elevator.setHeightL2());
+    mechJoystick.button(5).toggleOnTrue(elevator.moveElevator());
 
     //Creates a new trigger for when the rev limit is pressed.
     Trigger elevatorHoming = new Trigger(() -> {
@@ -140,7 +134,8 @@ public class RobotContainer {
     //This approach is better than having it in periodic since
     //when the rev limit is pressed an interrupt is sent to reset the encoders
     //instead of constantly checking in periodic if the rev limit switch is pressed
-    elevatorHoming.onTrue(elevator.resetEncoder());
+    elevatorHoming.onTrue(elevator.stopElevator());
+    elevatorHoming.onFalse(elevator.resetEncoder());
   }
 
   public void CreateAutoCommands(){
@@ -151,6 +146,28 @@ public class RobotContainer {
       new EventTrigger("Test Coral Intake").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(),  new WaitCommand(5), coralManipulator.stopCoral()));
       new EventTrigger("Test Coral Outake").onTrue(new SequentialCommandGroup(coralManipulator.pivotL4(), coralManipulator.releaseCoral(),  new WaitCommand(5), coralManipulator.stopCoral()));
       new EventTrigger("Test Elevator").onTrue(new SequentialCommandGroup(elevator.setHeightL2()));
+  private void BALLASDHAKHSDHASDKJAS() {
+    ParallelCommandGroup gotoL1 = new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotPlace());
+    ParallelCommandGroup gotoL2 = new ParallelCommandGroup(elevator.setHeightL2(), coralManipulator.pivotPlace());
+    ParallelCommandGroup gotoL3 = new ParallelCommandGroup(elevator.setHeightL3(), coralManipulator.pivotPlace());
+    ParallelCommandGroup gotoL4 = new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotL4());
+    //Change this to use the home command if the homeEleavtorDown doesn't work
+    ParallelCommandGroup gotoIntake = new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotIntake());
+    mechJoystick.button(17).onTrue(gotoIntake);
+    mechJoystick.button(1 ).onTrue(gotoL4);
+    mechJoystick.button(2 ).onTrue(gotoL3);
+    mechJoystick.button(3 ).onTrue(gotoL2);
+    mechJoystick.button(4 ).onTrue(gotoL1);
+
+    //These are for auto. Triggers that happen during auto paths to execute commands
+    new EventTrigger("Lift Elevator L4").onTrue(gotoL4);
+    new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral(), new WaitCommand(1) ,coralManipulator.stopCoral()));
+    new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), coralManipulator.stopCoral()));
+  }
+
+  public void disablePoseEst() {
+    swerveDriveTrain.disablePoseEst();
+    vision.disablePoseEst();
   }
 
   public Command getAutonomousCommand() {

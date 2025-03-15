@@ -14,21 +14,21 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.FileVersionException;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.swerve.SwerveDriveTrain;
 import frc.robot.commands.autoPaths.S2_H1_C2;
 import frc.robot.commands.autoPaths.StraightLine;
-import frc.robot.commands.autoPaths.TestingEventMarkers;
+import frc.robot.subsystems.swerve.SwerveDriveTrain;
 
 /** Add your docs here. */
 public class InitializeAutoPaths {
     private final SwerveDriveTrain swerve;
 
     private final SendableChooser<Command> autoCommandChooser = new SendableChooser<>();
+
+    private SendableChooser<Command> autoChooser = new SendableChooser<>();
     
     // Plays:
     private StraightLine straightLine;
@@ -79,9 +79,13 @@ public class InitializeAutoPaths {
 
           autoCommandChooser.setDefaultOption("straightLine", straightLine);
           autoCommandChooser.setDefaultOption("S2_H1_C2", s2_h1_c2);
-          autoCommandChooser.setDefaultOption("TestingEventMarkers", testingEventMarkers);
-          
-          SmartDashboard.putData(autoCommandChooser);
+
+          //Might be able to just do this instead of having to list out each path like above
+          //Will need to be tested further
+          autoChooser = AutoBuilder.buildAutoChooser("S2_H1_C2");
+          SmartDashboard.putData(autoChooser);
+
+          //SmartDashboard.putData(autoCommandChooser);
 
         } catch (FileVersionException | IOException | ParseException e) {
           // TODO Auto-generated catch block
@@ -91,6 +95,6 @@ public class InitializeAutoPaths {
     }
 
     public Command getAutonomousCommand() {
-        return autoCommandChooser.getSelected(); //Gives selected command to RobotContainer
+        return autoChooser.getSelected(); //Gives selected command to RobotContainer
     }
 }
