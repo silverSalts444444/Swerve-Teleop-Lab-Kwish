@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 7.0
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "RB_C1"

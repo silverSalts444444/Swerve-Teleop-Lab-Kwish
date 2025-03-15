@@ -31,7 +31,20 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Home Elevator and Coral",
+      "waypointRelativePos": 0.17497231450719594,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Get Coral",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 0.4,
     "maxAcceleration": 0.2,

@@ -31,7 +31,20 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Go to L4",
+      "waypointRelativePos": 0.7774086378737565,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Score L4",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 0.4,
     "maxAcceleration": 0.2,
