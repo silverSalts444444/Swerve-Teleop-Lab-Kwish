@@ -55,7 +55,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     createSwerve();
-    //createDeepHang();
+    createDeepHang();
     createCoralManipulator();
     createElevator();
 
@@ -94,11 +94,9 @@ public class RobotContainer {
   private void createDeepHang() {
     deepHang = new DeepHang();
     
-    mechJoystick.axisGreaterThan(1, 0).whileTrue(deepHang.fwd());
-    mechJoystick.axisGreaterThan(1, 0).onFalse(deepHang.stop());
+    mechJoystick.button(7).whileTrue(deepHang.fwd()).onFalse(deepHang.stop());
 
-    mechJoystick.axisLessThan(1, -0.1).whileTrue(deepHang.rev());
-    mechJoystick.axisLessThan(1, -0.1).onFalse(deepHang.stop());
+    mechJoystick.button(8).whileTrue(deepHang.rev()).onFalse(deepHang.stop());
   }
 
   private void createCoralManipulator() {
