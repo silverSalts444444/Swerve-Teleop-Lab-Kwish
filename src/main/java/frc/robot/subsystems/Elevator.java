@@ -17,6 +17,7 @@ import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,6 +39,7 @@ public class Elevator extends SubsystemBase {
   private SparkLimitSwitch fwdLimit;
   private DoubleSupplier rightJoyY;
   private boolean homedStartup = false;
+  private boolean enableTeleop;
   
   /** Creates a new Elevator. */
   public Elevator(DoubleSupplier rightJoyY) {
@@ -48,15 +50,16 @@ public class Elevator extends SubsystemBase {
     SparkMaxConfig config = new SparkMaxConfig();
     this.PIDController = motorE.getClosedLoopController();
     this.rel_encoder = motorE.getEncoder();
+    enableTeleop = false;
     
     config.closedLoop.pid(
-    .02, //p
-    0.0, //p
-    0.0 //i
-    );
+    0.5, //p
+    0.006, //i
+    0.005 //d
+    ); 
     config.closedLoop.maxMotion
        .maxVelocity(5000) //in rpm
-       .maxAcceleration(3000); // in rpm/s
+       .maxAcceleration(3500); // in rpm/s
     //   //.allowedClosedLoopError(allowedErr);
 
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
@@ -93,15 +96,25 @@ public class Elevator extends SubsystemBase {
       homedStartup = true;
     }
   }
+
+  public Command toggleTeleop() {
+    return this.runOnce(() -> {
+        enableTeleop = !enableTeleop;
+    });
+}
+  
+
   //command to stop the motor
   public Command stopElevator() {
     return this.runOnce(() -> {
         System.out.println("stop the elevator");
         motorE.set(0);
+        setpoint = 0;
     });    
   }
 
   public Command setHeightL1(){
+    PIDController.toString();
     return this.runOnce(()->{
         if (this.homedStartup){
           //L1 height is inches
@@ -118,8 +131,8 @@ public class Elevator extends SubsystemBase {
     return this.runOnce(()->{
         if (this.homedStartup){ //2.5, 0.009
           setpoint = 3.9;
-          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, 0.2);
-          System.out.println("Elevator L2 " + setpoint*conversionFactor);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl);//, ClosedLoopSlot.kSlot0, 0.2);
+          System.out.println("Elevator L2");
           //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
         }
     });
@@ -129,8 +142,8 @@ public class Elevator extends SubsystemBase {
     return this.runOnce(()->{
         if (this.homedStartup){
           setpoint = 12.6;
-          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, 0.009);
-          System.out.println("Elevator L3 " + setpoint*conversionFactor);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl);//, ClosedLoopSlot.kSlot0, 0.009);
+          System.out.println("Elevator L3");
         }
     });
   }
@@ -139,8 +152,8 @@ public class Elevator extends SubsystemBase {
     return this.runOnce(()->{
       if (this.homedStartup){ 
           setpoint = 26;
-          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, 0.271);
-          System.out.println("Elevator setpoint " + setpoint*conversionFactor);
+          PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl);//, ClosedLoopSlot.kSlot0, 0.271);
+          System.out.println("Elevator setpoint L4");
         //Sets the setpoint to 10 rotations. PIDController needs to be correctly configured
         //https://docs.revrobotics.com/revlib/spark/closed-loop/position-control-mode
       }
@@ -149,12 +162,16 @@ public class Elevator extends SubsystemBase {
 
   public Command moveElevator() {
     return this.run(()->{
-        //This joystick up is negative and down is positive so we need to invert it.
-        input = MathUtil.applyDeadband(-this.rightJoyY.getAsDouble(), .1);
-        //setpoint += input;
-        //PIDController.setReference(this.setpoint, SparkMax.ControlType.kMAXMotionPositionControl);
-        
-        motorE.set(input * 0.3);
+        if (enableTeleop) {
+          //This joystick up is negative and down is positive so we need to invert it.
+          input = MathUtil.applyDeadband(this.rightJoyY.getAsDouble(), .1);
+          
+          setpoint += (input * -1) * .025;
+          MathUtil.clamp(setpoint, 0, 27);
+          PIDController.setReference(this.setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl);
+          //System.out.println(input);
+          //motorE.set(input * 0.3);
+        }    
     });
   }
 
@@ -162,7 +179,8 @@ public class Elevator extends SubsystemBase {
   public Command homeElevatorDown() {
     return this.runOnce(() -> {
       if (homedStartup) {
-        PIDController.setReference(0, SparkMax.ControlType.kMAXMotionPositionControl);
+        setpoint = 0;
+        PIDController.setReference(setpoint, SparkMax.ControlType.kMAXMotionPositionControl);
       } else {
         motorE.set(-0.3);
       }
@@ -175,9 +193,9 @@ public class Elevator extends SubsystemBase {
 
   public Command resetEncoder() {
     return this.runOnce(() -> {
+      System.out.println("Elevator reset encoder");
       homedStartup = true;
       rel_encoder.setPosition(0);
-      setpoint = 0;
     });   
   }
   
@@ -195,12 +213,9 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putBoolean("Elevator Fwd Limit", fwdLimit.isPressed());
     SmartDashboard.putNumber("Elevator Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
     SmartDashboard.putBoolean("Elevator Homed?", homedStartup);
+    SmartDashboard.putNumber("Eleavtor IAccum", PIDController.getIAccum());
     
-    SmartDashboard.putNumber("Current position in converted rotations",currentPos / conversionFactor);
-    SmartDashboard.putBoolean("Rev Limit", revLimit.isPressed());
-    SmartDashboard.putBoolean("Fwd Limit", fwdLimit.isPressed());
-    SmartDashboard.putNumber("Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
-    SmartDashboard.putBoolean("Homed Since Startup?", homedStartup);
+    
     //https://www.chiefdelphi.com/t/get-voltage-from-spark-max/344136/2
   }
 
