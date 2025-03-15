@@ -33,8 +33,10 @@ public class CoralManipulator extends SubsystemBase {
 
     AbsoluteEncoder absEncoder;
     SparkClosedLoopController pidPivot;
-    DoubleSupplier leftJoyY;
     boolean enableTeleop = false;
+
+    private final double forwardSoftLimit = 0.09;
+    private final double revSoftLimit = -0.23;
 
     //The zero angle of the abs encoder in degrees. We need to apply all target angles with this offset
     //double zereodOffsetDegrees = Units.rotationsToDegrees(0.425);  // 0˚ reference point
@@ -43,8 +45,7 @@ public class CoralManipulator extends SubsystemBase {
     PIDController pidController = new PIDController(0.5, 0, 0);
     
 
-    public CoralManipulator(DoubleSupplier leftJoyY) {
-        this.leftJoyY = leftJoyY;
+    public CoralManipulator() {
         this.pidPivot = pivotMotor.getClosedLoopController();
         this.absEncoder = pivotMotor.getAbsoluteEncoder();
         
@@ -84,16 +85,16 @@ public class CoralManipulator extends SubsystemBase {
         SoftLimitConfig softLimitConfig = new SoftLimitConfig();
         softLimitConfig.forwardSoftLimitEnabled(true);
         softLimitConfig.reverseSoftLimitEnabled(true);
-
+        
         // Updated Soft Limits
         //double forwardSoftLimit = zereodOffsetDegrees + (10.0 / 360.0);    // +10 degrees up
         //double reverseSoftLimit = zereodOffsetDegrees + (-44.0 / 360.0);   // -44 degrees down
-
-        //softLimitConfig.forwardSoftLimit((float) forwardSoftLimit);
-        //softLimitConfig.reverseSoftLimit((float) reverseSoftLimit);
+        
+        softLimitConfig.forwardSoftLimit(forwardSoftLimit);
+        softLimitConfig.reverseSoftLimit(revSoftLimit);
 
         // Apply configurations
-        // pivotConfig.apply(softLimitConfig);
+        pivotConfig.apply(softLimitConfig);
         
         pivotConfig.apply(limitSwitchConfig);
         pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -126,6 +127,13 @@ public class CoralManipulator extends SubsystemBase {
         });
     }
 
+    public Command pivotDown() {
+        return this.runOnce(() -> {
+            this.setpoint = -0.5;
+            this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
+        });
+    }
+
     public Command stopCoral() {
         return this.runOnce(() -> {
             coralMotor1.set(0.0);
@@ -144,6 +152,12 @@ public class CoralManipulator extends SubsystemBase {
         return this.runOnce(() -> {
             coralMotor1.set(-0.2);
             coralMotor2.set(-0.2);
+        });
+    }
+
+    public Command homeDown() {
+        return this.runOnce(() -> {
+            this.pidPivot.setReference(-.5, SparkMax.ControlType.kPosition);
         });
     }
     
@@ -170,7 +184,8 @@ public class CoralManipulator extends SubsystemBase {
     public Command movePivotUp() {
         return this.runOnce(() -> {
             if (enableTeleop) {
-                setpoint += .005;
+                setpoint += .02;
+                setpoint = Math.min(setpoint, forwardSoftLimit);
                 this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
             }
         });
@@ -179,18 +194,10 @@ public class CoralManipulator extends SubsystemBase {
     public Command movePivotDown() {
         return this.runOnce(() -> {
             if (enableTeleop) {
-                setpoint -= .005;
+                setpoint -= .02;
+                setpoint = Math.max(setpoint, revSoftLimit);
                 this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
             }
-        });
-    }
-
-    public Command movePivot() {
-        return this.run(() -> {
-            double input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .1);
-            //pivotMotor.set(input * 0.1);
-            setpoint += input * 0.005;
-            this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
         });
     }
 }

@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5,
-        "y": 3.7432889344262295
+        "x": 1.525653409090909,
+        "y": 6.881860795454545
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5000000000000018,
-        "y": 3.7432889344262295
+        "x": 2.5256534090909084,
+        "y": 6.881860795454545
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.55,
-        "y": 3.82
+        "x": 3.938778409090909,
+        "y": 6.881860795454545
       },
       "prevControl": {
-        "x": 2.55,
-        "y": 3.82
+        "x": 2.938778409090909,
+        "y": 6.881860795454545
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,20 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Test Coral Intake",
+      "waypointRelativePos": 0.29360694554064654,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Test Coral Outake",
+      "waypointRelativePos": 0.6850828729281777,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 0.4,
     "maxAcceleration": 0.2,

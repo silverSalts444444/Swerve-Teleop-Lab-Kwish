@@ -33,6 +33,7 @@ public class InitializeAutoPaths {
     // Plays:
     private StraightLine straightLine;
     private S2_H1_C2 s2_h1_c2;
+    //private TestingEventMarkers testingEventMarkers;
 
     RobotConfig config;
 
@@ -73,13 +74,15 @@ public class InitializeAutoPaths {
         try {
           straightLine = new StraightLine(this.swerve);
           s2_h1_c2 = new S2_H1_C2(this.swerve);
+          //testingEventMarkers = new TestingEventMarkers(this.swerve);
+          
 
           autoCommandChooser.setDefaultOption("straightLine", straightLine);
           autoCommandChooser.setDefaultOption("S2_H1_C2", s2_h1_c2);
 
           //Might be able to just do this instead of having to list out each path like above
           //Will need to be tested further
-          autoChooser = AutoBuilder.buildAutoChooser("S2_H1_C2");
+          autoChooser = AutoBuilder.buildAutoChooser("S2_H1_C2_Auto");
           SmartDashboard.putData(autoChooser);
 
           //SmartDashboard.putData(autoCommandChooser);
