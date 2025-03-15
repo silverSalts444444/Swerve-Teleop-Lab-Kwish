@@ -33,7 +33,7 @@ public class InitializeAutoPaths {
     // Plays:
     private StraightLine straightLine;
     private S2_H1_C2 s2_h1_c2;
-    private TestingEventMarkers testingEventMarkers;
+    //private TestingEventMarkers testingEventMarkers;
 
     RobotConfig config;
 
@@ -74,7 +74,7 @@ public class InitializeAutoPaths {
         try {
           straightLine = new StraightLine(this.swerve);
           s2_h1_c2 = new S2_H1_C2(this.swerve);
-          testingEventMarkers = new TestingEventMarkers(this.swerve);
+          //testingEventMarkers = new TestingEventMarkers(this.swerve);
           
 
           autoCommandChooser.setDefaultOption("straightLine", straightLine);

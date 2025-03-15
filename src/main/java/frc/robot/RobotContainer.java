@@ -138,14 +138,7 @@ public class RobotContainer {
     elevatorHoming.onFalse(elevator.resetEncoder());
   }
 
-  public void CreateAutoCommands(){
-      new EventTrigger("Score Coral L4").onTrue(new SequentialCommandGroup(new ParallelCommandGroup(elevator.setHeightL2(), coralManipulator.pivotL4()), new WaitCommand(1), elevator.setHeightL4(), coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
-      new EventTrigger("Home Elevator and Coral").onTrue(new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.homeDown()));
-      new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), coralManipulator.stopCoral()));
-      // Testing Purposes:
-      new EventTrigger("Test Coral Intake").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(),  new WaitCommand(5), coralManipulator.stopCoral()));
-      new EventTrigger("Test Coral Outake").onTrue(new SequentialCommandGroup(coralManipulator.pivotL4(), coralManipulator.releaseCoral(),  new WaitCommand(5), coralManipulator.stopCoral()));
-      new EventTrigger("Test Elevator").onTrue(new SequentialCommandGroup(elevator.setHeightL2()));
+
   private void BALLASDHAKHSDHASDKJAS() {
     ParallelCommandGroup gotoL1 = new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotPlace());
     ParallelCommandGroup gotoL2 = new ParallelCommandGroup(elevator.setHeightL2(), coralManipulator.pivotPlace());
@@ -160,9 +153,14 @@ public class RobotContainer {
     mechJoystick.button(4 ).onTrue(gotoL1);
 
     //These are for auto. Triggers that happen during auto paths to execute commands
-    new EventTrigger("Lift Elevator L4").onTrue(gotoL4);
-    new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral(), new WaitCommand(1) ,coralManipulator.stopCoral()));
-    new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), coralManipulator.stopCoral()));
+    new EventTrigger("Score Coral L4").onTrue(new SequentialCommandGroup(new ParallelCommandGroup(gotoL2, coralManipulator.pivotL4()), new WaitCommand(1), gotoL4, coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
+    new EventTrigger("Home Elevator and Coral").onTrue(gotoIntake);
+    new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.intakeCoral(), new WaitCommand(2), coralManipulator.stopCoral()));
+    
+    // Testing Purposes:
+    new EventTrigger("Test Coral Intake").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(),  new WaitCommand(5), coralManipulator.stopCoral()));
+    new EventTrigger("Test Coral Outake").onTrue(new SequentialCommandGroup(coralManipulator.pivotL4(), coralManipulator.releaseCoral(),  new WaitCommand(5), coralManipulator.stopCoral()));
+    new EventTrigger("Test Elevator").onTrue(new SequentialCommandGroup(elevator.setHeightL2()));
   }
 
   public void disablePoseEst() {
