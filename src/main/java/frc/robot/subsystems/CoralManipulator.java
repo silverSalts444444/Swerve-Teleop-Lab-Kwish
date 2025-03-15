@@ -160,6 +160,12 @@ public class CoralManipulator extends SubsystemBase {
             coralMotor2.set(-0.2);
         });
     }
+
+    public Command homeDown() {
+        return this.runOnce(() -> {
+            this.pidPivot.setReference(-.5, SparkMax.ControlType.kPosition);
+        });
+    }
     
     public void periodic() {
         // SmartDashboard.putNumber("ABSENC POS", this.absEncoder.getPosition());

@@ -80,7 +80,7 @@ public class InitializeAutoPaths {
           autoCommandChooser.setDefaultOption("straightLine", straightLine);
           autoCommandChooser.setDefaultOption("S2_H1_C2", s2_h1_c2);
           autoCommandChooser.setDefaultOption("TestingEventMarkers", testingEventMarkers);
-
+          
           SmartDashboard.putData(autoCommandChooser);
 
         } catch (FileVersionException | IOException | ParseException e) {
