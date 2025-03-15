@@ -4,6 +4,7 @@ import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.util.concurrent.Event;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -153,7 +154,8 @@ public class RobotContainer {
     mechJoystick.button(4 ).onTrue(gotoL1);
 
     //These are for auto. Triggers that happen during auto paths to execute commands
-    new EventTrigger("Score Coral L4").onTrue(new SequentialCommandGroup(new ParallelCommandGroup(gotoL2, coralManipulator.pivotL4()), new WaitCommand(1), gotoL4, coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
+    new EventTrigger("Go to L4").onTrue(new SequentialCommandGroup(new ParallelCommandGroup(gotoL2, coralManipulator.pivotL4()), new WaitCommand(2)));
+    new EventTrigger("Score L4").onTrue(new SequentialCommandGroup(gotoL4, coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
     new EventTrigger("Home Elevator and Coral").onTrue(gotoIntake);
     new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.intakeCoral(), new WaitCommand(2), coralManipulator.stopCoral()));
     
