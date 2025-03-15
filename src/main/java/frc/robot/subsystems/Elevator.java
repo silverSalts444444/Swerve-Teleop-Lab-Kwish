@@ -156,15 +156,14 @@ public class Elevator extends SubsystemBase {
     });
   }
 
-  //Move the elevator down at a constant speed for homing
-  public Command homeElevatorDown() {
-    return this.runOnce(() -> {
+  public Command homeElevatorDown(){
+    return this.run(()->{
       if (homedStartup) {
-        PIDController.setReference(0, SparkMax.ControlType.kMAXMotionPositionControl);
+        PIDController.setReference(-1, SparkMax.ControlType.kMAXMotionPositionControl);
       } else {
         motorE.set(-0.3);
       }
-    });
+  });
   }
 
   public Command stallElevator(){
