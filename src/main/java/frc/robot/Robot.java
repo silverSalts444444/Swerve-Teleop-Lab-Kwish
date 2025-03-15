@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    m_robotContainer.disablePoseEst();
+    //m_robotContainer.disablePoseEst();
   }
 
   @Override

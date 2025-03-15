@@ -154,8 +154,8 @@ public class RobotContainer {
     mechJoystick.button(4 ).onTrue(gotoL1);
 
     //These are for auto. Triggers that happen during auto paths to execute commands
-    new EventTrigger("Go to L4").onTrue(new SequentialCommandGroup(new ParallelCommandGroup(gotoL2, coralManipulator.pivotL4()), new WaitCommand(2)));
-    new EventTrigger("Score L4").onTrue(new SequentialCommandGroup(gotoL4, coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
+    new EventTrigger("Go to L4").onTrue(new SequentialCommandGroup(gotoL4, new WaitCommand(2)));
+    new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
     new EventTrigger("Home Elevator and Coral").onTrue(gotoIntake);
     new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.intakeCoral(), new WaitCommand(2), coralManipulator.stopCoral()));
     
