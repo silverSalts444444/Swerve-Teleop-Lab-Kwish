@@ -43,25 +43,34 @@ public class Vision extends SubsystemBase{
 
     double pidVal;
 
+    boolean enablePoseEst = true;
+
     public Vision() {
         bottomCamera.setPipelineIndex(0);
         //rightCamera = new PhotonCamera(VisionConstants.kRightCameraName);
 
         bottomPhotonPoseEstimator =
-                new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kLeftRobotToCam);
-        bottomPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-        
+                new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kBottomRobotToCam);
+        bottomPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);  
+    }
+
+    public boolean targetDetected() {
+        return targetData != null;
     }
 
     //returns whether a target (AprilTag) has been detected
+    /** 
     public boolean targetDetected() {
-        PhotonPipelineResult result = bottomCamera.getLatestResult();
+        List<PhotonPipelineResult> results = bottomCamera.getAllUnreadResults();
 
-        if (result.hasTargets()) {
-            return true;
+        for (PhotonPipelineResult result : results) {
+            if (result.hasTargets()) {
+                return true;
+            }
         }
         return false;
     }
+        */
 
     // public double getYaw() {
     //     if (targetDetected()) {
@@ -81,79 +90,68 @@ public class Vision extends SubsystemBase{
 
     //gets target data such as x and y offset, rotational offset, and returns everything as a Transform3d 
     public Transform3d getTargetData() {
-        PhotonPipelineResult result = bottomCamera.getLatestResult();
-        if (targetDetected()) {
-            PhotonTrackedTarget target = result.getBestTarget();
+        //List<PhotonPipelineResult> results = bottomCamera.getAllUnreadResults();
+
+        //for (PhotonPipelineResult result : results) {
+            PhotonPipelineResult result = bottomCamera.getLatestResult();
+            if (result.hasTargets()) {
+                PhotonTrackedTarget target = result.getBestTarget();
                 if (target != null) {
                     return target.getBestCameraToTarget();
                 }
             }
+        //}   
         return null;
         }
 
     //returns the current horizontal displacement with respect to the AprilTag (uses getY() because the Y offset in PhotonVision is the horizontal axis)
     public double getHorizontalDisplacement() {
-        if (targetDetected()) {
-            if (targetData != null) {
-                return targetData.getY();
-            }
-            return 0;
+        if (targetData != null) {
+            return targetData.getY();
         }
-        else return 0.0;
+        return 0;
     }
     
     public double getLongitudinalDisplacement() {
-        if (targetDetected()) {
-            if (targetData != null) {
-                return targetData.getX();
-            }
-            return 0;
-        }
-        else return 0;
+        if (targetData != null) {
+            return targetData.getX();
+        }    
+        return 0;
     }
     
     public double getZAngle() {
-        if (targetDetected()) {
-            if (targetData != null) {
-                Rotation3d rot = targetData.getRotation();
-                return Math.toDegrees(rot.getAngle());
-            }
-            return 0;
+        if (targetData != null) {
+            Rotation3d rot = targetData.getRotation();
+            return Math.toDegrees(rot.getAngle());
         }
-        else return 0.0;
+        return 0;
     }
 
     public double getRotationalDirection() {
-        double direction;
-        if (targetDetected()) {
+        double direction = 0;
+        if (targetData != null) {
             if (getZAngle() > 182) { //counterclockwise turn
                 direction = -1;
             }
             else if (getZAngle() < 178) { //clockwise turn 
                 direction = 1;
             }
-            else direction = 0;
-
-            return direction;
         }
-        return 0.0;
+        return direction;
     }
 
 
     public double getHorizontalDirection() {
-        double direction;
-        if (targetDetected()) {
+        double direction = 0;
+        if (targetData != null) {
             if (getHorizontalDisplacement() < array[0]) {
                 direction = -1;
             }
             else if (getHorizontalDisplacement() > array[1]) {
                 direction = 1;
             }
-            else direction = 0;
-
-            return direction;
         }
-        return 0.0;
+        return direction;
     }
 
     // public Pose3d getPose() {
@@ -190,7 +188,7 @@ public class Vision extends SubsystemBase{
 
     public void switchHorizontalSetpoint() {
         if(cont.getLeftBumperButtonPressed()) {
-            pidVal = -0.21;
+            pidVal = -0.17;
         }
         else if(cont.getRightBumperButtonPressed()) {
             pidVal = 0.16;
@@ -238,12 +236,16 @@ public class Vision extends SubsystemBase{
 
     @Override
     public void periodic() {
-        //update targetData with current info
-        targetData = getTargetData();
-        if (targetDetected()) {
-            horizVals.add(0, getHorizontalDisplacement());
-            rotVals.add(0, getZAngle());
-        } 
+        //Only run this when not running pose est This is really janky I know
+        if (!enablePoseEst) {
+            //update targetData with current info
+            targetData = getTargetData();
+            if (targetData != null) {
+                horizVals.add(0, getHorizontalDisplacement());
+                rotVals.add(0, getZAngle());
+            } 
+        }
+        
 
         // SmartDashboard.putNumber("axis val", cont.getRawAxis(0));
         // SmartDashboard.putNumber("axis val 2", cont.getRawAxis(1));
@@ -258,6 +260,10 @@ public class Vision extends SubsystemBase{
         // SmartDashboard.putNumber("Horizontal Displacement", getHorizontalDisplacement());
         // SmartDashboard.putNumber("Longitudinal Displacement", getHorizontalDisplacement());
         // SmartDashboard.putNumber("X pose", getPose().getX());
+    }
+
+    public void disablePoseEst() {
+        enablePoseEst = false;
     }
  
      /**

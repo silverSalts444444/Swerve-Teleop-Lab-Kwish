@@ -11,7 +11,7 @@ import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
-import org.photonvision.PhotonCamera;
+
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
@@ -53,7 +53,7 @@ import frc.util.lib.SwerveUtil;
  */
 public class SwerveDriveTrain extends SubsystemBase {
 
-   private boolean fieldRelative;
+   private boolean fieldRelative = true;
 
    // Create Navx
    private AHRS navx = new AHRS(NavXComType.kMXP_SPI);
@@ -91,6 +91,7 @@ public class SwerveDriveTrain extends SubsystemBase {
    private SwerveDriveSimulation mapleSimDrive;
 
    private boolean enableVision = true;
+   private boolean enablePoseEst = true;
    /**
     * Creates a new SwerveDrive object. Intended to work both with real modules and
     * simulation.
@@ -139,7 +140,7 @@ public class SwerveDriveTrain extends SubsystemBase {
       this.poseEstimator.update(this.getRotation(), this.modulePositions);
 
       // Correct pose estimate with vision measurements
-      if (enableVision) {
+      if (enableVision && enablePoseEst) {
          var visionEst = vision.getLeftCameraEstimatedGlobalPose();
          visionEst.ifPresent( est -> {
             // Change our trust in the measurement based on the tags we can see
@@ -342,25 +343,29 @@ public class SwerveDriveTrain extends SubsystemBase {
       return navx.getYaw();
    }
 
-   /** TODO: FIX THIS
+   /** 
     * Get heading of Navx. Negative because Navx is CW positive.
     */
     public double getHeading() {
       return -navx.getRotation2d().plus(offsetNavx).getDegrees();
    }
 
-   /** TODO: FIX THIS
+   /** 
     * Get rate of rotation of Navx. Negative because Navx is CW positive.
     */
    public double getTurnRate() {
       return -navx.getRate();
    }
 
-   /** TODO: FIX THIS not good
+   /** 
     * Get Rotation2d of Navx. Positive value (CCW positive default).
     */
    public Rotation2d getRotation() {
       return navx.getRotation2d().plus(offsetNavx);
+   }
+
+   public void disablePoseEst() {
+      enablePoseEst = false;
    }
 
    /**
