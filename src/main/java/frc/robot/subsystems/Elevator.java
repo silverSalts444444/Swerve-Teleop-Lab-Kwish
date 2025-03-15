@@ -50,10 +50,9 @@ public class Elevator extends SubsystemBase {
     this.rel_encoder = motorE.getEncoder();
     
     config.closedLoop.pid(
-    .0125, //p
-    10, //p
-    0.0, //i
-    0.0 //d
+    .02, //p
+    0.0, //p
+    0.0 //i
     );
     config.closedLoop.maxMotion
        .maxVelocity(5000) //in rpm
