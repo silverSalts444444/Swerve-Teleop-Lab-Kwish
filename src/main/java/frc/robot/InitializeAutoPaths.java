@@ -79,7 +79,7 @@ public class InitializeAutoPaths {
 
           //Might be able to just do this instead of having to list out each path like above
           //Will need to be tested further
-          autoChooser = AutoBuilder.buildAutoChooser("S2_H1_C2");
+          autoChooser = AutoBuilder.buildAutoChooser("S2_H1_C2_Auto");
           SmartDashboard.putData(autoChooser);
 
           //SmartDashboard.putData(autoCommandChooser);

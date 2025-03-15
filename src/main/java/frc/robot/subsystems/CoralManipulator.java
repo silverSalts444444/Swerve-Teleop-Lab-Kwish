@@ -35,6 +35,9 @@ public class CoralManipulator extends SubsystemBase {
     SparkClosedLoopController pidPivot;
     boolean enableTeleop = false;
 
+    private final double forwardSoftLimit = 0.09;
+    private final double revSoftLimit = -0.23;
+
     //The zero angle of the abs encoder in degrees. We need to apply all target angles with this offset
     //double zereodOffsetDegrees = Units.rotationsToDegrees(0.425);  // 0˚ reference point
     //private double conversionFactor = Constants.CoralManipulatorConstants.pivotGearRatio/360; //81 rotations of the motor is 1 rotation of the arm
@@ -87,8 +90,8 @@ public class CoralManipulator extends SubsystemBase {
         //double forwardSoftLimit = zereodOffsetDegrees + (10.0 / 360.0);    // +10 degrees up
         //double reverseSoftLimit = zereodOffsetDegrees + (-44.0 / 360.0);   // -44 degrees down
         
-        softLimitConfig.forwardSoftLimit((float) 0.09);
-        softLimitConfig.reverseSoftLimit((float) -0.23);
+        softLimitConfig.forwardSoftLimit(forwardSoftLimit);
+        softLimitConfig.reverseSoftLimit(revSoftLimit);
 
         // Apply configurations
         pivotConfig.apply(softLimitConfig);
@@ -175,7 +178,8 @@ public class CoralManipulator extends SubsystemBase {
     public Command movePivotUp() {
         return this.runOnce(() -> {
             if (enableTeleop) {
-                setpoint += .005;
+                setpoint += .02;
+                setpoint = Math.min(setpoint, forwardSoftLimit);
                 this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
             }
         });
@@ -184,7 +188,8 @@ public class CoralManipulator extends SubsystemBase {
     public Command movePivotDown() {
         return this.runOnce(() -> {
             if (enableTeleop) {
-                setpoint -= .005;
+                setpoint -= .02;
+                setpoint = Math.max(setpoint, revSoftLimit);
                 this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
             }
         });

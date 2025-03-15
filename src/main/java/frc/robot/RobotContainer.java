@@ -123,7 +123,9 @@ public class RobotContainer {
       return mechJoystick.getRawAxis(4);
     });
 
-    mechJoystick.button(5).toggleOnTrue(elevator.moveElevator());
+    elevator.setDefaultCommand(elevator.moveElevator());
+
+    mechJoystick.button(5).onTrue(elevator.toggleTeleop());
 
     //Creates a new trigger for when the rev limit is pressed.
     Trigger elevatorHoming = new Trigger(() -> {
@@ -155,7 +157,7 @@ public class RobotContainer {
     new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral(), new WaitCommand(1) ,coralManipulator.stopCoral()));
     new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), coralManipulator.stopCoral()));
     
-    SmartDashboard.putData("Homing", new SequentialCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotDown()));
+    SmartDashboard.putData("Homing", new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotDown()));
   }
 
   public void disablePoseEst() {
