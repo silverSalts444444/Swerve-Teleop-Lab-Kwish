@@ -17,6 +17,7 @@ import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -197,6 +198,7 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putBoolean("Elevator Fwd Limit", fwdLimit.isPressed());
     SmartDashboard.putNumber("Elevator Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
     SmartDashboard.putBoolean("Elevator Homed?", homedStartup);
+    
     
     //https://www.chiefdelphi.com/t/get-voltage-from-spark-max/344136/2
   }

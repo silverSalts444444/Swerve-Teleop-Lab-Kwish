@@ -33,7 +33,6 @@ public class CoralManipulator extends SubsystemBase {
 
     AbsoluteEncoder absEncoder;
     SparkClosedLoopController pidPivot;
-    DoubleSupplier leftJoyY;
     boolean enableTeleop = false;
 
     //The zero angle of the abs encoder in degrees. We need to apply all target angles with this offset
@@ -43,8 +42,7 @@ public class CoralManipulator extends SubsystemBase {
     PIDController pidController = new PIDController(0.5, 0, 0);
     
 
-    public CoralManipulator(DoubleSupplier leftJoyY) {
-        this.leftJoyY = leftJoyY;
+    public CoralManipulator() {
         this.pidPivot = pivotMotor.getClosedLoopController();
         this.absEncoder = pivotMotor.getAbsoluteEncoder();
         
@@ -126,6 +124,13 @@ public class CoralManipulator extends SubsystemBase {
         });
     }
 
+    public Command pivotDown() {
+        return this.runOnce(() -> {
+            this.setpoint = -0.5;
+            this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
+        });
+    }
+
     public Command stopCoral() {
         return this.runOnce(() -> {
             coralMotor1.set(0.0);
@@ -182,15 +187,6 @@ public class CoralManipulator extends SubsystemBase {
                 setpoint -= .005;
                 this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
             }
-        });
-    }
-
-    public Command movePivot() {
-        return this.run(() -> {
-            double input = MathUtil.applyDeadband(this.leftJoyY.getAsDouble(), .1);
-            //pivotMotor.set(input * 0.1);
-            setpoint += input * 0.005;
-            this.pidPivot.setReference(setpoint, SparkMax.ControlType.kPosition);
         });
     }
 }

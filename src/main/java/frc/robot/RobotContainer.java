@@ -4,6 +4,7 @@ import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -101,9 +102,7 @@ public class RobotContainer {
   }
 
   private void createCoralManipulator() {
-    coralManipulator = new CoralManipulator(() -> {
-      return mechJoystick.getRawAxis(7);
-    });
+    coralManipulator = new CoralManipulator();
 
     mechJoystick.button(16).onTrue(coralManipulator.intakeCoral()).onFalse(coralManipulator.stopCoral());
     mechJoystick.button(18).onTrue(coralManipulator.releaseCoral()).onFalse(coralManipulator.stopCoral());
@@ -155,6 +154,8 @@ public class RobotContainer {
     new EventTrigger("Lift Elevator L4").onTrue(gotoL4);
     new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral(), new WaitCommand(1) ,coralManipulator.stopCoral()));
     new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(), coralManipulator.stopCoral()));
+    
+    SmartDashboard.putData("Homing", new SequentialCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotDown()));
   }
 
   public void disablePoseEst() {
