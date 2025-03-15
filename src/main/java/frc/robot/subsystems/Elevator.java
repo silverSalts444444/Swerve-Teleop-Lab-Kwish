@@ -23,12 +23,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 
-
-
 public class Elevator extends SubsystemBase {
   private SparkMax motorE = new SparkMax(25, MotorType.kBrushless);
   private SparkClosedLoopController PIDController;
-  
+
   private double conversionFactor = (Constants.ElevatorConstants.elevatorGearRatio / 5.5);
   private RelativeEncoder rel_encoder;
 
@@ -53,15 +51,15 @@ public class Elevator extends SubsystemBase {
     
     config.closedLoop.pid(
     .0125, //p
+    10, //p
     0.0, //i
     0.0 //d
     );
-
     config.closedLoop.maxMotion
-       .maxVelocity(2500) //in rpm
-       .maxAcceleration(1500); // in rpm/s
+       .maxVelocity(5000) //in rpm
+       .maxAcceleration(3000); // in rpm/s
     //   //.allowedClosedLoopError(allowedErr);
-    
+
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     
     SoftLimitConfig softLimitConfig = new SoftLimitConfig();
@@ -96,8 +94,6 @@ public class Elevator extends SubsystemBase {
       homedStartup = true;
     }
   }
-  
-
   //command to stop the motor
   public Command stopElevator() {
     return this.runOnce(() -> {
@@ -105,7 +101,7 @@ public class Elevator extends SubsystemBase {
         motorE.set(0);
     });    
   }
-  
+
   public Command setHeightL1(){
     return this.runOnce(()->{
         if (this.homedStartup){
@@ -118,7 +114,6 @@ public class Elevator extends SubsystemBase {
         }
     });
   }
-    
 
   public Command setHeightL2(){
     return this.runOnce(()->{
@@ -186,6 +181,10 @@ public class Elevator extends SubsystemBase {
       setpoint = 0;
     });   
   }
+  
+  public SparkMax getMotor() {
+    return motorE;
+  }
 
   @Override
   public void periodic(){
@@ -198,6 +197,11 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putNumber("Elevator Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
     SmartDashboard.putBoolean("Elevator Homed?", homedStartup);
     
+    SmartDashboard.putNumber("Current position in converted rotations",currentPos / conversionFactor);
+    SmartDashboard.putBoolean("Rev Limit", revLimit.isPressed());
+    SmartDashboard.putBoolean("Fwd Limit", fwdLimit.isPressed());
+    SmartDashboard.putNumber("Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
+    SmartDashboard.putBoolean("Homed Since Startup?", homedStartup);
     //https://www.chiefdelphi.com/t/get-voltage-from-spark-max/344136/2
   }
 
