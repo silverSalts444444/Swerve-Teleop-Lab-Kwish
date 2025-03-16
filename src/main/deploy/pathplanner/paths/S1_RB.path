@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5,
-        "y": 3.7432889344262295
+        "x": 8.211739864864864,
+        "y": 7.325506756756756
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5000000000000018,
-        "y": 3.7432889344262295
+        "x": 8.595227060213691,
+        "y": 7.294667700393423
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.55,
-        "y": 3.82
+        "x": 4.965852272727273,
+        "y": 5.181704545454545
       },
       "prevControl": {
-        "x": 2.55,
-        "y": 3.82
+        "x": 6.7214284684166286,
+        "y": 6.845016427907018
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,9 +31,22 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Go to L4",
+      "waypointRelativePos": 0.5540647198105823,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Score Coral",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 0.4,
+    "maxVelocity": 0.8,
     "maxAcceleration": 0.4,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -42,13 +55,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -120.52970589993424
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 178.6677801461304
   },
   "useDefaultConstraints": true
 }

@@ -17,6 +17,9 @@ import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.AnalogTrigger;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,6 +32,8 @@ public class DeepHang extends SubsystemBase {
 
   private SparkLimitSwitch upperLimit;
   private SparkLimitSwitch lowerLimit;
+
+  AnalogInput inductionSensor;
 
   public DeepHang() {
     deepHang = new SparkMax(30, MotorType.kBrushless);
@@ -58,7 +63,9 @@ public class DeepHang extends SubsystemBase {
     //config.apply(softLimitConfig);
    
     //configures the motor controller with the specified configuration
-    deepHang.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters); 
+    deepHang.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    
+    inductionSensor = new AnalogInput(0);
   }
 
   public double getPosition(){
@@ -108,6 +115,8 @@ public class DeepHang extends SubsystemBase {
     //Math.sqrt(Math.pow(imu.getPitch(), 2) + Math.pow(imu.getRoll(), 2)));
 
     SmartDashboard.putNumber("Encoder Position", hangEncoder.getPosition()); //in rotations
+    inductionSensor.setAverageBits(2);
+    SmartDashboard.putNumber("DeepHang Sensor", inductionSensor.getValue());
   }
 
   public void resetEncoder() {
@@ -116,13 +125,17 @@ public class DeepHang extends SubsystemBase {
 
   public Command fwd() {
     return this.runOnce(() -> {
-      deepHang.set(.5);
+      deepHang.set(1); 
+      // The set command is basically setting duty cycle
+      //We have 12v from the batter, and a value of 1 means to always suply that 12 v
+      //A value of 0.5 means that for half of a period, the motor controller will supply 12v and during the other half, it will supply 0 v
+      //Because we are only going to control the deep hang during this time and we need full power to lift, we want to always be supplying 12v, hence the set value being 1
     });
   }
 
   public Command rev() {
     return this.runOnce(() -> {
-      deepHang.set(-.5);
+      deepHang.set(-1);
     });
   }
 
@@ -131,4 +144,11 @@ public class DeepHang extends SubsystemBase {
       deepHang.set(0);
     });
   }
+
+  public Command home() { //homes to the top limit switch
+    return this.runOnce(()->{
+      deepHang.set(0.5);
+    });
+  }
+
 }

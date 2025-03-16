@@ -17,8 +17,6 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
 
 public class AutoPath extends SequentialCommandGroup {

@@ -2,7 +2,6 @@ package frc.robot.commands.swerve;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -15,8 +14,6 @@ public class SwerveTeleopCMD extends Command {
    // Initialize empty swerveDriveTrain object
    private final SwerveDriveTrain swerveDriveTrain;
    private final CommandXboxController joystick;
-
-   private boolean fieldRelative = true;
 
    private double robotSpeed = 2.0;
 

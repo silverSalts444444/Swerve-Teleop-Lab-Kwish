@@ -35,6 +35,7 @@ public final class Constants {
     public static boolean isSim = Robot.isSimulation();
     public static boolean enableSwerveMotorTelemetry = true;
     public static boolean xboxEnabled = true;
+    //True makes swerve go slow, false makes swerve go fast
     public static boolean invertSpeedControl = true;
     public static boolean allianceEnabled = false;
 

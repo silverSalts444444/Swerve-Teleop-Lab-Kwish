@@ -13,7 +13,7 @@ import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
-import org.photonvision.PhotonCamera;
+
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
