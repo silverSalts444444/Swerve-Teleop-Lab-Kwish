@@ -20,6 +20,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -151,7 +152,7 @@ public class Elevator extends SubsystemBase {
   public Command setHeightL4(){ //41˚
     return this.runOnce(()->{
       if (this.homedStartup){ 
-          setpoint = 26;
+          setpoint = 26.5;
           PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl);//, ClosedLoopSlot.kSlot0, 0.271);
           System.out.println("Elevator setpoint L4");
         //Sets the setpoint to 10 rotations. PIDController needs to be correctly configured
@@ -185,6 +186,12 @@ public class Elevator extends SubsystemBase {
         motorE.set(-0.3);
       }
     });
+  }
+
+  public Command test() {
+    setpoint = 26.5;
+    return new FunctionalCommand(() -> PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl), null, null, () -> 
+    MathUtil.isNear(setpoint, currentPos / conversionFactor, .1), this);
   }
 
   public boolean isREVLimit() {

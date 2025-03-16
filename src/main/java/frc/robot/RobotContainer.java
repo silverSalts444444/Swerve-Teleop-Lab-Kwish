@@ -28,7 +28,7 @@ public class RobotContainer {
 
   // Defines starting pose of robot
   // TODO - Please remove this in future if developing for AprilTags
-  Pose2d startpose = new Pose2d(new Translation2d(1.8, 6), new Rotation2d());
+  Pose2d startpose = new Pose2d(new Translation2d(8.7, 4.0), new Rotation2d());
   // add start pose if needed
   // ---------------------- END OF CONFIG SECTION --------------------------
 
@@ -137,7 +137,6 @@ public class RobotContainer {
     elevatorHoming.onFalse(elevator.resetEncoder());
   }
 
-
   private void BALLASDHAKHSDHASDKJAS() {
     ParallelCommandGroup gotoL1 = new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotPlace());
     ParallelCommandGroup gotoL2 = new ParallelCommandGroup(elevator.setHeightL2(), coralManipulator.pivotPlace());
@@ -152,10 +151,10 @@ public class RobotContainer {
     mechJoystick.button(4 ).onTrue(gotoL1);
 
     //These are for auto. Triggers that happen during auto paths to execute commands
-    new EventTrigger("Go to L4").onTrue(new SequentialCommandGroup(gotoL4, new WaitCommand(2)));
+    new EventTrigger("Go to L4").onTrue(new SequentialCommandGroup(gotoL4));
     new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
     new EventTrigger("Home Elevator and Coral").onTrue(gotoIntake);
-    new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.intakeCoral(), new WaitCommand(2), coralManipulator.stopCoral()));
+    new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.intakeCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
     
     // Testing Purposes:
     new EventTrigger("Test Coral Intake").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(),  new WaitCommand(5), coralManipulator.stopCoral()));
@@ -175,6 +174,7 @@ public class RobotContainer {
   }
 
   public void initCommandInTeleop() {
+    elevator.homeElevatorDown();
     //swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
   }
 }
