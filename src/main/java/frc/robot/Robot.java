@@ -70,7 +70,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    //m_robotContainer.disablePoseEst();
   }
 
   @Override
@@ -82,7 +81,7 @@ public class Robot extends TimedRobot {
 
     //Uncomment this if you want to disable pose est when running teleop
     //This will allow allignment to work
-    //m_robotContainer.disablePoseEst();
+    //m_robotContainer.togglePoseEst();
     
     alliance = DriverStation.getAlliance();
     

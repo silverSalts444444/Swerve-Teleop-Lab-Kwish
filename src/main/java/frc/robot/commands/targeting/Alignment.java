@@ -63,7 +63,7 @@ public class Alignment extends Command{
         SmartDashboard.putNumber("align val", val);
         System.out.println(val);
         SmartDashboard.putNumber("error", (vision.getSetpoint() - vision.getHorizontalDisplacement()));
-        swerve.driveRelative(new ChassisSpeeds( 0, val, 0.6*rotDirection));
+        swerve.driveRelative(new ChassisSpeeds( 0, val, 0.5*rotDirection));
       }
       else if (!vision.targetDetected() && (vision.getLastHorizPosition() != 0 || vision.getLastRotAngle() != 0)) {
 

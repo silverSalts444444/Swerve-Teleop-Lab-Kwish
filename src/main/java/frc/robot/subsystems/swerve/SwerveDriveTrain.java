@@ -6,6 +6,8 @@ import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.DoubleSupplier;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -34,6 +36,7 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -100,6 +103,7 @@ public class SwerveDriveTrain extends SubsystemBase {
    private boolean enablePoseEst = true;
 
    private SendableChooser<Command> autoChooser = new SendableChooser<>();
+   private DoubleSupplier leftTriggerVal;
    /**
     * Creates a new SwerveDrive object. Intended to work both with real modules and
     * simulation.
@@ -107,7 +111,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     * @author Aric Volman
     */
    public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BR, SwerveModuleIOSparkMax BL,
-                           Vision vision) {
+                           Vision vision, DoubleSupplier leftTriggerVal) {
       // Assign modules to their object
       this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BR, BL };
 
@@ -124,6 +128,7 @@ public class SwerveDriveTrain extends SubsystemBase {
       this.field = new Field2d();
 
       this.vision = vision;
+      this.leftTriggerVal = leftTriggerVal;
 
       createAuto();
       
@@ -311,6 +316,12 @@ public class SwerveDriveTrain extends SubsystemBase {
       }
    }
 
+   public Command driveForward() {
+      return this.run(() ->{
+      driveRelative(new ChassisSpeeds(2*this.leftTriggerVal.getAsDouble(), 0, 0));
+   });
+   }
+
    /**
     * Drive the robot for PathPlannerLib
     */
@@ -419,8 +430,10 @@ public class SwerveDriveTrain extends SubsystemBase {
       return navx.getRotation2d().plus(offsetNavx);
    }
 
-   public void disablePoseEst() {
-      enablePoseEst = false;
+   public Command togglePoseEst() {
+      return this.runOnce(() -> {
+         enablePoseEst = !enablePoseEst;
+      });
    }
 
    /**
