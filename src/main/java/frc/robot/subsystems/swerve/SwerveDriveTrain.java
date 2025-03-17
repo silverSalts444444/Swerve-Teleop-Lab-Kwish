@@ -430,8 +430,10 @@ public class SwerveDriveTrain extends SubsystemBase {
       return navx.getRotation2d().plus(offsetNavx);
    }
 
-   public void disablePoseEst() {
-      enablePoseEst = false;
+   public Command togglePoseEst() {
+      return this.runOnce(() -> {
+         enablePoseEst = !enablePoseEst;
+      });
    }
 
    /**

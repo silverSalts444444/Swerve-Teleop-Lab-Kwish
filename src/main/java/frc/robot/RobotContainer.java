@@ -20,7 +20,6 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDriveTrain;
 import frc.robot.subsystems.targeting.Vision;
 
-
 public class RobotContainer {
 
   // ---------------------- START OF CONFIG SECTION --------------------------
@@ -156,11 +155,12 @@ public class RobotContainer {
     new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.intakeCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
   
     SmartDashboard.putData("Homing", new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotDown()));
+    SmartDashboard.putData("togglePoseEst", new ParallelCommandGroup(swerveDriveTrain.togglePoseEst(), vision.togglePoseEst()));
   }
 
-  public void disablePoseEst() {
-    swerveDriveTrain.disablePoseEst();
-    vision.disablePoseEst();
+  public void togglePoseEst() {
+    swerveDriveTrain.togglePoseEst();
+    vision.togglePoseEst();
   }
 
   public Command getAutonomousCommand() {

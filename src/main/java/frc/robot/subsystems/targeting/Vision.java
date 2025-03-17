@@ -19,6 +19,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -274,6 +275,7 @@ public class Vision extends SubsystemBase{
                 rotVals.add(0, getZAngle());
             } 
         }
+        SmartDashboard.putBoolean("Pose est enabled", enablePoseEst);
         
 
         // SmartDashboard.putNumber("axis val", cont.getRawAxis(0));
@@ -291,9 +293,11 @@ public class Vision extends SubsystemBase{
         // SmartDashboard.putNumber("X pose", getPose().getX());
     }
 
-    public void disablePoseEst() {
-        enablePoseEst = false;
-    }
+    public Command togglePoseEst() {
+        return this.runOnce(() -> {
+           enablePoseEst = !enablePoseEst;
+        });
+     }
  
      /**
       * The latest estimated robot pose on the field from vision data. This may be empty. This should
