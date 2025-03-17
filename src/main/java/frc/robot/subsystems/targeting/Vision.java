@@ -202,7 +202,7 @@ public class Vision extends SubsystemBase{
 
     public Command setpointRightHorizontal() {
         return this.runOnce(() -> {
-            pidVal = 0.16;
+            pidVal = 0.20;
         });
     }
 
@@ -217,7 +217,7 @@ public class Vision extends SubsystemBase{
     public void switchHorizontalSetpoint() {
         
         if(cont.getLeftBumperButtonPressed()) {
-            
+            pidVal = -0.17;
         }
         else if(cont.getRightBumperButtonPressed()) {
             pidVal = 0.20;

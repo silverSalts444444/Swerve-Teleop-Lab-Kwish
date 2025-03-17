@@ -82,7 +82,6 @@ public class RobotContainer {
 
     drivingXbox.leftTrigger(0.1).whileTrue(swerveDriveTrain.driveForward());
 
-
     // longAlignment = new LongitudinalAlignment(swerveDriveTrain, vision);
     align = new Alignment(swerveDriveTrain, vision);
     drivingXbox.a().toggleOnTrue(align);
