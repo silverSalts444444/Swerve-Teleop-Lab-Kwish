@@ -61,7 +61,7 @@ public class RobotContainer {
   private void createSwerve() {
     //Swerve needs the vision make sure to create this first
     //Create swerveDriveTrain
-    vision = new Vision();
+    vision = new Vision(drivingXbox);
     swerveDriveTrain = new SwerveDriveTrain(startpose,
     Constants.SwerveModuleIOConfig.module0,
     Constants.SwerveModuleIOConfig.module1,
@@ -76,11 +76,14 @@ public class RobotContainer {
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
 
     //This requires the swerve subsystem make sure to create that first before creating this
-    drivingXbox.button(3).onTrue(this.swerveDriveTrain.toggleFieldCentric());
-    drivingXbox.button(4).onTrue(this.swerveDriveTrain.resetHeadingCommand());
+    drivingXbox.x().onTrue(this.swerveDriveTrain.toggleFieldCentric());
+    drivingXbox.y().onTrue(this.swerveDriveTrain.resetHeadingCommand());
 
     align = new Alignment(swerveDriveTrain, vision);
     drivingXbox.a().toggleOnTrue(align);
+    drivingXbox.leftBumper().onTrue(vision.setpointLeftHorizontal());
+    drivingXbox.rightBumper().onTrue(vision.setpointRightHorizontal());
+    drivingXbox.b().onTrue(vision.setpointZeroHorizontal());
   }
 
   private void createDeepHang() {

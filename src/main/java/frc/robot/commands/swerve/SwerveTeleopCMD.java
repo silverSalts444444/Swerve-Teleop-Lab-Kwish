@@ -55,13 +55,14 @@ public class SwerveTeleopCMD extends Command {
       double rightTriggerVal = Math.abs(translationRightTrigger);
 
       
-      if (rightTriggerVal < 0.1) {
-         rightTriggerVal = 0.1;
-      }
-
-      // Inverts the speed control, so that the user can slow down instead of speeding up
-      if (Constants.invertSpeedControl) {
-         rightTriggerVal = 1.0 - rightTriggerVal;
+      if (Constants.fastMode) {
+         //Will be 100% speed by default or decrease speed by how far pressed right trigger is
+         //Minimum speed is 10%
+         rightTriggerVal = Math.max((1.0 - rightTriggerVal), .1);
+      } else {
+         //Will be 10% speed by default or increase speed by how far pressed right trigger is
+         //Minimum speed is 10%
+         rightTriggerVal = Math.max(rightTriggerVal, 0.1);
       }
 
       //Apply a deadband, if input is less than deadband then return zero else return input

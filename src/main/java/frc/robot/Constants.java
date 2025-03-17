@@ -36,7 +36,8 @@ public final class Constants {
     public static boolean enableSwerveMotorTelemetry = true;
     public static boolean xboxEnabled = true;
     //True makes swerve go slow, false makes swerve go fast
-    public static boolean invertSpeedControl = true;
+    //This should only be set to true during competetion time
+    public static boolean fastMode = true;
     public static boolean allianceEnabled = false;
 
     // MODIFY THIS WHEN SWITCHING BETWEEN CHASSIS
@@ -86,7 +87,7 @@ public final class Constants {
         public static final double deadBand = 0.05;
 
         //Probs need to update this and move it to RobotType
-        public static final double robotMassInKg = 120;
+        public static final double robotMassInKg = 54.43;
 
         public static final double wheelGripCoefficientOfFriction = 1.19;
     }
@@ -101,14 +102,13 @@ public final class Constants {
         
         public static final double driveGearRatio = 8.14; // For SDS MK4i module
         public static final double turnGearRatio = 150.0/7.0; // For SDS MK4i module 21.4285714
-        public static final double CANCoderGearRatio = 1.0; // Direct measurement
 
         // Both of these measurements should be correct
         // In rotations
         public static final double drivingEncoderPositionFactor = (Math.PI * wheelDiameterMeters) / driveGearRatio;
         
         // In RPM
-        public static final double drivingEncoderVelocityPositionFactor = ((Math.PI * wheelDiameterMeters) / driveGearRatio) / 60.0;
+        public static final double drivingEncoderVelocityPositionFactor = drivingEncoderPositionFactor / 60.0;
 
         //Rotations per steering rotation for the angle motor need to account for gear ratio
         public static final double turningEncoderPositionFactor = 1 / turnGearRatio;

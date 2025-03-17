@@ -19,44 +19,46 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
 
 public class Vision extends SubsystemBase{
 
     private final PhotonCamera bottomCamera = new PhotonCamera(Constants.VisionConstants.kBottomCameraName);
+    private final PhotonCamera topCamera = new PhotonCamera(VisionConstants.kRightCameraName);
 
-    Transform3d targetData;
-
-    private final PhotonCamera topCamera;
     private final PhotonPoseEstimator bottomPhotonPoseEstimator;
     private final PhotonPoseEstimator topPhotonPoseEstimator;
-
     private Matrix<N3, N1> bottomCurStdDevs;
     private Matrix<N3, N1> topCurStdDevs;
+
+    private Transform3d targetData;
     
-    double[] array = {-0.03, 0.03};
-    XboxController cont = new XboxController(0);
-    Joystick joy = new Joystick(0);
+    private final double[] array = {-0.03, 0.03};
+    private CommandXboxController cont;
 
-    ArrayList<Double> horizVals = new ArrayList<Double>();
-    ArrayList<Double> rotVals = new ArrayList<Double>();
+    private ArrayList<Double> horizVals = new ArrayList<Double>();
+    private ArrayList<Double> rotVals = new ArrayList<Double>();
 
-    double pidVal;
+    private double pidVal;
 
-    boolean enablePoseEst = true;
+    private boolean enablePoseEst = true;
 
-    public Vision() {
+    public Vision(CommandXboxController drivController) {
+        this.cont = drivController;
+        
         bottomCamera.setPipelineIndex(0);
-        topCamera = new PhotonCamera(VisionConstants.kRightCameraName);
+        topCamera.setPipelineIndex(0);
 
         bottomPhotonPoseEstimator =
                 new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kBottomRobotToCam);
         bottomPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY); 
         
         topPhotonPoseEstimator =
-                new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kBottomRobotToCam);
+                new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kTopRobotToCam);
         bottomPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);  
     }
 
@@ -192,9 +194,30 @@ public class Vision extends SubsystemBase{
     //     }
     // }
 
-    public void switchHorizontalSetpoint() {
-        if(cont.getLeftBumperButtonPressed()) {
+    public Command setpointLeftHorizontal() {
+        return this.runOnce(() -> {
             pidVal = -0.17;
+        });
+    }
+
+    public Command setpointRightHorizontal() {
+        return this.runOnce(() -> {
+            pidVal = 0.16;
+        });
+    }
+
+    public Command setpointZeroHorizontal() {
+        return this.runOnce(() -> {
+            pidVal = 0;
+        });
+    }
+
+
+/** 
+    public void switchHorizontalSetpoint() {
+        
+        if(cont.getLeftBumperButtonPressed()) {
+            
         }
         else if(cont.getRightBumperButtonPressed()) {
             pidVal = 0.16;
@@ -203,7 +226,7 @@ public class Vision extends SubsystemBase{
             pidVal = 0;
         }
     }
-
+*/
     public double getSetpoint() {
         return pidVal;
     }

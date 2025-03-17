@@ -41,7 +41,8 @@ public class Alignment extends Command{
     public void execute() {
       
       //switch setpoint based on driver input
-      vision.switchHorizontalSetpoint();
+      //Made this command based
+      //vision.switchHorizontalSetpoint();
       
       //if  a target is in view, and the driver is not driving, run autonomous alignment
       if (vision.targetDetected() && !vision.joystickHeld()) { 
