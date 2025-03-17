@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.function.DoubleSupplier;
-
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -15,7 +13,6 @@ import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,6 +40,8 @@ public class CoralManipulator extends SubsystemBase {
     //private double conversionFactor = Constants.CoralManipulatorConstants.pivotGearRatio/360; //81 rotations of the motor is 1 rotation of the arm
     //deg * (81/360) Dimensional analysis yay --> deg -> rotation conversion
     PIDController pidController = new PIDController(0.5, 0, 0);
+
+    boolean probablyHasCoral = false;
     
 
     public CoralManipulator() {
@@ -145,6 +144,7 @@ public class CoralManipulator extends SubsystemBase {
         return this.runOnce(() -> {
             coralMotor1.set(0.2);
             coralMotor2.set(0.2);
+            probablyHasCoral = true;
         });
     }
 
@@ -152,6 +152,7 @@ public class CoralManipulator extends SubsystemBase {
         return this.runOnce(() -> {
             coralMotor1.set(-0.2);
             coralMotor2.set(-0.2);
+            probablyHasCoral = false;
         });
     }
 
@@ -173,6 +174,7 @@ public class CoralManipulator extends SubsystemBase {
         SmartDashboard.putBoolean("Pivot FWD Limit", this.FWDLimit.isPressed());
         SmartDashboard.putBoolean("Pivot REV Limit", this.REVLimit.isPressed());
         SmartDashboard.putNumber("pivot voltage", this.pivotMotor.getBusVoltage() * this.pivotMotor.getAppliedOutput());
+        SmartDashboard.putBoolean("ProbablyHasCoral", probablyHasCoral);
     }
 
     public Command toggleTeleop() {

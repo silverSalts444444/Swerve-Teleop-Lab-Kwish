@@ -148,15 +148,14 @@ public final class Constants {
 
     public static final class VisionConstants {
         public static final String kBottomCameraName = "bob";
-        public static final String kRightCameraName = "FIND THIS OUT";
+        public static final String kRightCameraName = "TopCamera";
         // See https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html#robot-coordinate-system
         // for why these values the way they are. In short x is positive towards the front, y is positive to left, z is positive to the sky
         public static final Transform3d kBottomRobotToCam =
                 new Transform3d(new Translation3d(Units.inchesToMeters(12.75), Units.inchesToMeters(0), Units.inchesToMeters(12.5)), new Rotation3d(0, 0, 0));
 
-        public static final Transform3d kRightRobotToCam =
-                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
-
+        public static final Transform3d kTopRobotToCam =
+                new Transform3d(new Translation3d(Units.inchesToMeters(6), Units.inchesToMeters(11.5), Units.inchesToMeters(34)), new Rotation3d(0, 0, 0));
 
         // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout kTagLayout =

@@ -29,10 +29,12 @@ public class Vision extends SubsystemBase{
 
     Transform3d targetData;
 
-    //private final PhotonCamera rightCamera;
+    private final PhotonCamera topCamera;
     private final PhotonPoseEstimator bottomPhotonPoseEstimator;
-    //private final PhotonPoseEstimator rightphotonEstimator;
-    private Matrix<N3, N1> curStdDevs;
+    private final PhotonPoseEstimator topPhotonPoseEstimator;
+
+    private Matrix<N3, N1> bottomCurStdDevs;
+    private Matrix<N3, N1> topCurStdDevs;
     
     double[] array = {-0.03, 0.03};
     XboxController cont = new XboxController(0);
@@ -47,9 +49,13 @@ public class Vision extends SubsystemBase{
 
     public Vision() {
         bottomCamera.setPipelineIndex(0);
-        //rightCamera = new PhotonCamera(VisionConstants.kRightCameraName);
+        topCamera = new PhotonCamera(VisionConstants.kRightCameraName);
 
         bottomPhotonPoseEstimator =
+                new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kBottomRobotToCam);
+        bottomPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY); 
+        
+        topPhotonPoseEstimator =
                 new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kBottomRobotToCam);
         bottomPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);  
     }
@@ -276,14 +282,23 @@ public class Vision extends SubsystemBase{
       * @return An {@link EstimatedRobotPose} with an estimated pose, estimate timestamp, and targets
       *     used for estimation.
       */
-     public Optional<EstimatedRobotPose> getLeftCameraEstimatedGlobalPose() {
+     public Optional<EstimatedRobotPose> getBottomCameraEstimatedGlobalPose() {
          Optional<EstimatedRobotPose> visionEst = Optional.empty();
          for (var change : bottomCamera.getAllUnreadResults()) {
             visionEst = bottomPhotonPoseEstimator.update(change);
-            updateEstimationStdDevs(visionEst, change.getTargets());
+            bottomCurStdDevs = updateEstimationStdDevs(visionEst, change.getTargets());
          }
          return visionEst;
      }
+
+     public Optional<EstimatedRobotPose> getTopCameraEstimatedGlobalPose() {
+        Optional<EstimatedRobotPose> visionEst = Optional.empty();
+        for (var change : topCamera.getAllUnreadResults()) {
+           visionEst = topPhotonPoseEstimator.update(change);
+            topCurStdDevs = updateEstimationStdDevs(visionEst, change.getTargets());
+        }
+        return visionEst;
+    }
  
      /**
       * Calculates new standard deviations This algorithm is a heuristic that creates dynamic standard
@@ -292,12 +307,13 @@ public class Vision extends SubsystemBase{
       * @param estimatedPose The estimated pose to guess standard deviations for.
       * @param targets All targets in this camera frame
       */
-     private void updateEstimationStdDevs(
+     private Matrix<N3, N1> updateEstimationStdDevs(
              Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
+         Matrix<N3, N1> stdDevs = VisionConstants.kSingleTagStdDevs;
          if (estimatedPose.isEmpty()) {
              // No pose input. Default to single-tag std devs
-             curStdDevs = VisionConstants.kSingleTagStdDevs;
- 
+             stdDevs = VisionConstants.kSingleTagStdDevs;
+            
          } else {
              // Pose present. Start running Heuristic
              var estStdDevs = VisionConstants.kSingleTagStdDevs;
@@ -319,7 +335,7 @@ public class Vision extends SubsystemBase{
  
              if (numTags == 0) {
                  // No tags visible. Default to single-tag std devs
-                 curStdDevs = VisionConstants.kSingleTagStdDevs;
+                 stdDevs = VisionConstants.kSingleTagStdDevs;
              } else {
                  // One or more tags visible, run the full heuristic.
                  avgDist /= numTags;
@@ -329,19 +345,24 @@ public class Vision extends SubsystemBase{
                  if (numTags == 1 && avgDist > 4)
                      estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
                  else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
-                 curStdDevs = estStdDevs;
+                 stdDevs = estStdDevs;
              }
          }
+         return stdDevs;
      }
  
      /**
       * Returns the latest standard deviations of the estimated pose from {@link
-      * #getLeftCameraEstimatedGlobalPose()}, for use with {@link
+      * #getBottomCameraEstimatedGlobalPose()}, for use with {@link
       * edu.wpi.first.math.estimator.SwerveDrivePoseEstimator SwerveDrivePoseEstimator}. This should
       * only be used when there are targets visible.
       */
-     public Matrix<N3, N1> getEstimationStdDevs() {
-         return curStdDevs;
+     public Matrix<N3, N1> getBottomEstimationStdDevs() {
+         return bottomCurStdDevs;
      }
+
+     public Matrix<N3, N1> getTopEstimationStdDevs() {
+        return topCurStdDevs;
+    }
 
 }
