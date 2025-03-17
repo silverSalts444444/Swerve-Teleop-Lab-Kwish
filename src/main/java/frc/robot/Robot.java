@@ -6,7 +6,10 @@ package frc.robot;
 
 import java.util.Optional;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -19,14 +22,16 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
   
-
-  
   private static Optional<Alliance> alliance = DriverStation.getAlliance();
 
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+
+    //Pathplanner recommends running this command to get everything ready
+    FollowPathCommand.warmupCommand().schedule();
     CameraServer.startAutomaticCapture();
+    CvSink sink = CameraServer.getVideo();
     SmartDashboard.putBoolean("Is Running", false);
   }
 

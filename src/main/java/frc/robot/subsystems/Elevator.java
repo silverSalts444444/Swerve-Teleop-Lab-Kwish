@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import java.util.function.DoubleSupplier;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -17,10 +16,8 @@ import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -54,14 +51,15 @@ public class Elevator extends SubsystemBase {
     enableTeleop = false;
     
     config.closedLoop.pid(
-    0.5, //p
+    .6, //p
     0.006, //i
     0.005 //d
     ); 
+
     config.closedLoop.maxMotion
        .maxVelocity(5000) //in rpm
-       .maxAcceleration(3500); // in rpm/s
-    //   //.allowedClosedLoopError(allowedErr);
+       .maxAcceleration(4400) // in rpm/s
+       .allowedClosedLoopError(1);
 
     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     
@@ -186,12 +184,6 @@ public class Elevator extends SubsystemBase {
         motorE.set(-0.3);
       }
     });
-  }
-
-  public Command test() {
-    setpoint = 26.5;
-    return new FunctionalCommand(() -> PIDController.setReference(setpoint * conversionFactor, SparkMax.ControlType.kMAXMotionPositionControl), null, null, () -> 
-    MathUtil.isNear(setpoint, currentPos / conversionFactor, .1), this);
   }
 
   public boolean isREVLimit() {

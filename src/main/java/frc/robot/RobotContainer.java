@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.swerve.SwerveTeleopCMD;
 import frc.robot.commands.targeting.Alignment;
-import frc.robot.commands.targeting.LongitudinalAlignment;
 import frc.robot.subsystems.CoralManipulator;
 import frc.robot.subsystems.DeepHang;
 import frc.robot.subsystems.Elevator;
@@ -37,11 +36,7 @@ public class RobotContainer {
   private final CommandJoystick mechJoystick = new CommandJoystick(1);
 
   private SwerveDriveTrain swerveDriveTrain;
-
   private SwerveTeleopCMD swerveTeleopCMD;
-
-  // Auto Trajectories
-  private InitializeAutoPaths autoPaths;
   
   private DeepHang deepHang;
 
@@ -50,7 +45,6 @@ public class RobotContainer {
   private Elevator elevator;
 
   private Alignment align;
-  private LongitudinalAlignment longAlignment;
   private Vision vision;
 
   public RobotContainer() {
@@ -67,7 +61,7 @@ public class RobotContainer {
   private void createSwerve() {
     //Swerve needs the vision make sure to create this first
     //Create swerveDriveTrain
-    vision = new Vision();
+    vision = new Vision(drivingXbox);
     swerveDriveTrain = new SwerveDriveTrain(startpose,
     Constants.SwerveModuleIOConfig.module0,
     Constants.SwerveModuleIOConfig.module1,
@@ -83,9 +77,8 @@ public class RobotContainer {
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
 
     //This requires the swerve subsystem make sure to create that first before creating this
-    autoPaths = new InitializeAutoPaths(this.swerveDriveTrain);
-    drivingXbox.button(3).onTrue(this.swerveDriveTrain.toggleFieldCentric());
-    drivingXbox.button(4).onTrue(this.swerveDriveTrain.resetHeadingCommand());
+    drivingXbox.x().onTrue(this.swerveDriveTrain.toggleFieldCentric());
+    drivingXbox.y().onTrue(this.swerveDriveTrain.resetHeadingCommand());
 
     drivingXbox.leftTrigger(0.1).whileTrue(swerveDriveTrain.driveForward());
 
@@ -93,6 +86,9 @@ public class RobotContainer {
     // longAlignment = new LongitudinalAlignment(swerveDriveTrain, vision);
     align = new Alignment(swerveDriveTrain, vision);
     drivingXbox.a().toggleOnTrue(align);
+    drivingXbox.leftBumper().onTrue(vision.setpointLeftHorizontal());
+    drivingXbox.rightBumper().onTrue(vision.setpointRightHorizontal());
+    drivingXbox.b().onTrue(vision.setpointZeroHorizontal());
   }
 
   private void createDeepHang() {
@@ -155,16 +151,11 @@ public class RobotContainer {
     mechJoystick.button(4 ).onTrue(gotoL1);
 
     //These are for auto. Triggers that happen during auto paths to execute commands
-    new EventTrigger("Go to L4").onTrue(new SequentialCommandGroup(gotoL4));
-    new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
+    new EventTrigger("Go to L4").onTrue(new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotL4()));
+    new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(new WaitCommand(1), coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
     new EventTrigger("Home Elevator and Coral").onTrue(gotoIntake);
     new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.intakeCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
-    
-    // Testing Purposes:
-    new EventTrigger("Test Coral Intake").onTrue(new SequentialCommandGroup(coralManipulator.pivotIntake(), coralManipulator.intakeCoral(),  new WaitCommand(5), coralManipulator.stopCoral()));
-    new EventTrigger("Test Coral Outake").onTrue(new SequentialCommandGroup(coralManipulator.pivotL4(), coralManipulator.releaseCoral(),  new WaitCommand(5), coralManipulator.stopCoral()));
-    new EventTrigger("Test Elevator").onTrue(new SequentialCommandGroup(elevator.setHeightL2()));
-    
+  
     SmartDashboard.putData("Homing", new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotDown()));
   }
 
@@ -174,7 +165,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return autoPaths.getAutonomousCommand();
+    return swerveDriveTrain.getAutonomousCommand();
   }
 
   public void initCommandInTeleop() {

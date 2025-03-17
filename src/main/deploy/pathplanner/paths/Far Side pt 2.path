@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.0,
-        "y": 4.210809426229508
+        "x": 1.6752272727272728,
+        "y": 0.6246875000000012
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.1368020019650915,
-        "y": 4.210809426229508
+        "x": 1.6418330368406755,
+        "y": 0.8724471113363735
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.6339488636363635,
-        "y": 4.210809426229508
+        "x": 3.6894886363636368,
+        "y": 2.9979261363636356
       },
       "prevControl": {
-        "x": 6.312017045454545,
-        "y": 4.1995028409090915
+        "x": 3.2832737708572615,
+        "y": 2.142056371899219
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "Go to L4",
-      "waypointRelativePos": 0.18784530386740145,
+      "waypointRelativePos": 0.26677190213102026,
       "endWaypointRelativePos": null,
       "command": null
     },
@@ -55,13 +55,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -178.75084168764494
+    "rotation": 59.65675111576043
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -124.38034472384487
   },
   "useDefaultConstraints": true
 }

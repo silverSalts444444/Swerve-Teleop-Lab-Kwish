@@ -230,6 +230,7 @@ public class SwerveModuleIOSparkMax {
         SmartDashboard.putNumber("Raw turn pos " + num, turnEncoder.getPosition());
         // Show driving velocity
         SmartDashboard.putNumber("Drive Vel #" + num, driveEncoder.getVelocity());
+        SmartDashboard.putNumber("Drive Pos #" + num, driveEncoder.getPosition());
 
         // NON-ESSENTIAL TELEMETRY
         if (Constants.enableSwerveMotorTelemetry && num == 1) {

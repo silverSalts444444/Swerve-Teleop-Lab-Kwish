@@ -36,7 +36,8 @@ public final class Constants {
     public static boolean enableSwerveMotorTelemetry = true;
     public static boolean xboxEnabled = true;
     //True makes swerve go slow, false makes swerve go fast
-    public static boolean invertSpeedControl = true;
+    //This should only be set to true during competetion time
+    public static boolean fastMode = true;
     public static boolean allianceEnabled = false;
 
     // MODIFY THIS WHEN SWITCHING BETWEEN CHASSIS
@@ -86,7 +87,7 @@ public final class Constants {
         public static final double deadBand = 0.05;
 
         //Probs need to update this and move it to RobotType
-        public static final double robotMassInKg = 120;
+        public static final double robotMassInKg = 54.43;
 
         public static final double wheelGripCoefficientOfFriction = 1.19;
     }
@@ -101,14 +102,13 @@ public final class Constants {
         
         public static final double driveGearRatio = 8.14; // For SDS MK4i module
         public static final double turnGearRatio = 150.0/7.0; // For SDS MK4i module 21.4285714
-        public static final double CANCoderGearRatio = 1.0; // Direct measurement
 
         // Both of these measurements should be correct
         // In rotations
         public static final double drivingEncoderPositionFactor = (Math.PI * wheelDiameterMeters) / driveGearRatio;
         
         // In RPM
-        public static final double drivingEncoderVelocityPositionFactor = ((Math.PI * wheelDiameterMeters) / driveGearRatio) / 60.0;
+        public static final double drivingEncoderVelocityPositionFactor = drivingEncoderPositionFactor / 60.0;
 
         //Rotations per steering rotation for the angle motor need to account for gear ratio
         public static final double turningEncoderPositionFactor = 1 / turnGearRatio;
@@ -148,15 +148,14 @@ public final class Constants {
 
     public static final class VisionConstants {
         public static final String kBottomCameraName = "bob";
-        public static final String kRightCameraName = "FIND THIS OUT";
+        public static final String kRightCameraName = "TopCamera";
         // See https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html#robot-coordinate-system
         // for why these values the way they are. In short x is positive towards the front, y is positive to left, z is positive to the sky
         public static final Transform3d kBottomRobotToCam =
                 new Transform3d(new Translation3d(Units.inchesToMeters(12.75), Units.inchesToMeters(0), Units.inchesToMeters(12.5)), new Rotation3d(0, 0, 0));
 
-        public static final Transform3d kRightRobotToCam =
-                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
-
+        public static final Transform3d kTopRobotToCam =
+                new Transform3d(new Translation3d(Units.inchesToMeters(6), Units.inchesToMeters(11.5), Units.inchesToMeters(34)), new Rotation3d(0, 0, 0));
 
         // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout kTagLayout =
