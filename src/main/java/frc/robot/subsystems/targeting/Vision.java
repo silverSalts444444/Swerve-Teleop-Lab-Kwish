@@ -46,7 +46,7 @@ public class Vision extends SubsystemBase{
 
     private double pidVal;
 
-    private boolean enablePoseEst = true;
+    private boolean enablePoseEst = false;
 
     public Vision(CommandXboxController drivController) {
         this.cont = drivController;
@@ -203,7 +203,7 @@ public class Vision extends SubsystemBase{
 
     public Command setpointRightHorizontal() {
         return this.runOnce(() -> {
-            pidVal = 0.20;
+            pidVal = 0.13;
         });
     }
 

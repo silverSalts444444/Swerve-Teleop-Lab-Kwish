@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
     //Pathplanner recommends running this command to get everything ready
     FollowPathCommand.warmupCommand().schedule();
     CameraServer.startAutomaticCapture();
-    CvSink sink = CameraServer.getVideo();
+    // CvSink sink = CameraServer.getVideo();
     SmartDashboard.putBoolean("Is Running", false);
   }
 
@@ -81,7 +81,7 @@ public class Robot extends TimedRobot {
 
     //Uncomment this if you want to disable pose est when running teleop
     //This will allow allignment to work
-    //m_robotContainer.togglePoseEst();
+    m_robotContainer.togglePoseEst();
     
     alliance = DriverStation.getAlliance();
     

@@ -41,7 +41,7 @@ public class CoralManipulator extends SubsystemBase {
     //deg * (81/360) Dimensional analysis yay --> deg -> rotation conversion
     PIDController pidController = new PIDController(0.5, 0, 0);
 
-    boolean probablyHasCoral = false;
+    public boolean probablyHasCoral = false;
     
 
     public CoralManipulator() {
