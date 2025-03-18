@@ -190,9 +190,6 @@ public class SwerveDriveTrain extends SubsystemBase {
       // Update module positions
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
 
-      //Update pose using gyro and encoders.
-      this.poseEstimator.update(this.getRotation(), this.modulePositions);
-
       // Correct pose estimate with vision measurements
       if (enableVision && enablePoseEst) {
          var bottomVisionEst = vision.getBottomCameraEstimatedGlobalPose();
@@ -212,7 +209,10 @@ public class SwerveDriveTrain extends SubsystemBase {
                poseEstimator.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
             }
          });
-      }  
+      } 
+      
+      //Update pose using gyro and encoders.
+      this.poseEstimator.update(this.getRotation(), this.modulePositions);
       
       poseEstimatorPublisher.set(poseEstimator.getEstimatedPosition());
 

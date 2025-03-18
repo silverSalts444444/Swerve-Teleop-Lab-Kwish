@@ -155,7 +155,7 @@ public class RobotContainer {
     new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.intakeCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
   
     SmartDashboard.putData("Homing", new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotDown()));
-    SmartDashboard.putData("togglePoseEst", new ParallelCommandGroup(swerveDriveTrain.togglePoseEst(), vision.togglePoseEst()));
+    SmartDashboard.putData("togglePoseEst", new SequentialCommandGroup(swerveDriveTrain.togglePoseEst(), vision.togglePoseEst()));
   }
 
   public void togglePoseEst() {
