@@ -79,7 +79,7 @@ public class RobotContainer {
     drivingXbox.x().onTrue(this.swerveDriveTrain.toggleFieldCentric());
     drivingXbox.y().onTrue(this.swerveDriveTrain.resetHeadingCommand());
 
-    drivingXbox.leftTrigger(0.1).whileTrue(swerveDriveTrain.driveForward());
+    drivingXbox.leftTrigger(0.02).whileTrue(swerveDriveTrain.driveForward());
 
     // longAlignment = new LongitudinalAlignment(swerveDriveTrain, vision);
     align = new Alignment(swerveDriveTrain, vision);
@@ -142,7 +142,7 @@ public class RobotContainer {
     ParallelCommandGroup gotoL4 = new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotL4());
     //Change this to use the home command if the homeEleavtorDown doesn't work
     ParallelCommandGroup gotoIntake = new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotIntake());
-    mechJoystick.button(17).onTrue(gotoIntake);
+    mechJoystick.button(17).and(()->!coralManipulator.probablyHasCoral).onTrue(gotoIntake);
     mechJoystick.button(1 ).onTrue(gotoL4);
     mechJoystick.button(2 ).onTrue(gotoL3);
     mechJoystick.button(3 ).onTrue(gotoL2);

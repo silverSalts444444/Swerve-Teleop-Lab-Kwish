@@ -16,6 +16,7 @@ public class Alignment extends Command{
 
     double rotDirection;
     double horizDirection;
+    double longDirection;
     double lHorizDirection;
     double lRotDirection;
 
@@ -28,7 +29,7 @@ public class Alignment extends Command{
         this.swerve = swerve;
 
         addRequirements(this.vision, this.swerve);
-        pid.setTolerance(0.02);
+        pid.setTolerance(0.01);
     }
 
     @Override
@@ -45,10 +46,12 @@ public class Alignment extends Command{
       //vision.switchHorizontalSetpoint();
       
       //if  a target is in view, and the driver is not driving, run autonomous alignment
-      if (vision.targetDetected() && !vision.joystickHeld()) { 
+      if ((vision.targetDetected() && !vision.joystickHeld()) || vision.getLongitudinalDisplacement() > 0.6) { 
         rotDirection = vision.getRotationalDirection();
 
         horizDirection = -pid.calculate(vision.getHorizontalDisplacement(), vision.getSetpoint());
+
+        longDirection = (vision.getLongitudinalDisplacement() > 0.6 ? 1 : 0);
 
         double val = (5.0*horizDirection)+(Math.signum(horizDirection)*0.05);
         double error = (vision.getSetpoint() - vision.getHorizontalDisplacement());
@@ -63,7 +66,7 @@ public class Alignment extends Command{
         SmartDashboard.putNumber("align val", val);
         System.out.println(val);
         SmartDashboard.putNumber("error", (vision.getSetpoint() - vision.getHorizontalDisplacement()));
-        swerve.driveRelative(new ChassisSpeeds( 0, val, 0.5*rotDirection));
+        swerve.driveRelative(new ChassisSpeeds( 0.5*longDirection, val, 0.5*rotDirection));
       }
       else if (!vision.targetDetected() && (vision.getLastHorizPosition() != 0 || vision.getLastRotAngle() != 0)) {
 
@@ -110,7 +113,7 @@ public class Alignment extends Command{
 
     @Override
     public boolean isFinished() {
-        if(pid.atSetpoint() && vision.rotationalAtSetpoint()) {
+        if(pid.atSetpoint() && vision.rotationalAtSetpoint() && vision.getLongitudinalDisplacement() <= 0.6) {
             return true;
         }
         return false;
