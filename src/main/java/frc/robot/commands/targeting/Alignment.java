@@ -46,12 +46,12 @@ public class Alignment extends Command{
       //vision.switchHorizontalSetpoint();
       
       //if  a target is in view, and the driver is not driving, run autonomous alignment
-      if ((vision.targetDetected() && !vision.joystickHeld()) || vision.getLongitudinalDisplacement() > 0.6) { 
+      if ((vision.targetDetected() && !vision.joystickHeld()) || vision.getLongitudinalDisplacement() > 0.75) { 
         rotDirection = vision.getRotationalDirection();
 
         horizDirection = -pid.calculate(vision.getHorizontalDisplacement(), vision.getSetpoint());
 
-        longDirection = (vision.getLongitudinalDisplacement() > 0.6 ? 1 : 0);
+        longDirection = (vision.getLongitudinalDisplacement() > 0.75 ? 1 : 0);
 
         double val = (5.0*horizDirection)+(Math.signum(horizDirection)*0.05);
         double error = (vision.getSetpoint() - vision.getHorizontalDisplacement());
@@ -113,7 +113,7 @@ public class Alignment extends Command{
 
     @Override
     public boolean isFinished() {
-        if(pid.atSetpoint() && vision.rotationalAtSetpoint() && vision.getLongitudinalDisplacement() <= 0.6) {
+        if(pid.atSetpoint() && vision.rotationalAtSetpoint() && vision.getLongitudinalDisplacement() <= 0.75) {
             return true;
         }
         return false;

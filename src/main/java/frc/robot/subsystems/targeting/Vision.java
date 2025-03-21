@@ -41,8 +41,8 @@ public class Vision extends SubsystemBase{
     private final double[] array = {-0.03, 0.03};
     private CommandXboxController cont;
 
-    private ArrayList<Double> horizVals = new ArrayList<Double>();
-    private ArrayList<Double> rotVals = new ArrayList<Double>();
+    private double horizVals;
+    private double rotVals;
 
     private double pidVal;
 
@@ -240,11 +240,11 @@ public class Vision extends SubsystemBase{
     }
 
     public double getLastHorizPosition() {
-        return horizVals.get(0);
+        return horizVals;
     }
 
     public double getLastRotAngle() {
-        return rotVals.get(0);
+        return rotVals;
     }
 
 
@@ -271,8 +271,8 @@ public class Vision extends SubsystemBase{
             //update targetData with current info
             targetData = getTargetData();
             if (targetData != null) {
-                horizVals.add(0, getHorizontalDisplacement());
-                rotVals.add(0, getZAngle());
+                horizVals = getHorizontalDisplacement();
+                rotVals = getZAngle();
             } 
         }
         SmartDashboard.putBoolean("Pose est enabled", enablePoseEst);

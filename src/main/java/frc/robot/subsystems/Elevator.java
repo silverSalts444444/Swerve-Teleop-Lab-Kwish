@@ -204,15 +204,15 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic(){
-    SmartDashboard.putNumber("Elevator setpoint", setpoint);
+    // SmartDashboard.putNumber("Elevator setpoint", setpoint);
     currentPos = rel_encoder.getPosition();     
     SmartDashboard.putNumber("Elevator pos",currentPos / conversionFactor);
-    SmartDashboard.putNumber("Elevator vel", rel_encoder.getVelocity());
+    // SmartDashboard.putNumber("Elevator vel", rel_encoder.getVelocity());
     SmartDashboard.putBoolean("Elevator Rev Limit", revLimit.isPressed());
     SmartDashboard.putBoolean("Elevator Fwd Limit", fwdLimit.isPressed());
-    SmartDashboard.putNumber("Elevator Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
+    // SmartDashboard.putNumber("Elevator Voltage", motorE.getBusVoltage() * motorE.getAppliedOutput());
     SmartDashboard.putBoolean("Elevator Homed?", homedStartup);
-    SmartDashboard.putNumber("Eleavtor IAccum", PIDController.getIAccum());
+    // SmartDashboard.putNumber("Eleavtor IAccum", PIDController.getIAccum());
     
     
     //https://www.chiefdelphi.com/t/get-voltage-from-spark-max/344136/2
