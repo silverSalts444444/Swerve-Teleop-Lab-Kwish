@@ -314,7 +314,7 @@ public class Vision extends SubsystemBase{
          if (enablePoseEst) {
             for (var change : bottomCamera.getAllUnreadResults()) {
                 visionEst = bottomPhotonPoseEstimator.update(change);
-                bottomCurStdDevs = updateBottomEstimationStdDevs(visionEst, change.getTargets());
+                bottomCurStdDevs = updateEstimationStdDevs(visionEst, change.getTargets(), bottomPhotonPoseEstimator);
              }
          }        
          return visionEst;
@@ -325,7 +325,7 @@ public class Vision extends SubsystemBase{
         if (enablePoseEst) {
             for (var change : topCamera.getAllUnreadResults()) {
                 visionEst = topPhotonPoseEstimator.update(change);
-                topCurStdDevs = updateBottomEstimationStdDevs(visionEst, change.getTargets());
+                topCurStdDevs = updateEstimationStdDevs(visionEst, change.getTargets(), topPhotonPoseEstimator);
              }
         }      
         return visionEst;
@@ -338,8 +338,8 @@ public class Vision extends SubsystemBase{
       * @param estimatedPose The estimated pose to guess standard deviations for.
       * @param targets All targets in this camera frame
       */
-     private Matrix<N3, N1> updateBottomEstimationStdDevs(
-             Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
+     private Matrix<N3, N1> updateEstimationStdDevs(
+             Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets, PhotonPoseEstimator poseEstimator) {
          Matrix<N3, N1> stdDevs = VisionConstants.kSingleTagStdDevs;
          if (estimatedPose.isEmpty()) {
              // No pose input. Default to single-tag std devs
@@ -353,7 +353,7 @@ public class Vision extends SubsystemBase{
  
              // Precalculation - see how many tags we found, and calculate an average-distance metric
              for (var tgt : targets) {
-                 var tagPose = bottomPhotonPoseEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
+                 var tagPose = poseEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
                  if (tagPose.isEmpty()) continue;
                  numTags++;
                  avgDist +=
