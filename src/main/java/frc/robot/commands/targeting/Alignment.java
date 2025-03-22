@@ -59,13 +59,12 @@ public class Alignment extends Command{
         if (Math.abs(val) > 0.75) {
             val = Math.signum(horizDirection)*0.75;
         }
-        else if (Math.abs(error) < 0.1 && vision.approachingSetpoint()) {
-            val = Math.signum(horizDirection)*0.1;
+        else if (Math.abs(error) < 0.2 && vision.approachingSetpoint()) {
+            val = Math.signum(horizDirection)*0.2;
         }
         //use below if testing with advantagescope
-        SmartDashboard.putNumber("align val", val);
-        System.out.println(val);
-        SmartDashboard.putNumber("error", (vision.getSetpoint() - vision.getHorizontalDisplacement()));
+        // SmartDashboard.putNumber("align val", val);
+        // SmartDashboard.putNumber("error", (vision.getSetpoint() - vision.getHorizontalDisplacement()));
         swerve.driveRelative(new ChassisSpeeds( 0.5*longDirection, val, 0.5*rotDirection));
       }
       else if (!vision.targetDetected() && (vision.getLastHorizPosition() != 0 || vision.getLastRotAngle() != 0)) {

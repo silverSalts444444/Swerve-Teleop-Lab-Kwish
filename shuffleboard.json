@@ -448,6 +448,58 @@
               "_glyph": 148,
               "_showGlyph": false
             }
+          },
+          "8,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/xVal",
+              "_title": "/SmartDashboard/xVal",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "8,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/yVal",
+              "_title": "/SmartDashboard/yVal",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "8,2": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/align val",
+              "_title": "/SmartDashboard/align val",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "8,3": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/error",
+              "_title": "/SmartDashboard/error",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
           }
         }
       }
@@ -637,9 +689,7 @@
               "_showGlyph": false,
               "Game/Game": "k2024Crescendo",
               "Visuals/Robot Icon Size": 50.0,
-              "Visuals/Show Outside Circles": false,
-              "Colors/Field Relative": "#FFFFFFFF",
-              "Colors/XModules": "#FFFFFFFF"
+              "Visuals/Show Outside Circles": false
             }
           }
         }

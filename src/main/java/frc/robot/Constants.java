@@ -154,8 +154,10 @@ public final class Constants {
         public static final Transform3d kBottomRobotToCam =
                 new Transform3d(new Translation3d(Units.inchesToMeters(12.75), Units.inchesToMeters(0), Units.inchesToMeters(12.5)), new Rotation3d(0, 0, 0));
 
+        private static final double camPitch = Units.degreesToRadians(25.0);
         public static final Transform3d kTopRobotToCam =
-                new Transform3d(new Translation3d(Units.inchesToMeters(6), Units.inchesToMeters(11.5), Units.inchesToMeters(34)), new Rotation3d(0, 0, 0));
+                new Transform3d(new Translation3d(Units.inchesToMeters(6), Units.inchesToMeters(11.5), Units.inchesToMeters(34)),
+                new Rotation3d(0, -camPitch, 0));
 
         // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout kTagLayout =
