@@ -43,9 +43,9 @@ public class SwerveTeleopCMD extends Command {
    @Override
    public void execute() {
       //Flip all controller input since xbox forward is negative
-      double xVal = this.joystick.getRawAxis(XboxController.Axis.kLeftY.value);
-      double yVal = this.joystick.getRawAxis(XboxController.Axis.kLeftX.value);
-      double rotation = this.joystick.getRawAxis(XboxController.Axis.kRightX.value);
+      double xVal = -this.joystick.getRawAxis(XboxController.Axis.kLeftY.value);
+      double yVal = -this.joystick.getRawAxis(XboxController.Axis.kLeftX.value);
+      double rotation = -this.joystick.getRawAxis(XboxController.Axis.kRightX.value);
       double translationRightTrigger = this.joystick.getRawAxis(XboxController.Axis.kRightTrigger.value);
       //boolean resetNavx = this.joystick.getRawButtonPressed(XboxController.Button.kY.value);
 
