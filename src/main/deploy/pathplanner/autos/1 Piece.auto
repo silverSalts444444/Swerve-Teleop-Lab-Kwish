@@ -15,12 +15,6 @@
           "data": {
             "waitTime": 3.0
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "S2_H1_C2_end"
-          }
         }
       ]
     }

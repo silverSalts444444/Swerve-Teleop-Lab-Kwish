@@ -21,6 +21,18 @@
           "data": {
             "pathName": "Testing Part 2"
           }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Testing Part 3"
+          }
         }
       ]
     }

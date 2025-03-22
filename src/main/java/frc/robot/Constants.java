@@ -49,17 +49,17 @@ public final class Constants {
         // Drive can ids start at front left from 1 and are odd
         // Turn can ids start at front left from 2 and are even
         // CANCoder ids start at front left from 10 and are sequential
-        static SwerveModuleIOSparkMax module0 = new SwerveModuleIOSparkMax(//front left
-                0, 1,2,9,ROBOT_TYPE.moduleAngleOffsets[0],false);
+        static SwerveModuleIOSparkMax moduleFL = new SwerveModuleIOSparkMax(//front left
+                0, 1,2,9,ROBOT_TYPE.moduleAngleOffsets[0],true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
-        static SwerveModuleIOSparkMax module1 = new SwerveModuleIOSparkMax(//front right
-                1, 3,4,10,ROBOT_TYPE.moduleAngleOffsets[1],false);
+        static SwerveModuleIOSparkMax moduleFR = new SwerveModuleIOSparkMax(//front right
+                1, 3,4,10,ROBOT_TYPE.moduleAngleOffsets[1],true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
-        static SwerveModuleIOSparkMax module2 = new SwerveModuleIOSparkMax(//back left
-                2, 7,8,12,ROBOT_TYPE.moduleAngleOffsets[2],true);
+        static SwerveModuleIOSparkMax moduleBL = new SwerveModuleIOSparkMax(//back left
+                2, 7,8,12,ROBOT_TYPE.moduleAngleOffsets[2],false);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
-        static SwerveModuleIOSparkMax module3 = new SwerveModuleIOSparkMax(//back right
-                3, 5,6,11,ROBOT_TYPE.moduleAngleOffsets[3],true);
+        static SwerveModuleIOSparkMax moduleBR = new SwerveModuleIOSparkMax(//back right
+                3, 5,6,11,ROBOT_TYPE.moduleAngleOffsets[3],false);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
     }
 
