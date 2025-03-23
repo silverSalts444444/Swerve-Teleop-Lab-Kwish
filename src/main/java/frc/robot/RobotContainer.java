@@ -4,6 +4,8 @@ import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -47,6 +49,13 @@ public class RobotContainer {
   private Vision vision;
 
   public RobotContainer() {
+
+    // Starts recording to data log
+    DataLogManager.start();
+
+    // Record both DS control and joystick data
+    DriverStation.startDataLog(DataLogManager.getLog());
+
     createSwerve();
     createDeepHang();
     createCoralManipulator();
@@ -62,10 +71,10 @@ public class RobotContainer {
     //Create swerveDriveTrain
     vision = new Vision(drivingXbox);
     swerveDriveTrain = new SwerveDriveTrain(startpose,
-    Constants.SwerveModuleIOConfig.module0,
-    Constants.SwerveModuleIOConfig.module1,
-    Constants.SwerveModuleIOConfig.module2,
-    Constants.SwerveModuleIOConfig.module3,
+    Constants.SwerveModuleIOConfig.moduleFL,
+    Constants.SwerveModuleIOConfig.moduleFR,
+    Constants.SwerveModuleIOConfig.moduleBL,
+    Constants.SwerveModuleIOConfig.moduleBR,
     vision, () -> {return drivingXbox.getLeftTriggerAxis();});
     
     //Create swerve commands here
@@ -76,7 +85,7 @@ public class RobotContainer {
     this.swerveDriveTrain.setDefaultCommand(swerveTeleopCMD);
 
     //This requires the swerve subsystem make sure to create that first before creating this
-    drivingXbox.x().onTrue(this.swerveDriveTrain.toggleFieldCentric());
+    //7drivingXbox.x().onTrue(this.swerveDriveTrain.toggleFieldCentric());
     drivingXbox.y().onTrue(this.swerveDriveTrain.resetHeadingCommand());
 
     drivingXbox.leftTrigger(0.02).whileTrue(swerveDriveTrain.driveForward());
@@ -150,16 +159,16 @@ public class RobotContainer {
 
     //These are for auto. Triggers that happen during auto paths to execute commands
     new EventTrigger("Go to L4").onTrue(new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotL4()));
-    new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(new WaitCommand(1), coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
+    new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(new WaitCommand(2), coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
     new EventTrigger("Home Elevator and Coral").onTrue(gotoIntake);
     new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.intakeCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
   
     SmartDashboard.putData("Homing", new ParallelCommandGroup(elevator.homeElevatorDown(), coralManipulator.pivotDown()));
-    SmartDashboard.putData("togglePoseEst", new SequentialCommandGroup(swerveDriveTrain.togglePoseEst(), vision.togglePoseEst()));
+    SmartDashboard.putData("togglePoseEst", new SequentialCommandGroup(vision.togglePoseEst()));
   }
 
   public void togglePoseEst() {
-    swerveDriveTrain.togglePoseEst();
+    //swerveDriveTrain.togglePoseEst();
     vision.togglePoseEst();
   }
 

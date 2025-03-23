@@ -62,7 +62,7 @@ import frc.util.lib.SwerveUtil;
  */
 public class SwerveDriveTrain extends SubsystemBase {
 
-   private boolean fieldRelative = true;
+   private boolean fieldRelative = false;
 
    // Create Navx
    private AHRS navx = new AHRS(NavXComType.kMXP_SPI);
@@ -110,10 +110,10 @@ public class SwerveDriveTrain extends SubsystemBase {
     * 
     * @author Aric Volman
     */
-   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BR, SwerveModuleIOSparkMax BL,
+   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BL, SwerveModuleIOSparkMax BR,
                            Vision vision, DoubleSupplier leftTriggerVal) {
       // Assign modules to their object
-      this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BR, BL };
+      this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BL, BR};
 
       // Iterate through module positions and assign initial values
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
@@ -229,6 +229,10 @@ public class SwerveDriveTrain extends SubsystemBase {
       SmartDashboard.putNumber("Robot Rotation", getPoseFromEstimator().getRotation().getDegrees());
       SmartDashboard.putNumber("Angle", getHeading());
 
+      SmartDashboard.putNumber("offsetNavx", offsetNavx.getDegrees());
+      //SmartDashboard.putNumber("pose.getRotation()", pose.getRotation().getDegrees());
+      SmartDashboard.putNumber("navx.getRotation2d", navx.getRotation2d().getDegrees());
+
       targetStatePublisher.set(getSetpointStates());
       statePublisher.set(getActualStates());
       absStatePublisher.set(getCanCoderStates());
@@ -263,7 +267,7 @@ public class SwerveDriveTrain extends SubsystemBase {
        *           moduleIO[2].getActualModuleState().speedMetersPerSecond, null);
        * 
        *           builder.addDoubleProperty("Robot Angle", () ->
-       *           getRotation().getRadians(), null);
+       *           getRotation().getRadFfiians(), null);
        *           }
        *           });
        */

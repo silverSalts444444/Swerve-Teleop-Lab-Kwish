@@ -7,19 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Testing PArt1"
+            "pathName": "S2_H1_C2"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Testing Part 2"
+            "waitTime": 10.0
           }
         }
       ]
