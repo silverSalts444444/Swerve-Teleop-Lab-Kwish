@@ -159,7 +159,7 @@ public class RobotContainer {
 
     //These are for auto. Triggers that happen during auto paths to execute commands
     new EventTrigger("Go to L4").onTrue(new ParallelCommandGroup(elevator.setHeightL4(), coralManipulator.pivotL4()));
-    new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(new WaitCommand(1), coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
+    new EventTrigger("Score Coral").onTrue(new SequentialCommandGroup(new WaitCommand(2), coralManipulator.releaseCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
     new EventTrigger("Home Elevator and Coral").onTrue(gotoIntake);
     new EventTrigger("Get Coral").onTrue(new SequentialCommandGroup(coralManipulator.intakeCoral(), new WaitCommand(1), coralManipulator.stopCoral()));
   
