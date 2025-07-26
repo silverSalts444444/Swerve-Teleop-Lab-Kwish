@@ -1,15 +1,3 @@
-# 2025-ReefScape
+## Swerve Teleop Lab
 
-## Vendor Libs required
-- Studica
-- RevLib
-- Phoenix5
-- Phoenix6
-
-
-## Current Code Status
-- Swerve (TeleOp): Working and tested
-- Auto/Vision: Not included
-- Elevator: Working and tested
-- Deep Hang: Working and tested
-- Coral Manipulator: Old/Not Tested
+this is the repository you will be cloning and completing for the lab
