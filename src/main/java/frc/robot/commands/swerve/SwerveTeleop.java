@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.swerve;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -11,7 +11,7 @@ import frc.util.lib.ArcadeJoystickUtil;
 
 public class SwerveTeleop extends Command {
     
-    double robotSpeed = 2.0;
+    double robotSpeed = 1.2;
 
     SwerveDriveTrain swerve;
 
@@ -41,9 +41,9 @@ public class SwerveTeleop extends Command {
         /**the robot's x-axis is the vertical axis and the y-axis is the horizontal axis because of how
          * the axes are defined in robotics
          **/
-        xVal = -cont.getRawAxis(XboxController.Axis.kLeftY.value);
-        yVal = -cont.getRawAxis(XboxController.Axis.kLeftX.value);
-        rotationVal = -cont.getRawAxis(XboxController.Axis.kRightX.value);
+        xVal = cont.getRawAxis(XboxController.Axis.kLeftY.value);
+        yVal = cont.getRawAxis(XboxController.Axis.kLeftX.value);
+        rotationVal = cont.getRawAxis(XboxController.Axis.kRightX.value);
 
         xVal = MathUtil.applyDeadband(xVal, Constants.SwerveConstants.deadBand);
         yVal = MathUtil.applyDeadband(yVal, Constants.SwerveConstants.deadBand);

@@ -43,14 +43,14 @@ public final class Constants {
     // MODIFY THIS WHEN SWITCHING BETWEEN CHASSIS
     // THIS IS THE FIRST THING YOU SHOULD THINK ABOUT/SEE!!!
 
-    private static final RobotType ROBOT_TYPE = RobotType.ROBOT_2025_COMPETITION;
+    private static final RobotType ROBOT_TYPE = RobotType.ROBOT_2023_IAP_SLOTH;
 
     public static final class SwerveModuleIOConfig{
         // Drive can ids start at front left from 1 and are odd
         // Turn can ids start at front left from 2 and are even
         // CANCoder ids start at front left from 10 and are sequential
         static SwerveModuleIOSparkMax moduleFL = new SwerveModuleIOSparkMax(//front left
-                0, 1,2,9,ROBOT_TYPE.moduleAngleOffsets[0],false);
+                0, 1,2,9,ROBOT_TYPE.moduleAngleOffsets[0],true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax moduleFR = new SwerveModuleIOSparkMax(//front right
                 1, 3,4,10,ROBOT_TYPE.moduleAngleOffsets[1],false);
@@ -59,7 +59,7 @@ public final class Constants {
                 2, 7,8,12,ROBOT_TYPE.moduleAngleOffsets[2],true);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
         static SwerveModuleIOSparkMax moduleBR = new SwerveModuleIOSparkMax(//back right
-                3, 5,6,11,ROBOT_TYPE.moduleAngleOffsets[3],true);
+                3, 5,6,11,ROBOT_TYPE.moduleAngleOffsets[3],false);
                 //num // driveID // turnID // turnCANCoderID // turnEncoderOffset // invert
     }
 

@@ -44,7 +44,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.subsystems.targeting.Vision;
 import frc.util.lib.SwerveUtil;
 
 /**
@@ -62,7 +61,7 @@ import frc.util.lib.SwerveUtil;
  */
 public class SwerveDriveTrain extends SubsystemBase {
 
-   private boolean fieldRelative = false;
+   private boolean fieldRelative = true;
 
    // Create Navx
    private AHRS navx = new AHRS(NavXComType.kMXP_SPI);
@@ -95,7 +94,6 @@ public class SwerveDriveTrain extends SubsystemBase {
    private final StructArrayPublisher<SwerveModuleState> absStatePublisher;
    private final StructPublisher<ChassisSpeeds> chassisSpeedsPublisher;
    private final StructPublisher<Pose2d> poseEstimatorPublisher;
-   private Vision vision;
 
    private SwerveDriveSimulation mapleSimDrive;
 
@@ -103,15 +101,13 @@ public class SwerveDriveTrain extends SubsystemBase {
    private boolean enablePoseEst = true;
 
    private SendableChooser<Command> autoChooser = new SendableChooser<>();
-   private DoubleSupplier leftTriggerVal;
    /**
     * Creates a new SwerveDrive object. Intended to work both with real modules and
     * simulation.
     * 
     * @author Aric Volman
     */
-   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BL, SwerveModuleIOSparkMax BR,
-                           Vision vision, DoubleSupplier leftTriggerVal) {
+   public SwerveDriveTrain(Pose2d startingPose, SwerveModuleIOSparkMax FL, SwerveModuleIOSparkMax FR, SwerveModuleIOSparkMax BL, SwerveModuleIOSparkMax BR) {
       // Assign modules to their object
       this.moduleIO = new SwerveModuleIOSparkMax[] { FL, FR, BL, BR};
 
@@ -126,9 +122,6 @@ public class SwerveDriveTrain extends SubsystemBase {
       this.poseEstimator = new SwerveDrivePoseEstimator(this.kinematics, Rotation2d.fromDegrees(getGyroYaw()),
             this.modulePositions, startingPose);
       this.field = new Field2d();
-
-      this.vision = vision;
-      this.leftTriggerVal = leftTriggerVal;
 
       createAuto();
       
@@ -191,25 +184,7 @@ public class SwerveDriveTrain extends SubsystemBase {
       modulePositions = SwerveUtil.setModulePositions(moduleIO);
 
       // Correct pose estimate with vision measurements
-      if (enableVision && enablePoseEst) {
-         var bottomVisionEst = vision.getBottomCameraEstimatedGlobalPose();
-         bottomVisionEst.ifPresent( est -> {
-            // Change our trust in the measurement based on the tags we can see
-            var estStdDevs = vision.getBottomEstimationStdDevs();
-            if (estStdDevs != null) {
-               poseEstimator.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-            }
-         });
-
-         var topVisionEst = vision.getTopCameraEstimatedGlobalPose();
-         topVisionEst.ifPresent( est -> {
-            // Change our trust in the measurement based on the tags we can see
-            var estStdDevs = vision.getTopEstimationStdDevs();
-            if (estStdDevs != null) {
-               poseEstimator.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-            }
-         });
-      } 
+     
       
       //Update pose using gyro and encoders.
       this.poseEstimator.update(this.getRotation(), this.modulePositions);
@@ -320,11 +295,6 @@ public class SwerveDriveTrain extends SubsystemBase {
       }
    }
 
-   public Command driveForward() {
-      return this.run(() ->{
-      driveRelative(new ChassisSpeeds(2*this.leftTriggerVal.getAsDouble(), 0, 0));
-   });
-   }
 
    /**
     * Drive the robot for PathPlannerLib

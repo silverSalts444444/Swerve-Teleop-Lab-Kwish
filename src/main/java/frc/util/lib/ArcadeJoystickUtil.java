@@ -30,8 +30,6 @@ public class ArcadeJoystickUtil {
      * The empty default constructor of this utility class.
      */
     public ArcadeJoystickUtil() {}
-    
-    double[] output = new double[2];
 
     // Regular signed angle
     double controlsAngle = 0.0;

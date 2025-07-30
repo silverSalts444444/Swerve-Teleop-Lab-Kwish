@@ -95,7 +95,6 @@ public class Robot extends TimedRobot {
     
     alliance = DriverStation.getAlliance();
     
-    m_robotContainer.initCommandInTeleop();
   }
 
   @Override
