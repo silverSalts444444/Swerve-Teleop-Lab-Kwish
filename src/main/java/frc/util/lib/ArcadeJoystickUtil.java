@@ -36,5 +36,12 @@ public class ArcadeJoystickUtil {
 
     // Hypotenuse from controls
     double controlsHypot = 0.0;
+
+    public double[] regularGamePadControls(double x, double y, double maxmag){
+        controlsHypot = Math.hypot(x,y);
+        controlsAngle = Math.atan(y/x);
+        double[] polarvector = {controlsHypot*maxmag, controlsAngle};
+        return polarvector;
     }
-}
+    }
+
