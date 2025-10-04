@@ -36,19 +36,5 @@ public class ArcadeJoystickUtil {
 
     // Hypotenuse from controls
     double controlsHypot = 0.0;
-
-    public double[] regularGamePadControls(double xVal, double yVal, double maxMagnitude) {
-        controlsAngle = Math.atan2(yVal, xVal);
-        controlsHypot = Math.hypot(xVal, yVal);
-
-        SmartDashboard.putNumber("xVal", controlsAngle);
-        SmartDashboard.putNumber("yVal", controlsHypot);
-  
-  
-        double output[] = new double[2];
-
-        output[0] = Math.abs(maxMagnitude) * controlsHypot;
-        output[1] = controlsAngle;
-        return output;
     }
 }
